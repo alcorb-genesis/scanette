@@ -94,12 +94,21 @@
   .modal .closebar button{flex:1;padding:14px;font-size:15px;font-weight:700;
     border:none;border-radius:12px;background:var(--panel);color:var(--muted);
     border:1px solid var(--line);cursor:pointer;}
+  #ocrVideo{display:none;width:100%;max-height:38vh;object-fit:cover;
+    border-radius:12px;border:2px solid var(--accent2);margin-bottom:10px;background:#000;}
+  .capbtn{display:none;width:100%;padding:18px;font-size:20px;font-weight:800;
+    border:none;border-radius:14px;background:var(--accent);color:#fff;
+    box-shadow:0 5px 0 #c44a1d;cursor:pointer;margin-bottom:12px;letter-spacing:.5px;}
+  .capbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #c44a1d;}
+  .filterbar{margin:0 16px 10px;}
+  .filterbar input{width:100%;padding:13px;font-size:16px;border-radius:12px;
+    border:1px solid var(--line);background:var(--panel);color:var(--text);}
   #ocrCanvas{display:none;}
 
   @media print{
     body{background:#fff;color:#000;padding:0;}
     header,.scanbtn,.ocrbtn,#reader,.manual,.toolbar,.feedback,.footer-total,
-    .qbtn,.del,.renamebtn,.modal{display:none!important;}
+    .qbtn,.del,.renamebtn,.modal,.filterbar{display:none!important;}
     table{width:100%;margin:0;}
     th,td{border-bottom:1px solid #999;color:#000;}
     .ref-name{color:#000;font-size:15px;}
@@ -141,6 +150,10 @@
   <button class="danger" id="clearBtn">🗑 Vider</button>
 </div>
 
+<div class="filterbar">
+  <input type="text" id="filterBox" placeholder="🔎 Filtrer les références…">
+</div>
+
 <table>
   <thead>
     <tr><th style="width:48%">Référence</th>
@@ -170,6 +183,8 @@
   <h2 id="refModalTitle">Choisis la référence</h2>
   <div class="sub">Touche la bonne référence parmi celles détectées, ou tape-la.</div>
   <div class="target" id="refTarget"></div>
+  <video id="ocrVideo" autoplay playsinline muted></video>
+  <button id="liveCaptureBtn" class="capbtn">📸 CAPTURER</button>
   <div class="manual-ref">
     <input type="text" id="refManualInput" placeholder="…ou tape la référence ici">
     <button id="refManualOk">OK</button>
@@ -245,7 +260,15 @@ function assignRef(ref){
     pendingEan = null;
   }
   bumpRef(ref);
-  closeRefModal();
+  if(liveMode){
+    // mode rafale : on reste ouvert, caméra prête pour la suivante
+    document.getElementById('refCandidates').innerHTML='';
+    document.getElementById('refManualInput').value='';
+    document.getElementById('refStatus').textContent =
+      '✓ '+ref+' ×'+(lines[ref]?lines[ref].qty:1)+' — vise la suivante et CAPTURE.';
+  } else {
+    closeRefModal();
+  }
 }
 
 /* ---------- Quantités / lignes ---------- */
@@ -275,10 +298,14 @@ function renameRef(oldRef){
 /* ---------- Rendu ---------- */
 function render(){
   const tbody=document.getElementById('tbody');
-  const refs=Object.keys(lines).sort();
+  const filter=normRef(document.getElementById('filterBox').value);
+  let refs=Object.keys(lines).sort();
+  if(filter) refs=refs.filter(r=>r.includes(filter));
   tbody.innerHTML=''; let total=0;
+  // le total affiché reste le total GLOBAL, pas le total filtré
+  Object.values(lines).forEach(it=>total+=it.qty);
   refs.forEach(ref=>{
-    const it=lines[ref]; total+=it.qty;
+    const it=lines[ref];
     const eans = Object.keys(aliases).filter(e=>aliases[e]===ref);
     const tr=document.createElement('tr');
     tr.innerHTML=`
@@ -297,7 +324,8 @@ function render(){
       </td>`;
     tbody.appendChild(tr);
   });
-  document.getElementById('emptyMsg').style.display=refs.length?'none':'block';
+  document.getElementById('emptyMsg').style.display=
+    (Object.keys(lines).length===0)?'block':'none';
   document.getElementById('grandTotal').textContent=total;
   document.getElementById('lineCount').textContent=
     refs.length+(refs.length>1?' références':' référence');
@@ -426,6 +454,7 @@ function openRefModal(title, target){
   refModal.classList.add('open');
 }
 function closeRefModal(){
+  stopLiveStream();
   refModal.classList.remove('open');
   resumeScanAfterModal();
 }
@@ -446,13 +475,55 @@ document.getElementById('refManualInput').addEventListener('keypress',e=>{
   if(e.key==='Enter'){ const v=e.target.value; if(normRef(v)) assignRef(v); }
 });
 
-/* bouton photo indépendant (réf isolée sans code-barres) */
-document.getElementById('ocrBtn').addEventListener('click',()=>{
+/* ---------- Mode rafale : caméra intégrée, capture en série ---------- */
+let liveMode=false, liveStream=null;
+const ocrVideo=document.getElementById('ocrVideo');
+const liveCaptureBtn=document.getElementById('liveCaptureBtn');
+
+document.getElementById('ocrBtn').addEventListener('click', startLiveMode);
+
+async function startLiveMode(){
   pauseScanForModal();
-  pendingEan = null; // pas d'EAN : la réf choisie cumulera directement
-  openRefModal('Lire une référence','La référence choisie fera +1 sur sa ligne.');
-  ocrFile.value=''; ocrFile.click();
+  pendingEan = null;
+  liveMode = true;
+  openRefModal('Lecture de références en série',
+    'Vise la référence → 📸 CAPTURER → touche la bonne. La caméra reste prête pour la suivante.');
+  ocrVideo.style.display='block';
+  liveCaptureBtn.style.display='block';
+  try{
+    liveStream = await navigator.mediaDevices.getUserMedia(
+      {video:{facingMode:'environment', width:{ideal:1280}}});
+    ocrVideo.srcObject = liveStream;
+  }catch(e){
+    // caméra refusée : on retombe sur l'appareil photo natif
+    stopLiveStream();
+    document.getElementById('refStatus').textContent =
+      '⚠ Caméra non disponible — utilise « Photo de l\'étiquette ».';
+  }
+}
+
+liveCaptureBtn.addEventListener('click', ()=>{
+  if(!liveStream || !ocrVideo.videoWidth) return;
+  const vw=ocrVideo.videoWidth, vh=ocrVideo.videoHeight;
+  // zone centrale 85% x 70%
+  const cw=Math.round(vw*0.85), ch=Math.round(vh*0.7);
+  const cx=Math.round((vw-cw)/2), cy=Math.round((vh-ch)/2);
+  const scale=Math.min(2, MAX_OCR_W/cw);
+  ocrCanvas.width=Math.round(cw*scale); ocrCanvas.height=Math.round(ch*scale);
+  const ctx=ocrCanvas.getContext('2d');
+  ctx.imageSmoothingEnabled=true;
+  ctx.drawImage(ocrVideo, cx,cy,cw,ch, 0,0,ocrCanvas.width,ocrCanvas.height);
+  document.getElementById('refCandidates').innerHTML='';
+  runOcrOnCanvas();
 });
+
+function stopLiveStream(){
+  if(liveStream){ liveStream.getTracks().forEach(t=>t.stop()); liveStream=null; }
+  ocrVideo.srcObject=null;
+  ocrVideo.style.display='none';
+  liveCaptureBtn.style.display='none';
+  liveMode=false;
+}
 
 ocrFile.addEventListener('change',async e=>{
   const file=e.target.files[0]; if(!file)return;
@@ -625,6 +696,9 @@ document.getElementById('clearBtn').addEventListener('click',()=>{
   if(confirm('Vider toute la liste des quantités ?\n(Les associations code-barres → référence restent mémorisées.)')){
     lines={};save();render();}
 });
+
+/* ---------- Filtre de recherche ---------- */
+document.getElementById('filterBox').addEventListener('input', render);
 
 render();
 </script>
