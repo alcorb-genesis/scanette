@@ -126,7 +126,7 @@
 
 <div id="reader"></div>
 
-<button class="ocrbtn" id="ocrBtn">📷 Lire une référence (photo)</button>
+<button class="ocrbtn" id="ocrBtn">📷 Référence texte seule (sans code-barres)</button>
 
 <div class="manual">
   <input type="text" id="manualRef" placeholder="Saisir une référence à la main…">
@@ -152,11 +152,12 @@
 
 <div id="emptyMsg" class="empty">
   Aucun produit pour l'instant.<br><br>
-  <b>Scanne un code-barres</b> : quantité +1, et l'app te propose
-  aussitôt les références lues sur l'image — tape la bonne.<br><br>
-  Une fois la réf associée, chaque nouveau scan du même code-barres
-  cumule automatiquement sur la bonne référence.<br><br>
-  Tu peux aussi photographier une référence isolée (📷) ou la taper à la main.
+  <b>▶ Scan</b> : lit les <b>codes-barres et QR</b> uniquement.<br>
+  Nouveau produit → l'app capture l'image et propose les références lues.<br>
+  Produit connu → +1 automatique.<br><br>
+  <b>📷 Référence texte seule</b> : pour une réf écrite <b>sans</b> code-barres
+  (photo + lecture du texte). Elle cumule sur la même ligne.<br><br>
+  Tu peux aussi taper une référence à la main.
 </div>
 
 <div class="footer-total">
@@ -381,14 +382,21 @@ function resumeScanAfterModal(){
 
 /* ---------- Capture auto de l'image au moment du scan ---------- */
 function captureFrameAndAsk(ean){
-  // capture l'image du flux vidéo AVANT de couper la caméra
+  // capture l'image du flux vidéo AVANT de couper la caméra,
+  // recadrée sur la zone centrale visée (meilleure lecture des petits chiffres)
   let captured = null;
   try{
     const video = readerDiv.querySelector('video');
     if(video && video.videoWidth){
-      ocrCanvas.width = video.videoWidth;
-      ocrCanvas.height= video.videoHeight;
-      ocrCanvas.getContext('2d').drawImage(video,0,0);
+      const vw=video.videoWidth, vh=video.videoHeight;
+      // zone centrale : 80% de largeur, 60% de hauteur
+      const cw=Math.round(vw*0.8), ch=Math.round(vh*0.6);
+      const cx=Math.round((vw-cw)/2), cy=Math.round((vh-ch)/2);
+      // upscale ×2 pour grossir les petits caractères
+      ocrCanvas.width = cw*2; ocrCanvas.height = ch*2;
+      const ctx=ocrCanvas.getContext('2d');
+      ctx.imageSmoothingEnabled=true;
+      ctx.drawImage(video, cx,cy,cw,ch, 0,0,cw*2,ch*2);
       captured = true;
     }
   }catch(e){}
@@ -459,11 +467,23 @@ ocrFile.addEventListener('change',async e=>{
   }
 });
 
+let ocrWorker=null;
+async function getOcrWorker(){
+  if(ocrWorker) return ocrWorker;
+  ocrWorker = await Tesseract.createWorker('eng');
+  // on restreint aux caractères de référence : l'OCR arrête de chercher des mots
+  await ocrWorker.setParameters({
+    tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./- '
+  });
+  return ocrWorker;
+}
+
 async function runOcrOnCanvas(){
   document.getElementById('refStatus').textContent='⏳ Lecture du texte…';
   try{
     preprocessCanvas(ocrCanvas);
-    const {data}=await Tesseract.recognize(ocrCanvas,'eng',{});
+    const worker = await getOcrWorker();
+    const {data} = await worker.recognize(ocrCanvas);
     showCandidates(data);
   }catch(e){
     document.getElementById('refStatus').textContent='⚠ Lecture impossible.';
@@ -473,11 +493,17 @@ async function runOcrOnCanvas(){
 /* ---------- Candidats : large, mais sans le bruit évident ---------- */
 function showCandidates(data){
   document.getElementById('refStatus').textContent='';
-  // on travaille par MOTS reconnus avec leur confiance quand dispo
   let words = [];
   if(data && data.words && data.words.length){
     words = data.words
-      .filter(w=> (w.confidence||0) >= 55)   // élimine le bruit type QR déchiffré
+      .filter(w=>{
+        const txt=String(w.text||'');
+        // les jetons contenant des CHIFFRES passent toujours
+        // (le filtre de confiance ne s'applique qu'aux mots en lettres,
+        //  pour écarter le bruit type QR déchiffré)
+        if(/[0-9]/.test(txt)) return true;
+        return (w.confidence||0) >= 55;
+      })
       .map(w=> w.text);
   } else {
     words = String((data&&data.text)||'').split(/[\s\n\r]+/);
@@ -540,12 +566,20 @@ function drawScaled(img,canvas,maxW){
   canvas.getContext('2d').drawImage(img,0,0,w,h);
 }
 function preprocessCanvas(canvas){
+  // niveaux de gris + étirement de contraste DOUX
+  // (le seuillage dur détruisait les petits chiffres)
   const ctx=canvas.getContext('2d');
   const d=ctx.getImageData(0,0,canvas.width,canvas.height),p=d.data;
+  let min=255,max=0;
   for(let i=0;i<p.length;i+=4){
-    let g=0.3*p[i]+0.59*p[i+1]+0.11*p[i+2];
-    g=g>140?255:(g<90?0:g);
+    const g=0.3*p[i]+0.59*p[i+1]+0.11*p[i+2];
+    if(g<min)min=g; if(g>max)max=g;
     p[i]=p[i+1]=p[i+2]=g;
+  }
+  const range=Math.max(1,max-min);
+  for(let i=0;i<p.length;i+=4){
+    const v=Math.round((p[i]-min)*255/range);
+    p[i]=p[i+1]=p[i+2]=v;
   }
   ctx.putImageData(d,0,0);
 }
