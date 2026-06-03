@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Scanette Inventaire</title>
+<style>
+  :root{
+    --bg:#0f1419;--panel:#1a2230;--panel2:#222d40;
+    --accent:#ff6b35;--accent2:#2ec4b6;--text:#e8edf2;
+    --muted:#8b98a8;--ok:#3ddc84;--line:#2a3548;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;}
+  body{padding-bottom:90px;}
+  header{background:linear-gradient(135deg,#1a2230,#222d40);padding:14px 16px;
+    position:sticky;top:0;z-index:30;border-bottom:2px solid var(--accent);
+    display:flex;align-items:center;justify-content:space-between;}
+  header h1{font-size:18px;margin:0;letter-spacing:.5px;}
+  header .count{font-size:13px;color:var(--accent2);font-weight:700;}
+
+  .scanbtn{display:block;width:calc(100% - 32px);margin:16px;padding:22px;
+    font-size:21px;font-weight:800;border:none;border-radius:16px;
+    background:var(--accent);color:#fff;letter-spacing:.5px;
+    box-shadow:0 6px 0 #c44a1d;cursor:pointer;}
+  .scanbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #c44a1d;}
+  .scanbtn.stop{background:#c0392b;box-shadow:0 6px 0 #7d251a;}
+
+  #reader{display:none;margin:0 16px 12px;border-radius:14px;overflow:hidden;
+    border:2px solid var(--accent2);background:#000;}
+  #reader video{width:100%!important;display:block;}
+
+  .ocrbtn{display:block;width:calc(100% - 32px);margin:0 16px 12px;padding:15px;
+    font-size:16px;font-weight:700;border:none;border-radius:14px;
+    background:var(--panel2);color:var(--accent2);border:1px solid var(--accent2);cursor:pointer;}
+  .ocrbtn:disabled{opacity:.4;}
+
+  .manual{display:flex;gap:8px;margin:0 16px 12px;}
+  .manual input{flex:1;padding:14px;font-size:16px;border-radius:12px;
+    border:1px solid var(--line);background:var(--panel);color:var(--text);}
+  .manual button{padding:0 18px;font-size:22px;font-weight:800;border:none;
+    border-radius:12px;background:var(--accent2);color:#06231f;cursor:pointer;}
+
+  .toolbar{display:flex;gap:8px;margin:0 16px 12px;}
+  .toolbar button{flex:1;padding:13px 6px;font-size:13px;font-weight:700;border:none;
+    border-radius:12px;background:var(--panel2);color:var(--text);
+    cursor:pointer;border:1px solid var(--line);}
+  .toolbar button.pdf{background:var(--accent);color:#fff;border:none;}
+  .toolbar button.danger{color:#ff8a7a;}
+
+  .feedback{text-align:center;font-size:15px;font-weight:700;height:22px;
+    margin:0 0 8px;color:var(--ok);}
+
+  table{width:calc(100% - 32px);margin:0 16px;border-collapse:collapse;}
+  th{font-size:11px;text-transform:uppercase;color:var(--muted);text-align:left;
+    padding:8px 6px;border-bottom:1px solid var(--line);letter-spacing:.5px;}
+  td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:14px;}
+  .ref-input{width:100%;padding:8px;font-size:15px;font-weight:700;border-radius:8px;
+    border:1px solid var(--line);background:var(--panel);color:var(--text);}
+  .ean{font-size:11px;color:var(--muted);margin-top:3px;font-family:monospace;}
+  .qtycell{white-space:nowrap;text-align:center;}
+  .qbtn{width:38px;height:38px;font-size:22px;font-weight:800;border:none;border-radius:9px;
+    background:var(--panel2);color:var(--text);cursor:pointer;border:1px solid var(--line);}
+  .qbtn.plus{background:var(--accent2);color:#06231f;border:none;}
+  .qbtn.minus{background:#3a2630;color:#ff8a7a;}
+  .qty{display:inline-block;min-width:42px;text-align:center;font-size:20px;font-weight:800;}
+  .del{background:none;border:none;color:#5a6678;font-size:18px;cursor:pointer;padding:4px;}
+  .empty{text-align:center;color:var(--muted);padding:50px 20px;font-size:15px;line-height:1.6;}
+
+  .footer-total{position:fixed;bottom:0;left:0;right:0;background:var(--panel);
+    border-top:2px solid var(--accent);padding:16px;display:flex;
+    justify-content:space-between;align-items:center;z-index:30;}
+  .footer-total .lbl{font-size:13px;color:var(--muted);}
+  .footer-total .num{font-size:28px;font-weight:800;color:var(--accent2);}
+
+  /* ---- OCR modal ---- */
+  .modal{display:none;position:fixed;inset:0;background:rgba(8,12,18,.94);
+    z-index:50;flex-direction:column;padding:18px;overflow:auto;}
+  .modal.open{display:flex;}
+  .modal h2{font-size:18px;margin:6px 0 4px;}
+  .modal .sub{color:var(--muted);font-size:13px;margin-bottom:14px;}
+  .modal .target{font-family:monospace;color:var(--accent2);font-size:13px;margin-bottom:14px;}
+  .cand{display:block;width:100%;text-align:left;padding:16px;margin-bottom:10px;
+    font-size:19px;font-weight:700;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--text);cursor:pointer;font-family:monospace;}
+  .cand:active{background:var(--accent2);color:#06231f;}
+  .modal .ocr-status{text-align:center;color:var(--accent2);font-size:15px;padding:20px;}
+  .modal .closebar{display:flex;gap:8px;margin-top:8px;}
+  .modal .closebar button{flex:1;padding:14px;font-size:15px;font-weight:700;
+    border:none;border-radius:12px;background:var(--panel);color:var(--muted);
+    border:1px solid var(--line);cursor:pointer;}
+  #ocrCanvas{display:none;}
+
+  @media print{
+    body{background:#fff;color:#000;padding:0;}
+    header,.scanbtn,.ocrbtn,#reader,.manual,.toolbar,.feedback,.footer-total,
+    .qbtn,.del,.modal{display:none!important;}
+    table{width:100%;margin:0;}
+    th,td{border-bottom:1px solid #999;color:#000;}
+    .ref-input{border:none;background:none;color:#000;font-size:15px;padding:0;}
+    .qty{font-size:16px;}
+    .print-head{display:block!important;}
+  }
+  .print-head{display:none;padding:16px;text-align:center;}
+  .print-head h2{margin:0 0 4px;}
+</style>
+</head>
+<body>
+
+<div class="print-head">
+  <h2>Feuille d'inventaire</h2>
+  <div id="printDate"></div>
+</div>
+
+<header>
+  <h1>📦 Scanette</h1>
+  <span class="count" id="lineCount">0 référence</span>
+</header>
+
+<button class="scanbtn" id="scanBtn">▶ DÉMARRER LE SCAN</button>
+
+<div id="reader"></div>
+
+<button class="ocrbtn" id="ocrBtn">📷 Lire la référence (photo étiquette)</button>
+
+<div class="manual">
+  <input type="text" id="manualEan" placeholder="Saisir un code à la main…">
+  <button id="manualAdd">+</button>
+</div>
+
+<div class="feedback" id="feedback"></div>
+
+<div class="toolbar">
+  <button class="pdf" id="pdfBtn">🖨 PDF / Imprimer</button>
+  <button id="csvBtn">📄 CSV</button>
+  <button class="danger" id="clearBtn">🗑 Vider</button>
+</div>
+
+<table>
+  <thead>
+    <tr><th style="width:48%">Référence</th>
+        <th style="width:30%;text-align:center">Quantité</th>
+        <th style="width:22%"></th></tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<div id="emptyMsg" class="empty">
+  Aucun produit pour l'instant.<br>
+  <b>1.</b> Démarre le scan, vise le code-barres → +1 auto.<br>
+  <b>2.</b> Pour la référence : touche <b>« Lire la référence »</b>,
+  photographie l'étiquette, et <b>tape la bonne réf</b> parmi celles détectées.<br>
+  Elle sera mémorisée pour les prochains scans du même produit.
+</div>
+
+<div class="footer-total">
+  <span class="lbl">TOTAL PIÈCES SCANNÉES</span>
+  <span class="num" id="grandTotal">0</span>
+</div>
+
+<!-- OCR modal -->
+<div class="modal" id="ocrModal">
+  <h2>Choisis la référence</h2>
+  <div class="sub" id="ocrSub">Touche le texte qui correspond à la bonne référence.</div>
+  <div class="target" id="ocrTarget"></div>
+  <div id="ocrCandidates"></div>
+  <div class="ocr-status" id="ocrStatus"></div>
+  <div class="closebar">
+    <button id="ocrRetake">🔄 Reprendre la photo</button>
+    <button id="ocrClose">Fermer</button>
+  </div>
+</div>
+<canvas id="ocrCanvas"></canvas>
+<input type="file" id="ocrFile" accept="image/*" capture="environment" style="display:none">
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+/* ---------- Stockage ---------- */
+const STORE_KEY='scanette_data_v2', CAT_KEY='scanette_catalogue_v2';
+let items = load(STORE_KEY) || {};
+let catalogue = load(CAT_KEY) || {};
+let pendingEan = null; // ean en attente d'une réf via OCR
+
+function load(k){ try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;} }
+function save(){ try{
+  localStorage.setItem(STORE_KEY,JSON.stringify(items));
+  localStorage.setItem(CAT_KEY,JSON.stringify(catalogue));
+}catch(e){} }
+
+/* ---------- Cumul ---------- */
+function addScan(code){
+  code=(code||'').trim(); if(!code) return;
+  if(items[code]){ items[code].qty+=1; }
+  else { items[code]={ean:code,ref:catalogue[code]||'',qty:1}; }
+  save(); render(); flash('✓ '+code+'  ×'+items[code].qty); beep();
+}
+function setRef(code,ref){
+  if(items[code]){ items[code].ref=ref;
+    if(ref.trim()) catalogue[code]=ref.trim(); save(); }
+}
+function changeQty(code,d){
+  if(!items[code])return; items[code].qty+=d;
+  if(items[code].qty<=0) delete items[code]; save(); render();
+}
+function delItem(code){ delete items[code]; save(); render(); }
+
+/* ---------- Rendu ---------- */
+function render(){
+  const tbody=document.getElementById('tbody');
+  const keys=Object.keys(items); tbody.innerHTML=''; let total=0;
+  keys.forEach(code=>{
+    const it=items[code]; total+=it.qty;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>
+        <input class="ref-input" value="${esc(it.ref)}" placeholder="Réf."
+               data-code="${esc(code)}">
+        <div class="ean">${esc(it.ean)}</div>
+      </td>
+      <td class="qtycell">
+        <button class="qbtn minus" data-minus="${esc(code)}">−</button>
+        <span class="qty">${it.qty}</span>
+        <button class="qbtn plus" data-plus="${esc(code)}">+</button>
+      </td>
+      <td style="text-align:right">
+        <button class="del" data-del="${esc(code)}">✕</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('emptyMsg').style.display=keys.length?'none':'block';
+  document.getElementById('grandTotal').textContent=total;
+  document.getElementById('lineCount').textContent=
+    keys.length+(keys.length>1?' références':' référence');
+  tbody.querySelectorAll('.ref-input').forEach(inp=>
+    inp.addEventListener('change',e=>setRef(e.target.dataset.code,e.target.value)));
+  tbody.querySelectorAll('[data-plus]').forEach(b=>
+    b.addEventListener('click',e=>changeQty(e.target.dataset.plus,1)));
+  tbody.querySelectorAll('[data-minus]').forEach(b=>
+    b.addEventListener('click',e=>changeQty(e.target.dataset.minus,-1)));
+  tbody.querySelectorAll('[data-del]').forEach(b=>
+    b.addEventListener('click',e=>delItem(e.target.dataset.del)));
+}
+function esc(s){return String(s).replace(/[&<>"']/g,
+  c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ---------- Feedback ---------- */
+let fbTimer;
+function flash(m){const f=document.getElementById('feedback');f.textContent=m;
+  clearTimeout(fbTimer);fbTimer=setTimeout(()=>f.textContent='',1600);}
+let actx;
+function beep(){try{
+  actx=actx||new(window.AudioContext||window.webkitAudioContext)();
+  const o=actx.createOscillator(),g=actx.createGain();
+  o.connect(g);g.connect(actx.destination);o.frequency.value=880;o.type='square';
+  g.gain.setValueAtTime(.15,actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.12);
+  o.start();o.stop(actx.currentTime+.12);
+  if(navigator.vibrate)navigator.vibrate(60);
+}catch(e){}}
+
+/* ---------- Scanner code-barres ---------- */
+let html5Qr=null,scanning=false,lastCode='',lastTime=0;
+const scanBtn=document.getElementById('scanBtn'),readerDiv=document.getElementById('reader');
+scanBtn.addEventListener('click',()=>scanning?stopScan():startScan());
+function startScan(){
+  readerDiv.style.display='block';
+  scanBtn.textContent='⏹ ARRÊTER LE SCAN';scanBtn.classList.add('stop');scanning=true;
+  html5Qr=new Html5Qrcode("reader");
+  html5Qr.start({facingMode:"environment"},
+    {fps:10,qrbox:{width:260,height:140}},onScan,()=>{})
+   .catch(()=>{flash('⚠ Caméra refusée');
+     scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
+     scanning=false;readerDiv.style.display='none';});
+}
+function onScan(decoded){
+  const now=Date.now();
+  if(decoded===lastCode&&now-lastTime<1500)return;
+  lastCode=decoded;lastTime=now;addScan(decoded);
+}
+function stopScan(){
+  if(html5Qr){html5Qr.stop().then(()=>html5Qr.clear()).catch(()=>{});}
+  scanning=false;readerDiv.style.display='none';
+  scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
+}
+
+/* ---------- Saisie manuelle ---------- */
+document.getElementById('manualAdd').addEventListener('click',manualAdd);
+document.getElementById('manualEan').addEventListener('keypress',e=>{
+  if(e.key==='Enter')manualAdd();});
+function manualAdd(){const inp=document.getElementById('manualEan');
+  if(inp.value.trim()){addScan(inp.value);inp.value='';}}
+
+/* ---------- OCR : tap pour choisir ---------- */
+const ocrModal=document.getElementById('ocrModal');
+const ocrFile=document.getElementById('ocrFile');
+const ocrCanvas=document.getElementById('ocrCanvas');
+
+document.getElementById('ocrBtn').addEventListener('click',()=>{
+  // cible : le dernier produit scanné sans réf, sinon le plus récent
+  pendingEan = pickPendingEan();
+  document.getElementById('ocrTarget').textContent =
+    pendingEan ? ('Produit visé : '+pendingEan+
+      (items[pendingEan].ref?(' (réf actuelle : '+items[pendingEan].ref+')'):' (sans réf)'))
+    : 'Aucun produit scanné — la réf sera ajoutée comme nouvelle ligne.';
+  ocrFile.value='';
+  ocrFile.click();
+});
+document.getElementById('ocrRetake').addEventListener('click',()=>{ocrFile.value='';ocrFile.click();});
+document.getElementById('ocrClose').addEventListener('click',()=>ocrModal.classList.remove('open'));
+
+function pickPendingEan(){
+  const keys=Object.keys(items);
+  // priorité au dernier scanné sans réf
+  for(let i=keys.length-1;i>=0;i--){ if(!items[keys[i]].ref) return keys[i]; }
+  return keys.length? keys[keys.length-1] : null;
+}
+
+ocrFile.addEventListener('change',async e=>{
+  const file=e.target.files[0]; if(!file)return;
+  ocrModal.classList.add('open');
+  document.getElementById('ocrCandidates').innerHTML='';
+  document.getElementById('ocrStatus').textContent='⏳ Lecture de l\'étiquette…';
+  try{
+    const img=await fileToImage(file);
+    drawScaled(img,ocrCanvas,1400);
+    const {data}=await Tesseract.recognize(ocrCanvas,'eng',{}); // 'eng' lit chiffres+lettres
+    showCandidates(data.text);
+  }catch(err){
+    document.getElementById('ocrStatus').textContent='⚠ Lecture impossible. Reprends la photo de plus près.';
+  }
+});
+
+function showCandidates(rawText){
+  document.getElementById('ocrStatus').textContent='';
+  // découpe en "tokens" exploitables
+  let tokens = (rawText||'')
+    .split(/[\s\n\r]+/)
+    .map(t=>t.replace(/[^A-Za-z0-9\.\/\-]/g,'').trim())
+    .filter(t=>t.length>=3 && t.length<=24)
+    .filter(t=>/[0-9]/.test(t)); // une réf contient quasi toujours un chiffre
+  // dédoublonne en gardant l'ordre
+  tokens=[...new Set(tokens)];
+  // score : on remonte ce qui ressemble à une réf (mix lettres+chiffres, pas trop long)
+  tokens.sort((a,b)=>refScore(b)-refScore(a));
+  tokens=tokens.slice(0,12);
+
+  const box=document.getElementById('ocrCandidates');
+  if(!tokens.length){
+    box.innerHTML='<div class="ocr-status">Aucun texte exploitable détecté. '+
+      'Reprends la photo bien cadrée et nette sur l\'étiquette.</div>';
+    return;
+  }
+  tokens.forEach(tok=>{
+    const b=document.createElement('button');
+    b.className='cand';b.textContent=tok;
+    b.addEventListener('click',()=>chooseRef(tok));
+    box.appendChild(b);
+  });
+}
+function refScore(t){
+  let s=0;
+  if(/[A-Za-z]/.test(t)&&/[0-9]/.test(t)) s+=3; // alphanumérique = typique
+  if(t.length>=4&&t.length<=10) s+=2;            // longueur de réf plausible
+  if(/\s/.test(t)) s-=2;
+  if(/^\d{12,13}$/.test(t)) s-=3;                // ressemble à un EAN -> pénalise
+  return s;
+}
+
+function chooseRef(ref){
+  if(pendingEan && items[pendingEan]){
+    setRef(pendingEan, ref);
+  } else {
+    // pas d'EAN : on crée une ligne basée sur la réf elle-même
+    if(!items[ref]) items[ref]={ean:ref,ref:ref,qty:1};
+    else items[ref].qty+=1;
+    save();
+  }
+  render(); flash('✓ Réf : '+ref); beep();
+  ocrModal.classList.remove('open');
+}
+
+/* ---------- Utils image ---------- */
+function fileToImage(file){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>res(img); img.onerror=rej;
+    img.src=URL.createObjectURL(file);
+  });
+}
+function drawScaled(img,canvas,maxW){
+  let w=img.width,h=img.height;
+  if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+  canvas.width=w;canvas.height=h;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(img,0,0,w,h);
+  // léger renforcement contraste niveaux de gris pour aider l'OCR
+  const d=ctx.getImageData(0,0,w,h),p=d.data;
+  for(let i=0;i<p.length;i+=4){
+    let g=0.3*p[i]+0.59*p[i+1]+0.11*p[i+2];
+    g=g>140?255:(g<90?0:g);
+    p[i]=p[i+1]=p[i+2]=g;
+  }
+  ctx.putImageData(d,0,0);
+}
+
+/* ---------- Export CSV ---------- */
+document.getElementById('csvBtn').addEventListener('click',()=>{
+  const rows=[['Reference','Code-barres','Quantite']];
+  Object.values(items).forEach(it=>rows.push([it.ref,it.ean,it.qty]));
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='inventaire_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+});
+
+/* ---------- PDF ---------- */
+document.getElementById('pdfBtn').addEventListener('click',()=>{
+  document.getElementById('printDate').textContent=new Date().toLocaleString('fr-FR');
+  if(scanning)stopScan();
+  setTimeout(()=>window.print(),200);
+});
+
+/* ---------- Vider ---------- */
+document.getElementById('clearBtn').addEventListener('click',()=>{
+  if(confirm('Vider toute la liste ? (les associations réf restent mémorisées)')){
+    items={};save();render();}
+});
+
+render();
+</script>
+</body>
+</html>
