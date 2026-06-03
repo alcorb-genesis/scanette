@@ -392,11 +392,12 @@ function captureFrameAndAsk(ean){
       // zone centrale : 80% de largeur, 60% de hauteur
       const cw=Math.round(vw*0.8), ch=Math.round(vh*0.6);
       const cx=Math.round((vw-cw)/2), cy=Math.round((vh-ch)/2);
-      // upscale ×2 pour grossir les petits caractères
-      ocrCanvas.width = cw*2; ocrCanvas.height = ch*2;
+      // agrandit pour les petits caractères, MAIS plafonné en mémoire
+      const scale=Math.min(2, MAX_OCR_W/cw);
+      ocrCanvas.width=Math.round(cw*scale); ocrCanvas.height=Math.round(ch*scale);
       const ctx=ocrCanvas.getContext('2d');
       ctx.imageSmoothingEnabled=true;
-      ctx.drawImage(video, cx,cy,cw,ch, 0,0,cw*2,ch*2);
+      ctx.drawImage(video, cx,cy,cw,ch, 0,0,ocrCanvas.width,ocrCanvas.height);
       captured = true;
     }
   }catch(e){}
@@ -460,7 +461,7 @@ ocrFile.addEventListener('change',async e=>{
   document.getElementById('refStatus').textContent='⏳ Lecture de l\'étiquette…';
   try{
     const img=await fileToImage(file);
-    drawScaled(img,ocrCanvas,1400);
+    drawScaled(img,ocrCanvas,MAX_OCR_W);
     await runOcrOnCanvas();
   }catch(err){
     document.getElementById('refStatus').textContent='⚠ Lecture impossible. Reprends la photo de plus près.';
@@ -484,8 +485,10 @@ async function runOcrOnCanvas(){
     preprocessCanvas(ocrCanvas);
     const worker = await getOcrWorker();
     const {data} = await worker.recognize(ocrCanvas);
+    freeCanvas(ocrCanvas); // libère la mémoire de l'image dès la lecture finie
     showCandidates(data);
   }catch(e){
+    freeCanvas(ocrCanvas);
     document.getElementById('refStatus').textContent='⚠ Lecture impossible.';
   }
 }
@@ -551,12 +554,23 @@ function manualAdd(){
   if(v){ pendingEan=null; bumpRef(v); inp.value=''; }
 }
 
-/* ---------- Utils image ---------- */
-function fileToImage(file){
+/* ---------- Utils image (économes en mémoire) ---------- */
+const MAX_OCR_W = 1500; // taille de travail maximale
+
+async function fileToImage(file){
+  // Décodage DIRECTEMENT en taille réduite quand possible :
+  // le téléphone ne charge jamais la photo pleine résolution en mémoire.
+  if(window.createImageBitmap){
+    try{
+      return await createImageBitmap(file,{resizeWidth:MAX_OCR_W,resizeQuality:'high'});
+    }catch(e){ /* fallback ci-dessous */ }
+  }
   return new Promise((res,rej)=>{
+    const url = URL.createObjectURL(file);
     const img=new Image();
-    img.onload=()=>res(img); img.onerror=rej;
-    img.src=URL.createObjectURL(file);
+    img.onload=()=>{ URL.revokeObjectURL(url); res(img); }; // libère la mémoire
+    img.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error('decode')); };
+    img.src=url;
   });
 }
 function drawScaled(img,canvas,maxW){
@@ -564,7 +578,9 @@ function drawScaled(img,canvas,maxW){
   if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
   canvas.width=w;canvas.height=h;
   canvas.getContext('2d').drawImage(img,0,0,w,h);
+  if(img.close) try{img.close();}catch(e){} // libère le bitmap
 }
+function freeCanvas(canvas){ canvas.width=1; canvas.height=1; }
 function preprocessCanvas(canvas){
   // niveaux de gris + étirement de contraste DOUX
   // (le seuillage dur détruisait les petits chiffres)
