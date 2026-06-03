@@ -100,6 +100,9 @@
     border:none;border-radius:14px;background:var(--accent);color:#fff;
     box-shadow:0 5px 0 #c44a1d;cursor:pointer;margin-bottom:12px;letter-spacing:.5px;}
   .capbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #c44a1d;}
+  .websearch{display:none;width:100%;padding:13px;font-size:15px;font-weight:700;
+    border:none;border-radius:12px;background:var(--panel2);color:var(--accent2);
+    border:1px solid var(--accent2);cursor:pointer;margin-bottom:10px;}
   .filterbar{margin:0 16px 10px;}
   .filterbar input{width:100%;padding:13px;font-size:16px;border-radius:12px;
     border:1px solid var(--line);background:var(--panel);color:var(--text);}
@@ -183,6 +186,7 @@
   <h2 id="refModalTitle">Choisis la référence</h2>
   <div class="sub">Touche la bonne référence parmi celles détectées, ou tape-la.</div>
   <div class="target" id="refTarget"></div>
+  <button id="webSearchBtn" class="websearch">🔍 Chercher ce code en ligne</button>
   <video id="ocrVideo" autoplay playsinline muted></video>
   <button id="liveCaptureBtn" class="capbtn">📸 CAPTURER</button>
   <div class="manual-ref">
@@ -451,8 +455,16 @@ function openRefModal(title, target){
   document.getElementById('refCandidates').innerHTML='';
   document.getElementById('refStatus').textContent='';
   document.getElementById('refManualInput').value='';
+  // bouton recherche web : seulement si un code-barres est en attente
+  document.getElementById('webSearchBtn').style.display = pendingEan ? 'block' : 'none';
   refModal.classList.add('open');
 }
+
+document.getElementById('webSearchBtn').addEventListener('click',()=>{
+  if(pendingEan){
+    window.open('https://www.google.com/search?q='+encodeURIComponent(pendingEan),'_blank');
+  }
+});
 function closeRefModal(){
   stopLiveStream();
   refModal.classList.remove('open');
