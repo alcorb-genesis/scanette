@@ -181,7 +181,8 @@
 const STORE_KEY='scanette_data_v2', CAT_KEY='scanette_catalogue_v2';
 let items = load(STORE_KEY) || {};
 let catalogue = load(CAT_KEY) || {};
-let pendingEan = null; // ean en attente d'une réf via OCR
+let pendingEan = null;      // ean ciblé par l'OCR
+let lastScannedEan = null;  // dernier code-barres réellement scanné/saisi
 
 function load(k){ try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;} }
 function save(){ try{
@@ -194,6 +195,7 @@ function addScan(code){
   code=(code||'').trim(); if(!code) return;
   if(items[code]){ items[code].qty+=1; }
   else { items[code]={ean:code,ref:catalogue[code]||'',qty:1}; }
+  lastScannedEan = code; // mémorise le dernier produit scanné pour l'OCR
   save(); render(); flash('✓ '+code+'  ×'+items[code].qty); beep();
 }
 function setRef(code,ref){
@@ -262,11 +264,16 @@ function beep(){try{
 
 /* ---------- Scanner code-barres ---------- */
 let html5Qr=null,scanning=false,lastCode='',lastTime=0;
+let scanLocked=false;       // verrou actif juste après un scan validé
+let wasScanningBeforeOcr=false; // pour relancer le scan après l'OCR
+const SCAN_COOLDOWN=2200;   // ms d'ignorance totale après un scan accepté
 const scanBtn=document.getElementById('scanBtn'),readerDiv=document.getElementById('reader');
 scanBtn.addEventListener('click',()=>scanning?stopScan():startScan());
+
 function startScan(){
   readerDiv.style.display='block';
   scanBtn.textContent='⏹ ARRÊTER LE SCAN';scanBtn.classList.add('stop');scanning=true;
+  lastCode='';lastTime=0;scanLocked=false;
   html5Qr=new Html5Qrcode("reader");
   html5Qr.start({facingMode:"environment"},
     {fps:10,qrbox:{width:260,height:140}},onScan,()=>{})
@@ -274,15 +281,50 @@ function startScan(){
      scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
      scanning=false;readerDiv.style.display='none';});
 }
+
+let candidateCode='',candidateCount=0; // confirmation par double lecture
+
 function onScan(decoded){
   const now=Date.now();
-  if(decoded===lastCode&&now-lastTime<1500)return;
-  lastCode=decoded;lastTime=now;addScan(decoded);
+  // 1) verrou global : on ignore TOUT pendant le cooldown après un scan accepté
+  if(scanLocked) return;
+  // 2) anti-rebond sur le même code déjà validé récemment
+  if(decoded===lastCode && now-lastTime<SCAN_COOLDOWN) return;
+  // 3) confirmation : le même code doit être lu 2 fois de suite pour être accepté
+  //    (élimine les lectures parasites/erronées qui créaient de fausses lignes)
+  if(decoded===candidateCode){
+    candidateCount++;
+  } else {
+    candidateCode=decoded; candidateCount=1;
+    return; // on attend une 2e lecture identique
+  }
+  if(candidateCount<2) return;
+  // 4) scan confirmé et accepté
+  lastCode=decoded; lastTime=now;
+  candidateCode=''; candidateCount=0;
+  scanLocked=true;
+  addScan(decoded);
+  flash('✓ '+decoded+'  (pause '+(SCAN_COOLDOWN/1000)+'s)');
+  setTimeout(()=>{ scanLocked=false; }, SCAN_COOLDOWN);
 }
+
 function stopScan(){
   if(html5Qr){html5Qr.stop().then(()=>html5Qr.clear()).catch(()=>{});}
   scanning=false;readerDiv.style.display='none';
   scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
+}
+
+// pause/reprise pour libérer la caméra pendant l'OCR
+function pauseScanForOcr(){
+  wasScanningBeforeOcr = scanning;
+  if(scanning && html5Qr){
+    html5Qr.stop().then(()=>html5Qr.clear()).catch(()=>{});
+    scanning=false; readerDiv.style.display='none';
+    scanBtn.textContent='▶ DÉMARRER LE SCAN'; scanBtn.classList.remove('stop');
+  }
+}
+function resumeScanAfterOcr(){
+  if(wasScanningBeforeOcr){ wasScanningBeforeOcr=false; startScan(); }
 }
 
 /* ---------- Saisie manuelle ---------- */
@@ -298,22 +340,29 @@ const ocrFile=document.getElementById('ocrFile');
 const ocrCanvas=document.getElementById('ocrCanvas');
 
 document.getElementById('ocrBtn').addEventListener('click',()=>{
+  pauseScanForOcr(); // libère la caméra pour la photo OCR
   // cible : le dernier produit scanné sans réf, sinon le plus récent
   pendingEan = pickPendingEan();
   document.getElementById('ocrTarget').textContent =
-    pendingEan ? ('Produit visé : '+pendingEan+
-      (items[pendingEan].ref?(' (réf actuelle : '+items[pendingEan].ref+')'):' (sans réf)'))
-    : 'Aucun produit scanné — la réf sera ajoutée comme nouvelle ligne.';
+    pendingEan ? ('La référence sera associée au produit scanné : '+pendingEan+
+      (items[pendingEan].ref?(' (réf actuelle : '+items[pendingEan].ref+')'):''))
+    : '⚠ Aucun produit scanné. Scanne d\'abord le code-barres, puis lis la référence.';
   ocrFile.value='';
   ocrFile.click();
 });
 document.getElementById('ocrRetake').addEventListener('click',()=>{ocrFile.value='';ocrFile.click();});
-document.getElementById('ocrClose').addEventListener('click',()=>ocrModal.classList.remove('open'));
+document.getElementById('ocrClose').addEventListener('click',()=>{
+  ocrModal.classList.remove('open');
+  resumeScanAfterOcr(); // relance le scan proprement
+});
 
 function pickPendingEan(){
   const keys=Object.keys(items);
-  // priorité au dernier scanné sans réf
+  // 1) priorité absolue : le dernier produit réellement scanné (même s'il a déjà une réf)
+  if(lastScannedEan && items[lastScannedEan]) return lastScannedEan;
+  // 2) sinon le dernier produit sans réf
   for(let i=keys.length-1;i>=0;i--){ if(!items[keys[i]].ref) return keys[i]; }
+  // 3) sinon le plus récent
   return keys.length? keys[keys.length-1] : null;
 }
 
@@ -370,15 +419,20 @@ function refScore(t){
 
 function chooseRef(ref){
   if(pendingEan && items[pendingEan]){
+    // cas normal : on attache la réf au produit scanné. Pas de nouvelle ligne.
     setRef(pendingEan, ref);
+    render(); flash('✓ '+ref+' → '+pendingEan); beep();
   } else {
-    // pas d'EAN : on crée une ligne basée sur la réf elle-même
-    if(!items[ref]) items[ref]={ean:ref,ref:ref,qty:1};
-    else items[ref].qty+=1;
-    save();
+    // aucun produit scanné : on prévient au lieu de créer une ligne fantôme
+    if(confirm('Aucun produit scanné juste avant.\n\nCréer quand même une ligne pour la référence "'+ref+'" ?\n\n(Conseil : scanne d\'abord le code-barres, PUIS lis la référence — les quantités se cumuleront correctement.)')){
+      if(!items[ref]) items[ref]={ean:ref,ref:ref,qty:1};
+      else items[ref].qty+=1;
+      lastScannedEan = ref;
+      save(); render(); flash('✓ Réf : '+ref); beep();
+    } else { return; }
   }
-  render(); flash('✓ Réf : '+ref); beep();
   ocrModal.classList.remove('open');
+  resumeScanAfterOcr(); // relance le scan une fois la réf choisie
 }
 
 /* ---------- Utils image ---------- */
