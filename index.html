@@ -76,6 +76,9 @@
   tr.sec .secdel{float:right;background:none;border:none;color:#5a6678;
     font-size:16px;cursor:pointer;}
   .ref-name{font-size:17px;font-weight:800;}
+  .prix{display:inline-block;font-size:13px;font-weight:700;color:var(--accent2);
+    margin-top:3px;padding:3px 8px;border:1px dashed var(--accent2);
+    border-radius:8px;cursor:pointer;}
   .ean{font-size:11px;color:var(--muted);margin-top:3px;font-family:monospace;}
   .qtycell{white-space:nowrap;text-align:center;}
   .qbtn{width:38px;height:38px;font-size:22px;font-weight:800;border:none;border-radius:9px;
@@ -138,6 +141,8 @@
     th,td{border-bottom:1px solid #999;color:#000;}
     tr.sec td{background:#eee;color:#000;border-bottom:2px solid #000;}
     .ref-name{color:#000;font-size:15px;}
+    .prix{color:#000;border:none;padding:0;font-size:13px;}
+    .prix.noprice{display:none!important;}
     .qty{font-size:16px;text-decoration:none;}
     .print-head{display:block!important;}
   }
@@ -255,6 +260,12 @@ const K_PUSHQ='scanette_pushq_v4';
 const K_MIGR='scanette_supa_migrated_v1';
 
 let sections = load(K_SECTIONS) || [];
+/* migration : les quantités simples deviennent {qty, prix} */
+sections.forEach(sec=>{
+  Object.keys(sec.items||{}).forEach(r=>{
+    if(typeof sec.items[r]==='number') sec.items[r]={qty:sec.items[r], prix:null};
+  });
+});
 let aliases  = load(K_ALIAS) || {};
 let pushQueue= load(K_PUSHQ) || [];
 let pendingEan = null;
@@ -373,9 +384,10 @@ function bumpRef(ref, n){
   ref=normRef(ref); n=Math.max(1,parseInt(n)||1);
   if(!ref) return;
   const sec=currentSection();
-  sec.items[ref]=(sec.items[ref]||0)+n;
+  if(!sec.items[ref]) sec.items[ref]={qty:0, prix:null};
+  sec.items[ref].qty+=n;
   save(); render(); updateCurSection();
-  flash('✓ '+ref+'  ×'+sec.items[ref]+(n>1?('  (+'+n+')'):''));
+  flash('✓ '+ref+'  ×'+sec.items[ref].qty+(n>1?('  (+'+n+')'):''));
   beep();
 }
 
@@ -412,19 +424,37 @@ function assignRef(ref){
 
 /* ---------- Quantités / lignes ---------- */
 function changeQty(si,ref,d){
-  const sec=sections[si]; if(!sec||sec.items[ref]===undefined)return;
-  sec.items[ref]+=d;
-  if(sec.items[ref]<=0) delete sec.items[ref];
+  const sec=sections[si]; if(!sec||!sec.items[ref])return;
+  sec.items[ref].qty+=d;
+  if(sec.items[ref].qty<=0) delete sec.items[ref];
   save(); render();
 }
 function setQty(si,ref){
-  const sec=sections[si]; if(!sec)return;
-  const v=prompt('Quantité totale pour '+ref+' :', sec.items[ref]);
+  const sec=sections[si]; if(!sec||!sec.items[ref])return;
+  const v=prompt('Quantité totale pour '+ref+' :', sec.items[ref].qty);
   if(v===null) return;
   const n=parseInt(v);
   if(isNaN(n)||n<0) return;
-  if(n===0) delete sec.items[ref]; else sec.items[ref]=n;
+  if(n===0) delete sec.items[ref]; else sec.items[ref].qty=n;
   save(); render();
+}
+function setPrice(si,ref){
+  const sec=sections[si]; if(!sec||!sec.items[ref])return;
+  const cur=sec.items[ref].prix;
+  const v=prompt('Prix unitaire (€) pour '+ref+' :\n(vide pour effacer)',
+                 cur!=null?String(cur).replace('.',','):'');
+  if(v===null) return;
+  const t=v.trim();
+  if(t===''){ sec.items[ref].prix=null; }
+  else{
+    const p=parseFloat(t.replace(',','.'));
+    if(isNaN(p)||p<0) return;
+    sec.items[ref].prix=p;
+  }
+  save(); render();
+}
+function fmtPrix(p){
+  return p!=null ? p.toFixed(2).replace('.',',')+' €' : '';
 }
 function delLine(si,ref){
   const sec=sections[si]; if(!sec)return;
@@ -436,7 +466,12 @@ function renameRef(si,oldRef){
   if(!nr) return;
   const newRef=normRef(nr);
   if(!newRef||newRef===oldRef) return;
-  sec.items[newRef]=(sec.items[newRef]||0)+sec.items[oldRef];
+  if(sec.items[newRef]){
+    sec.items[newRef].qty+=sec.items[oldRef].qty;
+    if(sec.items[newRef].prix==null) sec.items[newRef].prix=sec.items[oldRef].prix;
+  } else {
+    sec.items[newRef]=sec.items[oldRef];
+  }
   delete sec.items[oldRef];
   // met à jour le catalogue partagé pour les EAN qui pointaient sur l'ancienne réf
   Object.keys(aliases).forEach(e=>{
@@ -467,7 +502,7 @@ function render(){
   let total=0, refCount=0, anyLine=false;
   sections.forEach((sec,si)=>{
     let refs=Object.keys(sec.items).sort();
-    Object.values(sec.items).forEach(q=>total+=q);
+    Object.values(sec.items).forEach(it=>total+=it.qty);
     refCount+=refs.length;
     if(filter) refs=refs.filter(r=>r.includes(filter));
     if(!refs.length && filter) return; // section vide sous filtre : masquée
@@ -479,17 +514,18 @@ function render(){
     tbody.appendChild(trs);
     refs.forEach(ref=>{
       anyLine=true;
-      const qty=sec.items[ref];
+      const it=sec.items[ref];
       const eans=Object.keys(aliases).filter(e=>aliases[e]===ref);
       const tr=document.createElement('tr');
       tr.innerHTML=`
         <td>
           <div class="ref-name">${esc(ref)}</div>
+          <div class="prix ${it.prix==null?'noprice':''}" data-setprice="${si}|${esc(ref)}">${it.prix!=null?fmtPrix(it.prix):'+ prix'}</div>
           ${eans.length?('<div class="ean">'+eans.slice(0,3).map(esc).join(' · ')+'</div>'):''}
         </td>
         <td class="qtycell">
           <button class="qbtn minus" data-minus="${si}|${esc(ref)}">−</button>
-          <span class="qty" data-setqty="${si}|${esc(ref)}">${qty}</span>
+          <span class="qty" data-setqty="${si}|${esc(ref)}">${it.qty}</span>
           <button class="qbtn plus" data-plus="${si}|${esc(ref)}">+</button>
         </td>
         <td style="text-align:right;white-space:nowrap">
@@ -512,6 +548,8 @@ function render(){
     b.addEventListener('click',e=>{const [si,r]=split(e.target.dataset.minus);changeQty(si,r,-1);}));
   tbody.querySelectorAll('[data-setqty]').forEach(b=>
     b.addEventListener('click',e=>{const [si,r]=split(e.target.dataset.setqty);setQty(si,r);}));
+  tbody.querySelectorAll('[data-setprice]').forEach(b=>
+    b.addEventListener('click',e=>{const [si,r]=split(e.target.dataset.setprice);setPrice(si,r);}));
   tbody.querySelectorAll('[data-del]').forEach(b=>
     b.addEventListener('click',e=>{const [si,r]=split(e.target.dataset.del);delLine(si,r);}));
   tbody.querySelectorAll('[data-rename]').forEach(b=>
@@ -871,10 +909,12 @@ function preprocessCanvas(canvas){
 
 /* ---------- Export CSV ---------- */
 document.getElementById('csvBtn').addEventListener('click',()=>{
-  const rows=[['Fournisseur','Reference','Quantite']];
+  const rows=[['Fournisseur','Reference','Quantite','Prix']];
   sections.forEach(sec=>{
     Object.keys(sec.items).sort().forEach(ref=>{
-      rows.push([sec.name,ref,sec.items[ref]]);
+      const it=sec.items[ref];
+      rows.push([sec.name,ref,it.qty,
+        it.prix!=null?String(it.prix.toFixed(2)).replace('.',','):'']);
     });
   });
   const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
