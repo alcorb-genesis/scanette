@@ -66,6 +66,16 @@
   .filterbar{margin:0 16px 10px;}
   .filterbar input{width:100%;padding:13px;font-size:16px;border-radius:12px;
     border:1px solid var(--line);background:var(--panel);color:var(--text);}
+  .movebar{display:none;margin:0 16px 10px;padding:10px 12px;gap:8px;
+    align-items:center;background:var(--panel2);border:1px solid var(--accent2);
+    border-radius:12px;}
+  .movebar.show{display:flex;}
+  .movebar #moveCount{flex:1;font-size:14px;font-weight:700;color:var(--accent2);}
+  .movebar button{padding:11px 14px;font-size:14px;font-weight:800;border:none;
+    border-radius:10px;cursor:pointer;}
+  .movebar #moveBtn{background:var(--accent2);color:#06231f;}
+  .movebar #moveCancel{background:var(--panel);color:var(--muted);border:1px solid var(--line);}
+  .selchk{width:22px;height:22px;margin-right:8px;vertical-align:middle;accent-color:var(--accent2);}
 
   table{width:calc(100% - 32px);margin:0 16px;border-collapse:collapse;}
   th{font-size:11px;text-transform:uppercase;color:var(--muted);text-align:left;
@@ -136,7 +146,7 @@
   @media print{
     body{background:#fff;color:#000;padding:0;}
     header,.scanbtn,.ocrbtn,#reader,.manual,.toolbar,.feedback,.footer-total,
-    .qbtn,.del,.renamebtn,.modal,.filterbar,.supplierbar,.secdel{display:none!important;}
+    .qbtn,.del,.renamebtn,.modal,.filterbar,.supplierbar,.secdel,.movebar,.selchk{display:none!important;}
     table{width:100%;margin:0;}
     th,td{border-bottom:1px solid #999;color:#000;}
     tr.sec td{background:#eee;color:#000;border-bottom:2px solid #000;}
@@ -192,6 +202,12 @@
 
 <div class="filterbar">
   <input type="text" id="filterBox" placeholder="🔎 Filtrer les références…">
+</div>
+
+<div id="moveBar" class="movebar">
+  <span id="moveCount">0 sélectionnée</span>
+  <button id="moveBtn">📦 Déplacer vers…</button>
+  <button id="moveCancel">Annuler</button>
 </div>
 
 <table>
@@ -269,6 +285,7 @@ sections.forEach(sec=>{
 let aliases  = load(K_ALIAS) || {};
 let pushQueue= load(K_PUSHQ) || [];
 let pendingEan = null;
+let selected = {};   // "si|ref" -> true : lignes cochées pour déplacement
 
 function load(k){ try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;} }
 function save(){ try{
@@ -494,6 +511,59 @@ function renameSection(si){
   sec.name=name; save(); render(); updateCurSection();
 }
 
+/* ---------- Déplacement de références sélectionnées ---------- */
+document.getElementById('moveCancel').addEventListener('click',()=>{
+  selected={}; render();
+});
+document.getElementById('moveBtn').addEventListener('click',()=>{
+  const keys=Object.keys(selected);
+  if(!keys.length) return;
+  // construire le choix de destination
+  const names=sections.map((s,i)=>(i+1)+'. '+s.name);
+  let msg='Déplacer '+keys.length+' référence(s) vers :\n\n';
+  msg+=names.join('\n');
+  msg+='\n\nTape le NUMÉRO d\'une section existante,\nou tape un NOUVEAU nom de commande / fournisseur.';
+  const ans=prompt(msg,'');
+  if(ans===null) return;
+  let destIdx;
+  const asNum=parseInt(ans.trim());
+  if(!isNaN(asNum) && asNum>=1 && asNum<=sections.length && String(asNum)===ans.trim()){
+    destIdx=asNum-1;
+  } else {
+    const name=normName(ans);
+    if(!name) return;
+    // réutilise une section de même nom si elle existe, sinon en crée une
+    destIdx=sections.findIndex(s=>s.name===name);
+    if(destIdx<0){ sections.push({name:name, items:{}}); destIdx=sections.length-1; }
+  }
+  moveSelectedTo(destIdx, keys);
+});
+
+function moveSelectedTo(destIdx, keys){
+  const dest=sections[destIdx];
+  if(!dest) return;
+  // regrouper par section source
+  keys.forEach(k=>{
+    const i=k.indexOf('|');
+    const si=parseInt(k.slice(0,i)), ref=k.slice(i+1);
+    const src=sections[si];
+    if(!src || !src.items[ref]) return;
+    if(si===destIdx) return; // déjà au bon endroit
+    if(dest.items[ref]){
+      dest.items[ref].qty += src.items[ref].qty;
+      if(dest.items[ref].prix==null) dest.items[ref].prix=src.items[ref].prix;
+    } else {
+      dest.items[ref]=src.items[ref];
+    }
+    delete src.items[ref];
+  });
+  // nettoyer les sections devenues vides (sauf si c'est la destination)
+  sections=sections.filter((s,i)=> i===destIdx || Object.keys(s.items).length>0);
+  selected={};
+  save(); render(); updateCurSection();
+  flash('✓ Références déplacées');
+}
+
 /* ---------- Rendu ---------- */
 function render(){
   const tbody=document.getElementById('tbody');
@@ -517,9 +587,11 @@ function render(){
       const it=sec.items[ref];
       const eans=Object.keys(aliases).filter(e=>aliases[e]===ref);
       const tr=document.createElement('tr');
+      const key=si+'|'+ref;
       tr.innerHTML=`
         <td>
-          <div class="ref-name">${esc(ref)}</div>
+          <input type="checkbox" class="selchk" data-sel="${esc(key)}" ${selected[key]?'checked':''}>
+          <div class="ref-name" style="display:inline-block;vertical-align:middle">${esc(ref)}</div>
           <div class="prix ${it.prix==null?'noprice':''}" data-setprice="${si}|${esc(ref)}">${it.prix!=null?fmtPrix(it.prix):'+ prix'}</div>
           ${eans.length?('<div class="ean">'+eans.slice(0,3).map(esc).join(' · ')+'</div>'):''}
         </td>
@@ -556,6 +628,20 @@ function render(){
     b.addEventListener('click',e=>{const [si,r]=split(e.target.dataset.rename);renameRef(si,r);}));
   tbody.querySelectorAll('[data-secdel]').forEach(b=>
     b.addEventListener('click',e=>{e.stopPropagation();delSection(parseInt(e.target.dataset.secdel));}));
+  tbody.querySelectorAll('[data-sel]').forEach(c=>
+    c.addEventListener('change',e=>{
+      const k=e.target.dataset.sel;
+      if(e.target.checked) selected[k]=true; else delete selected[k];
+      updateMoveBar();
+    }));
+  updateMoveBar();
+}
+function updateMoveBar(){
+  const n=Object.keys(selected).length;
+  const bar=document.getElementById('moveBar');
+  bar.classList.toggle('show', n>0);
+  document.getElementById('moveCount').textContent=
+    n+(n>1?' sélectionnées':' sélectionnée');
 }
 function esc(s){return String(s).replace(/[&<>"']/g,
   c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
