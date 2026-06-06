@@ -34,6 +34,14 @@
   #reader{display:none;margin:0 16px 12px;border-radius:14px;overflow:hidden;
     border:2px solid var(--accent2);background:#000;}
   #reader video{width:100%!important;display:block;}
+  .zoombar{display:none;margin:0 16px 12px;gap:14px;align-items:center;justify-content:center;}
+  .zoombar.show{display:flex;}
+  .zoombar button{width:54px;height:54px;font-size:28px;font-weight:800;border:none;
+    border-radius:12px;background:var(--panel2);color:var(--accent2);
+    border:1px solid var(--accent2);cursor:pointer;}
+  .zoombar button:active{background:var(--accent2);color:#06231f;}
+  .zoombar #zoomLevel{min-width:64px;text-align:center;font-size:20px;font-weight:800;
+    color:var(--accent2);}
 
   .ocrbtn{display:block;width:calc(100% - 32px);margin:0 16px 12px;padding:15px;
     font-size:16px;font-weight:700;border:none;border-radius:14px;
@@ -62,6 +70,16 @@
 
   .feedback{text-align:center;font-size:15px;font-weight:700;height:22px;
     margin:0 0 8px;color:var(--ok);}
+  .lastscan{display:none;margin:0 16px 12px;padding:10px 12px;gap:10px;
+    align-items:center;background:var(--panel);border:1px solid var(--line);
+    border-left:4px solid var(--accent2);border-radius:12px;}
+  .lastscan.show{display:flex;}
+  .lastscan-info{flex:1;font-size:14px;cursor:pointer;}
+  .lastscan-info .ls-ref{font-weight:800;font-size:16px;color:var(--accent2);}
+  .lastscan-info .ls-ean{font-family:monospace;font-size:11px;color:var(--muted);}
+  .lastscan button{padding:10px 14px;font-size:14px;font-weight:800;border:none;
+    border-radius:10px;background:#3a2630;color:#ff8a7a;cursor:pointer;
+    border:1px solid #5a3640;white-space:nowrap;}
 
   .filterbar{margin:0 16px 10px;}
   .filterbar input{width:100%;padding:13px;font-size:16px;border-radius:12px;
@@ -146,7 +164,7 @@
   @media print{
     body{background:#fff;color:#000;padding:0;}
     header,.scanbtn,.ocrbtn,#reader,.manual,.toolbar,.feedback,.footer-total,
-    .qbtn,.del,.renamebtn,.modal,.filterbar,.supplierbar,.secdel,.movebar,.selchk{display:none!important;}
+    .qbtn,.del,.renamebtn,.modal,.filterbar,.supplierbar,.secdel,.movebar,.selchk,.zoombar,.lastscan{display:none!important;}
     table{width:100%;margin:0;}
     th,td{border-bottom:1px solid #999;color:#000;}
     tr.sec td{background:#eee;color:#000;border-bottom:2px solid #000;}
@@ -178,6 +196,11 @@
 <button class="scanbtn" id="scanBtn">▶ DÉMARRER LE SCAN</button>
 
 <div id="reader"></div>
+<div id="zoomBar" class="zoombar">
+  <button id="zoomMinus">−</button>
+  <span id="zoomLevel">×3</span>
+  <button id="zoomPlus">+</button>
+</div>
 
 <button class="ocrbtn" id="ocrBtn">📷 Référence texte seule (sans code-barres)</button>
 
@@ -192,6 +215,11 @@
 </div>
 
 <div class="feedback" id="feedback"></div>
+
+<div id="lastScanBar" class="lastscan">
+  <div class="lastscan-info" id="lastScanInfo"></div>
+  <button id="lastScanUndo">↩ Annuler</button>
+</div>
 
 <div class="toolbar">
   <button class="pdf" id="pdfBtn">🖨 PDF</button>
@@ -397,23 +425,58 @@ function updateCurSection(){
 }
 
 /* ---------- Cumul ---------- */
+let lastAction=null; // {si, ref, n, ean} : dernier ajout, pour affichage + annulation
+let lastScanEanDisplay=null; // ean du dernier code scanné (renseigné par onBarcode/assignRef)
+
 function bumpRef(ref, n){
   ref=normRef(ref); n=Math.max(1,parseInt(n)||1);
   if(!ref) return;
   const sec=currentSection();
   if(!sec.items[ref]) sec.items[ref]={qty:0, prix:null};
   sec.items[ref].qty+=n;
-  save(); render(); updateCurSection();
+  lastAction={si:sections.length-1, ref:ref, n:n, ean:lastScanEanDisplay};
+  lastScanEanDisplay=null;
+  save(); render(); updateCurSection(); updateLastScanBar();
   flash('✓ '+ref+'  ×'+sec.items[ref].qty+(n>1?('  (+'+n+')'):''));
   beep();
 }
+
+function updateLastScanBar(){
+  const bar=document.getElementById('lastScanBar');
+  if(!lastAction){ bar.classList.remove('show'); return; }
+  const sec=sections[lastAction.si];
+  const stillThere = sec && sec.items[lastAction.ref];
+  document.getElementById('lastScanInfo').innerHTML=
+    '<span class="ls-ref">'+esc(lastAction.ref)+'</span>'+
+    '  (+'+lastAction.n+(stillThere?(' → ×'+sec.items[lastAction.ref].qty):'')+')'+
+    (lastAction.ean?('<div class="ls-ean">'+esc(lastAction.ean)+'</div>'):'');
+  bar.classList.toggle('show', true);
+}
+document.getElementById('lastScanInfo').addEventListener('click',()=>{
+  if(!lastAction) return;
+  // retrouve la ligne : filtre sur la référence
+  document.getElementById('filterBox').value=lastAction.ref;
+  render();
+});
+document.getElementById('lastScanUndo').addEventListener('click',()=>{
+  if(!lastAction) return;
+  const sec=sections[lastAction.si];
+  if(sec && sec.items[lastAction.ref]){
+    sec.items[lastAction.ref].qty-=lastAction.n;
+    if(sec.items[lastAction.ref].qty<=0) delete sec.items[lastAction.ref];
+    save(); render();
+    flash('↩ '+lastAction.ref+' annulé');
+  }
+  lastAction=null;
+  document.getElementById('lastScanBar').classList.remove('show');
+});
 
 /* ---------- Arrivée d'un scan code-barres ---------- */
 function onBarcode(ean){
   ean=String(ean||'').trim();
   if(!ean) return;
   const known=aliases[ean];
-  if(known){ bumpRef(known,1); }
+  if(known){ lastScanEanDisplay=ean; bumpRef(known,1); }
   else { pendingEan=ean; captureFrameAndAsk(ean); }
 }
 
@@ -425,6 +488,7 @@ function assignRef(ref){
   if(pendingEan){
     aliases[pendingEan]=ref;
     queueAlias(pendingEan,ref);   // part vers le catalogue partagé
+    lastScanEanDisplay=pendingEan;
     pendingEan=null;
   }
   bumpRef(ref,qty);
@@ -706,16 +770,33 @@ function startScan(){
      scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
      scanning=false;readerDiv.style.display='none';});
 }
+let zoomCaps=null, currentZoom=3;
 function applyZoomIfPossible(){
-  // zoom léger automatique : décisif pour les petits codes sur iPhone
+  // zoom automatique ×3 au démarrage : décisif pour les petits codes sur iPhone
   try{
     const caps=html5Qr.getRunningTrackCapabilities();
     if(caps && caps.zoom){
-      const z=Math.min(2, caps.zoom.max||2);
-      html5Qr.applyVideoConstraints({advanced:[{zoom:z}]}).catch(()=>{});
+      zoomCaps=caps.zoom; // {min, max, step}
+      setZoom(3);
+      document.getElementById('zoomBar').classList.add('show');
+    } else {
+      zoomCaps=null;
+      document.getElementById('zoomBar').classList.remove('show');
     }
-  }catch(e){}
+  }catch(e){ zoomCaps=null; }
 }
+function setZoom(z){
+  if(!zoomCaps || !html5Qr) return;
+  const min=zoomCaps.min||1, max=zoomCaps.max||3, step=zoomCaps.step||0.5;
+  z=Math.max(min, Math.min(max, z));
+  // arrondit au pas supporté par la caméra
+  z=Math.round(z/step)*step;
+  currentZoom=z;
+  html5Qr.applyVideoConstraints({advanced:[{zoom:z}]}).catch(()=>{});
+  document.getElementById('zoomLevel').textContent='×'+(Math.round(z*10)/10);
+}
+document.getElementById('zoomPlus').addEventListener('click',()=>setZoom(currentZoom+1));
+document.getElementById('zoomMinus').addEventListener('click',()=>setZoom(currentZoom-1));
 
 function onScan(decoded){
   const now=Date.now();
@@ -734,6 +815,7 @@ function onScan(decoded){
 function stopScan(){
   if(html5Qr){html5Qr.stop().then(()=>html5Qr.clear()).catch(()=>{});}
   scanning=false;readerDiv.style.display='none';
+  document.getElementById('zoomBar').classList.remove('show');
   scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
 }
 function pauseScanForModal(){
@@ -741,6 +823,7 @@ function pauseScanForModal(){
   if(scanning&&html5Qr){
     html5Qr.stop().then(()=>html5Qr.clear()).catch(()=>{});
     scanning=false;readerDiv.style.display='none';
+    document.getElementById('zoomBar').classList.remove('show');
     scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
   }
 }
