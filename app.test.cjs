@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 function harness(){
  const nodes=new Map(), data=new Map(), calls=[];
- const element=()=>({style:{},classList:{add(){},remove(){},toggle(){},contains(){return false}},value:'',textContent:'',innerHTML:'',hidden:true,dataset:{},addEventListener(){},appendChild(){},append(){},replaceChildren(){},insertAdjacentElement(){},setAttribute(){},showModal(){this.open=true},close(){this.open=false},querySelector(){return element()},querySelectorAll(){return []},click(){}});
+ const element=()=>({style:{},classList:{add(){},remove(){},toggle(){},contains(){return false}},value:'',textContent:'',innerHTML:'',hidden:true,dataset:{},addEventListener(){},pause(){},appendChild(){},append(){},replaceChildren(){},insertAdjacentElement(){},setAttribute(){},showModal(){this.open=true},close(){this.open=false},querySelector(){return element()},querySelectorAll(){return []},click(){}});
  const doc={body:element(),head:element(),createElementNS:element,getElementById:id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id)},createElement:element,addEventListener(){},visibilityState:'visible'};
  let session={user:{id:'alice'},access_token:'fresh'};
  const context={document:doc,localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)},console,
@@ -42,3 +42,4 @@ test('upload failure retains pending changes for retry',async()=>{
 });
 
 module.exports={harness};
+

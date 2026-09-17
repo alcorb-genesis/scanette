@@ -23,3 +23,5 @@ Publier uniquement `index.html`, `core.js`, `interface.css`, `bellecave.html` `b
 Les migrations SQL documentent le schéma appliqué et ne doivent pas être rejouées sans vérifier l'état de la base. `bellecave-security-test.sql` vérifie les accès et les conflits de modification dans une transaction annulée. Les contrôles ciblés ne constituent pas un audit de sécurité complet.
 
 Avant commercialisation : tester la caméra sur les téléphones utilisés, définir les mouvements ou exports alimentant le stock et traiter la sauvegarde partagée des pointages si nécessaire.
+
+Mode mémoire réduite : caméra intégrée limitée à 1600 pixels par côté, capture conseillée 1280 × 720, import redimensionné dès le décodage. Moteur dans un worker jetable (palette-worker.js), transféré sans duplication du tampon, libéré après analyse ou annulation. 18 tests passent ; lecture multiple vérifiée dans le navigateur. Validation matérielle Motorola G34 encore nécessaire.

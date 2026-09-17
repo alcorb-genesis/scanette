@@ -33,3 +33,11 @@ test('an ambiguous barcode is not assigned to the first match',async()=>{
 test('invalid quantity cancels every row of a batch before persistence',async()=>{
  const h=await setup();h.context.entries=[{product:product('p1'),code:'001',qty:2},{product:product('p2'),code:'002',qty:1.5}];assert.throws(()=>h.run('Warehouse.commit(entries)'),/Quantité invalide/);assert.equal(h.run('sections.length'),0);
 });
+
+test('light camera is bounded and a late stream is stopped after close',async()=>{
+ const h=await setup();let release,requested,stopped=0;
+ h.context.navigator.mediaDevices={getUserMedia:async options=>{requested=options;return new Promise(resolve=>release=resolve);}};
+ const opening=h.run("document.getElementById('paletteCamera').onclick()");
+ assert.equal(requested.video.width.max,1600);assert.equal(requested.video.height.max,1600);assert.equal(requested.audio,false);
+ h.run("document.getElementById('paletteClose').onclick()");release({getTracks:()=>[{stop:()=>stopped++}]});await opening;assert.equal(stopped,1);
+});

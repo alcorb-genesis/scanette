@@ -3,6 +3,8 @@
 'use strict';
 const workspace='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
 let generation=0,chooseCancel=null,rows=[],detections=[],committed=false,busy=false;
+let paletteStream=null,cameraRequest=0;
+function stopPaletteCamera(){cameraRequest++;if(paletteStream){paletteStream.getTracks().forEach(track=>track.stop());paletteStream=null;}const video=byId('paletteVideo');if(video){video.pause();video.srcObject=null;video.hidden=true;}if(byId('paletteCapture'))byId('paletteCapture').hidden=true;}
 const byId=id=>document.getElementById(id);
 async function resolve(code){
  if(!currentUserId)throw Error('Reconnectez-vous.');
@@ -36,10 +38,11 @@ function commit(entries){
  flash(entries.length===1?'✓ '+(entries[0].product?.reference||entries[0].reference)+' ajouté':'✓ Lot ajouté au pointage');
 }
 function reset(){
- generation++;chooseCancel?.();chooseCancel=null;
+ generation++;releaseDecoder();stopPaletteCamera();chooseCancel?.();chooseCancel=null;
  if(byId('paletteDialog')?.open)byId('paletteDialog').close();
  rows=[];detections=[];committed=false;busy=false;
  if(byId('paletteFile'))byId('paletteFile').disabled=false;
+ if(byId('paletteCamera'))byId('paletteCamera').disabled=false;
  if(byId('paletteRows'))byId('paletteRows').replaceChildren();
  if(byId('paletteCanvas')){byId('paletteCanvas').width=1;byId('paletteCanvas').height=1;}
 }
@@ -62,7 +65,7 @@ const dialogs=document.createElement('div');dialogs.innerHTML=`
 <dialog id="productChoice" class="warehouse-dialog"><h2>Quel produit souhaitez-vous pointer ?</h2><p>Ce code correspond à plusieurs fiches Bellecave. Vérifiez la désignation.</p><div id="productChoices"></div><button id="cancelProductChoice">Annuler</button></dialog>
 <dialog id="paletteDialog" class="warehouse-dialog"><div class="row"><h2>Palette · lecture multiple</h2><button id="paletteClose" type="button">Fermer</button></div>
 <p>Photographiez plusieurs étiquettes nettes, sans viser un seul code. L’image reste sur cet appareil.</p>
-<label class="photo-button" for="paletteFile">Prendre ou choisir une photo</label><input id="paletteFile" type="file" accept="image/*" capture="environment">
+<button id="paletteCamera" type="button">Ouvrir la caméra légère</button><video id="paletteVideo" playsinline muted hidden style="width:100%;max-height:45vh"></video><button id="paletteCapture" type="button" hidden>Capturer et analyser</button><p>Mode conseillé sur téléphone : image limitée pour économiser la mémoire.</p><label class="photo-button" for="paletteFile">Ou choisir une image existante</label><input id="paletteFile" type="file" accept="image/*">
 <p id="paletteStatus" role="status" aria-live="polite">Choisissez une photo pour commencer.</p><div class="palette-stage"><canvas id="paletteCanvas" width="1" height="1"></canvas><svg id="paletteOverlay" aria-hidden="true"></svg></div>
 <p class="palette-legend">Vert : référence reconnue · Orange : à vérifier ou exclue · Gris : lot ajouté.</p>
 <p><strong>Un code détecté n’est pas une boîte comptée.</strong> La quantité proposée est 1 par code distinct. Vérifiez les boîtes identiques et les doubles étiquettes. Deux photos peuvent montrer les mêmes pièces.</p>
@@ -71,9 +74,9 @@ const dialogs=document.createElement('div');dialogs.innerHTML=`
 document.body.append(dialogs);
 byId('warehouseCodeForm').addEventListener('submit',async event=>{event.preventDefault();const input=byId('warehouseCode'),code=input.value.trim();if(!code)return;byId('warehouseCodeAdd').disabled=true;try{await onBarcode(code);input.value='';}finally{byId('warehouseCodeAdd').disabled=false;}});
 byId('paletteOpen').onclick=()=>{if(scanning)stopScan();stopLiveStream();byId('paletteDialog').showModal();};
-function cancelAnalysis(){generation++;if(busy){rows=[];detections=[];byId('paletteRows').replaceChildren();byId('paletteStatus').textContent='Analyse annulée. Choisissez une nouvelle photo.';}busy=false;byId('paletteFile').disabled=false;update();}
-byId('paletteClose').onclick=()=>{cancelAnalysis();byId('paletteDialog').close();};
-byId('paletteDialog').oncancel=cancelAnalysis;
+function cancelAnalysis(){generation++;releaseDecoder();stopPaletteCamera();if(busy){rows=[];detections=[];byId('paletteRows').replaceChildren();byId('paletteStatus').textContent='Analyse annulée. Choisissez une nouvelle photo.';}busy=false;byId('paletteFile').disabled=false;byId('paletteCamera').disabled=false;update();}
+byId('paletteClose').onclick=()=>{cancelAnalysis();byId('paletteDialog').close();byId('paletteCanvas').width=1;byId('paletteCanvas').height=1;rows=[];detections=[];byId('paletteRows').replaceChildren();update();};
+byId('paletteDialog').oncancel=()=>byId('paletteClose').onclick();
 function update(){
  byId('paletteCommit').disabled=busy||committed||!byId('paletteVerified').checked||!rows.some(row=>row.qty>0&&(row.product||row.reference));
  const overlay=byId('paletteOverlay');overlay.replaceChildren();
@@ -105,25 +108,39 @@ function renderRows(){
  }
  update();
 }
-let decoderPromise;
-function decoder(){
- if(!decoderPromise)decoderPromise=new Promise((resolveDecoder,reject)=>{
-  const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.4/dist/iife/reader/index.js';
-  script.onload=()=>resolveDecoder(window.ZXingWASM);script.onerror=()=>{decoderPromise=null;reject(Error('Le moteur de lecture n’a pas pu être chargé. Vérifiez la connexion.'));};document.head.append(script);
- });return decoderPromise;
+let activeDecoder=null;
+function releaseDecoder(){if(activeDecoder){activeDecoder.cancel();activeDecoder=null;}}
+function decodeCanvas(canvas){
+ return new Promise((resolve,reject)=>{
+  const worker=new Worker('palette-worker.js');let settled=false;
+  const finish=(error,result)=>{if(settled)return;settled=true;clearTimeout(timer);worker.terminate();activeDecoder=null;error?reject(error):resolve(result);};
+  const timer=setTimeout(()=>finish(Error('Analyse trop longue. Photographiez une zone plus petite.')),35000);
+  activeDecoder={cancel:()=>finish(Error('Analyse annulée.'))};
+  worker.onmessage=event=>event.data.error?finish(Error(event.data.error)):finish(null,event.data.results);
+  worker.onerror=()=>finish(Error('Mémoire ou moteur de lecture indisponible. Essayez une photo plus petite.'));
+  try{const image=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height);worker.postMessage({width:image.width,height:image.height,buffer:image.data.buffer},[image.data.buffer]);}
+  catch(error){finish(error);}
+ });
 }
 byId('paletteFile').onchange=async event=>{
  const file=event.target.files[0];event.target.value='';if(!file)return;
- const token=++generation,epoch=sessionEpoch;busy=true;committed=false;rows=[];detections=[];byId('paletteRows').replaceChildren();byId('paletteVerified').checked=false;byId('paletteFile').disabled=true;update();
- const status=byId('paletteStatus');status.textContent='Analyse de la photo sur cet appareil…';
+ stopPaletteCamera();const token=++generation,epoch=sessionEpoch;busy=true;committed=false;rows=[];detections=[];byId('paletteRows').replaceChildren();byId('paletteVerified').checked=false;byId('paletteFile').disabled=true;update();
+ const status=byId('paletteStatus');status.textContent='Préparation de la photo · mode mémoire réduite…';
+ const oldCanvas=byId('paletteCanvas');oldCanvas.width=1;oldCanvas.height=1;releaseDecoder();
  try{
   if(file.size>25000000)throw Error('Photo trop volumineuse (25 Mo maximum).');
-  const bitmap=await createImageBitmap(file);
+  const bitmap=await createImageBitmap(file,{resizeWidth:1200,resizeQuality:'medium'});
   if(token!==generation){bitmap.close();return;}
-  const canvas=byId('paletteCanvas'),scale=Math.min(1,3200/Math.max(bitmap.width,bitmap.height));canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+  const canvas=byId('paletteCanvas'),scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+  await analyzePalette(canvas,token,epoch);
+ }catch(error){if(token===generation){rows=[];detections=[];byId('paletteRows').replaceChildren();byId('paletteCanvas').width=1;byId('paletteCanvas').height=1;status.textContent='Lot non ajouté. '+error.message+' Essayez une photo plus petite ou une zone plus rapprochée. Le pointage existant est conservé.';}}
+ finally{if(token===generation){busy=false;byId('paletteFile').disabled=false;byId('paletteCamera').disabled=false;update();}}
+};
+async function analyzePalette(canvas,token,epoch){
+ const status=byId('paletteStatus');
   byId('paletteOverlay').setAttribute('viewBox','0 0 '+canvas.width+' '+canvas.height);
-  const reader=await decoder();if(token!==generation)return;
-  const found=await reader.readBarcodes(canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height),{tryHarder:true,maxNumberOfSymbols:100,formats:['EAN13','EAN8','UPCA','UPCE','Code128','Code39','ITF','QRCode','DataMatrix']});
+  status.textContent='Lecture des codes · mode mémoire réduite…';
+  const found=await decodeCanvas(canvas);
   if(token!==generation||epoch!==sessionEpoch)return;
   detections=found.filter(x=>x.text&&x.isValid!==false);
   const codes=[...new Set(detections.map(x=>x.text))];
@@ -133,9 +150,30 @@ byId('paletteFile').onchange=async event=>{
   }
   status.textContent=detections.length?detections.length+' zone(s) lue(s), '+codes.length+' code(s) distinct(s). Vérifiez le lot avant de l’ajouter.':'Aucun code lisible. Rapprochez-vous, améliorez la lumière ou photographiez une zone plus petite.';
   renderRows();
- }catch(error){if(token===generation){rows=[];detections=[];byId('paletteRows').replaceChildren();status.textContent='Lot non ajouté : '+error.message;}}
- finally{if(token===generation){busy=false;byId('paletteFile').disabled=false;update();}}
+
+}
+byId('paletteCamera').onclick=async()=>{
+ cancelAnalysis();rows=[];detections=[];committed=false;byId('paletteRows').replaceChildren();byId('paletteVerified').checked=false;update();
+ const request=++cameraRequest;byId('paletteStatus').textContent='Ouverture de la caméra légère…';
+ try{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280,max:1600},height:{ideal:720,max:1600}}});
+  if(request!==cameraRequest){stream.getTracks().forEach(track=>track.stop());return;}
+  paletteStream=stream;const video=byId('paletteVideo');video.srcObject=stream;video.hidden=false;await video.play();
+  if(request!==cameraRequest)return;
+  byId('paletteCapture').hidden=false;byId('paletteStatus').textContent='Approchez les étiquettes, stabilisez le téléphone puis capturez.';
+ }catch(error){if(request===cameraRequest){stopPaletteCamera();byId('paletteStatus').textContent='Caméra indisponible. Autorisez son accès ou choisissez une image existante.';}}
 };
+byId('paletteCapture').onclick=async()=>{
+ if(busy)return;const video=byId('paletteVideo');if(!video.videoWidth||!video.videoHeight)return;
+ const token=++generation,epoch=sessionEpoch,canvas=byId('paletteCanvas');
+ busy=true;committed=false;rows=[];detections=[];byId('paletteRows').replaceChildren();byId('paletteVerified').checked=false;byId('paletteFile').disabled=true;byId('paletteCamera').disabled=true;update();
+ try{
+  const scale=Math.min(1,1600/Math.max(video.videoWidth,video.videoHeight));canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);stopPaletteCamera();
+  await analyzePalette(canvas,token,epoch);
+ }catch(error){if(token===generation){rows=[];detections=[];byId('paletteRows').replaceChildren();canvas.width=1;canvas.height=1;byId('paletteStatus').textContent='Lot non ajouté : '+error.message;}}
+ finally{if(token===generation){stopPaletteCamera();busy=false;byId('paletteFile').disabled=false;byId('paletteCamera').disabled=false;update();}}
+};
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')stopPaletteCamera();});
 byId('paletteCommit').onclick=()=>{
  if(busy||committed||!byId('paletteVerified').checked)return;
  try{
