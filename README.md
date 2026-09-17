@@ -4,7 +4,7 @@ Application statique de pointage et catalogue magasin. Aucun serveur applicatif 
 
 ## Fichiers de publication
 
-Publier uniquement `index.html`, `core.js`, `interface.css`, `bellecave.html` `bellecave.js` et `warehouse.js`. Conserver les deux pages HTML accessibles. Aucune donnée catalogue ni aucun mot de passe ne doit être ajouté au dépôt.
+Publier uniquement `index.html`, `core.js`, `interface.css`, `bellecave.html` `bellecave.js`, `warehouse.js`, `palette-worker.js`, `sweep-tracker.js` et `sweep.js`. Conserver les deux pages HTML accessibles. Aucune donnée catalogue ni aucun mot de passe ne doit être ajouté au dépôt.
 
 ## Comportement
 
@@ -18,10 +18,19 @@ Publier uniquement `index.html`, `core.js`, `interface.css`, `bellecave.html` `b
 
 ## Vérification
 
-`node --test --test-isolation=none core.test.cjs warehouse.test.cjs`
+`node --test --test-isolation=none core.test.cjs warehouse.test.cjs sweep.test.cjs`
 
 Les migrations SQL documentent le schéma appliqué et ne doivent pas être rejouées sans vérifier l'état de la base. `bellecave-security-test.sql` vérifie les accès et les conflits de modification dans une transaction annulée. Les contrôles ciblés ne constituent pas un audit de sécurité complet.
 
 Avant commercialisation : tester la caméra sur les téléphones utilisés, définir les mouvements ou exports alimentant le stock et traiter la sauvegarde partagée des pointages si nécessaire.
 
 Mode mémoire réduite : caméra intégrée limitée à 1600 pixels par côté, capture conseillée 1280 × 720, import redimensionné dès le décodage. Moteur dans un worker jetable (palette-worker.js), transféré sans duplication du tampon, libéré après analyse ou annulation. 18 tests passent ; lecture multiple vérifiée dans le navigateur. Validation matérielle Motorola G34 encore nécessaire.
+
+
+## Balayage vidéo bêta
+
+Dans Pointage, ouvrir « Balayage vidéo · bêta », puis Démarrer. Chaque étiquette reconnue sur deux images et retrouvée dans le catalogue ajoute une pièce. Les positions distinguent les étiquettes identiques simultanément visibles. Une absence prolongée autorise un nouveau passage identique : un retour ou une perte de suivi peut donc recompter une boîte. Ce suivi géométrique n'est pas une réidentification physique garantie.
+
+Pause arrête caméra et moteur ; les pistes sont conservées pendant cette pause. Les quatre derniers ajouts sont sauvegardés avec le pointage, même après rechargement. Après rechargement, les pistes visuelles sont perdues : reprendre depuis la bonne position. Annuler le dernier ajout est disponible pendant la session si le pointage n'a pas été modifié ailleurs entre-temps. Les codes inconnus ou ambigus interrompent le balayage pour éviter une affectation silencieuse.
+
+Validation : 24 tests automatisés (y compris simulation du contrôleur vidéo, pause, historique, annulation et répétitions de codes). Le balayage matériel et sa vitesse restent à éprouver sur téléphone en conditions réelles. Le navigateur ne peut pas garantir qu'une perte de lecture due à un reflet sera distinguée d'une sortie de l'image.

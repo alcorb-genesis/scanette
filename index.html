@@ -199,7 +199,7 @@
   .logoutbtn{background:none;border:none;color:var(--muted);font-size:18px;
     cursor:pointer;padding:0 4px;}
 </style>
-<link rel="stylesheet" href="interface.css">
+<link rel="stylesheet" href="interface.css?v=20260917-sweep1">
 </head>
 <body>
 
@@ -333,7 +333,7 @@
 <input type="file" id="ocrFile" accept="image/*" capture="environment" style="display:none">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
-<script src="core.js"></script>
+<script src="core.js?v=20260917-sweep1"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
@@ -345,9 +345,10 @@
    - aliases : ean -> ref  (catalogue PARTAGÉ via Supabase)
    ========================================================= */
 let currentUserId=null, sessionEpoch=0, storageReady=false;
+let scanHistory=[];
 let sections=[], aliases=Object.create(null), pushQueue=[];
 let pendingEan=null, selected={};
-function snapshot(){return {version:1,sections,aliases,pushQueue};}
+function snapshot(){return {version:1,sections,aliases,pushQueue,recentScans:scanHistory};}
 function storageError(error){
   storageReady=false;
   const notice=document.getElementById('storageWarning');
@@ -364,7 +365,7 @@ function save(){
 }
 function loadAccount(userId){
   const data=ScanetteCore.read(localStorage,userId);
-  sections=data.sections;aliases=data.aliases;pushQueue=data.pushQueue;
+  sections=data.sections;aliases=data.aliases;pushQueue=data.pushQueue;scanHistory=data.recentScans||[];
   storageReady=true;
   document.getElementById('storageWarning').hidden=true;
   // Explicitly assign legacy device data once; leave original keys untouched for recovery.
@@ -397,7 +398,7 @@ document.getElementById('restoreFile').addEventListener('change',async event=>{
     // Restoring a file must never publish its catalogue or pending uploads to the server.
     restored.pushQueue=[];
     ScanetteCore.write(localStorage,currentUserId,restored);
-    sections=restored.sections;aliases=restored.aliases;pushQueue=[];storageReady=true;
+    scanHistory=restored.recentScans||[];sections=restored.sections;aliases=restored.aliases;pushQueue=[];storageReady=true;
     document.getElementById('storageWarning').hidden=true;lastAction=null;selected={};
     render();updateLastScanBar();flash('Pointage restauré sur cet appareil.');
   }catch(error){alert('Restauration impossible : '+error.message);}
@@ -1187,7 +1188,7 @@ document.getElementById('pdfBtn').addEventListener('click',()=>{
 /* ---------- Vider ---------- */
 document.getElementById('clearBtn').addEventListener('click',()=>{
   if(confirm('Vider toute la liste de pointage ?\n(Le catalogue partagé code-barres → référence est conservé.)')){
-    sections=[];save();render();updateCurSection();}
+    sections=[];scanHistory=[];window.Sweep?.reset();save();render();updateCurSection();}
 });
 
 /* ---------- Filtre ---------- */
@@ -1203,9 +1204,10 @@ const loginErr=document.getElementById('loginErr');
 
 function showApp(session){
   if(currentUserId!==session.user.id){
+    window.Sweep?.reset();
     window.Warehouse?.reset();
     sessionEpoch++;syncJob=null;currentUserId=session.user.id;
-    sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
+    scanHistory=[];sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
     try{loadAccount(currentUserId);}catch(error){storageError(error);}
   }
   authToken=session.access_token;
@@ -1253,9 +1255,10 @@ document.getElementById('logoutBtn').addEventListener('click', async ()=>{
 });
 
 function clearAccount(){
+  window.Sweep?.reset();
   window.Warehouse?.reset();
   sessionEpoch++;syncJob=null;currentUserId=null;authToken=null;storageReady=false;
-  sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
+  scanHistory=[];sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
   if(scanning)stopScan();stopLiveStream();refModal.classList.remove('open');
   render();updateLastScanBar();
 }
@@ -1280,6 +1283,6 @@ supaClient.auth.onAuthStateChange((event,session)=>{
 })();
 </script>
 </div>
-<script src="warehouse.js"></script>
+<script src="warehouse.js?v=20260917-sweep1"></script><script src="sweep-tracker.js?v=20260917-sweep1"></script><script src="sweep.js?v=20260917-sweep1"></script>
 </body>
 </html>

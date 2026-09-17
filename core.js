@@ -1,7 +1,7 @@
 (function(root){
   'use strict';
   const VERSION=1;
-  const empty=()=>({version:VERSION,sections:[],aliases:{},pushQueue:[]});
+  const empty=()=>({version:VERSION,sections:[],aliases:{},pushQueue:[],recentScans:[]});
   function validate(value){
     if(!value || value.version!==VERSION || !Array.isArray(value.sections) ||
        !value.aliases || typeof value.aliases!=='object' || Array.isArray(value.aliases) ||
@@ -31,6 +31,10 @@
       if(!row || typeof row.ean!=='string' || !row.ean || typeof row.ref!=='string' || !row.ref) throw Error('Catalogue en attente invalide.');
       return {ean:row.ean,ref:row.ref};
     });
+    if(value.recentScans!==undefined){
+      if(!Array.isArray(value.recentScans)||value.recentScans.length>4)throw Error('Historique invalide.');
+      out.recentScans=value.recentScans.map(row=>{if(!row||typeof row.reference!=='string'||typeof row.description!=='string'||!Number.isFinite(row.time))throw Error('Historique invalide.');return {reference:row.reference,description:row.description,time:row.time};});
+    }
     return out;
   }
   function storageKey(userId){if(!userId)throw Error('Session absente.');return 'scanette_account_v1:'+userId;}

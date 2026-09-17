@@ -16,9 +16,10 @@ async function resolve(code){
  if(!Array.isArray(products))throw Error('Réponse catalogue invalide.');
  return products;
 }
-function commit(entries){
+function commit(entries,options={}){
  if(!currentUserId||!storageReady)throw Error('Enregistrement indisponible.');
  const next=ScanetteCore.validate(snapshot());
+ if(options.recentScans)next.recentScans=options.recentScans;
  if(!next.sections.length)next.sections.push({name:'DIVERS',items:Object.create(null)});
  const target=next.sections[next.sections.length-1];
  let last=null;
@@ -33,7 +34,7 @@ function commit(entries){
  }
  // One durable write for the whole lot; in-memory totals change only after success.
  ScanetteCore.write(localStorage,currentUserId,next);
- sections=next.sections;aliases=next.aliases;pushQueue=next.pushQueue;lastAction=last;
+ scanHistory=next.recentScans;sections=next.sections;aliases=next.aliases;pushQueue=next.pushQueue;lastAction=last;
  render();updateCurSection();updateLastScanBar();beep();
  flash(entries.length===1?'✓ '+(entries[0].product?.reference||entries[0].reference)+' ajouté':'✓ Lot ajouté au pointage');
 }

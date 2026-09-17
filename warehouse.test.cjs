@@ -41,3 +41,25 @@ test('light camera is bounded and a late stream is stopped after close',async()=
  assert.equal(requested.video.width.max,1600);assert.equal(requested.video.height.max,1600);assert.equal(requested.audio,false);
  h.run("document.getElementById('paletteClose').onclick()");release({getTracks:()=>[{stop:()=>stopped++}]});await opening;assert.equal(stopped,1);
 });
+test('video controller counts distinct labels, pauses, retains four recent adds and undoes safely',async()=>{
+ const h=await setup();h.context.SweepTracker=require('./sweep-tracker.js');
+ const ticks=[];h.context.setTimeout=(fn,ms)=>{if(ms===250)ticks.push(fn);return 1;};
+ const originalCreate=h.context.document.createElement;
+ h.context.document.createElement=()=>({...originalCreate(),getContext:()=>({drawImage(){},getImageData:()=>({width:200,height:200,data:new Uint8ClampedArray(200*200*4)})})});
+ const positions=[20,55,90,125,160];
+ h.context.Worker=class{postMessage(){Promise.resolve().then(()=>this.onmessage({data:{results:positions.map((x,i)=>({text:'CODE'+i,position:{topLeft:{x,y:20},topRight:{x:x+10,y:20},bottomRight:{x:x+10,y:30},bottomLeft:{x,y:30}}}))}}));}terminate(){}};
+ h.context.navigator.mediaDevices={getUserMedia:async()=>({getTracks:()=>[{stop(){}}]})};
+ h.run(fs.readFileSync('sweep.js','utf8'));
+ const el=id=>h.context.document.getElementById(id),recent=[];
+ el('sweepRecent').replaceChildren=()=>recent.splice(0);el('sweepRecent').append=item=>recent.push(item.textContent);
+ el('sweepVideo').play=async()=>{};el('sweepVideo').videoWidth=200;el('sweepVideo').videoHeight=200;
+ h.run("Warehouse.resolve=async code=>[{id:code,reference:code,description:'test'}]");
+ el('sweepDialog').open=true;await el('sweepToggle').onclick();await new Promise(r=>setImmediate(r));
+ assert.equal(h.run('sections.length'),0);assert.equal(ticks.length,1);
+ ticks.shift()();await new Promise(r=>setImmediate(r));
+ assert.equal(h.run('Object.keys(sections[0].items).length'),5);assert.equal(recent.length,4);assert.equal(JSON.parse(h.data.get('scanette_account_v1:alice')).recentScans.length,4);
+ el('sweepToggle').onclick();const saved=h.data.get('scanette_account_v1:alice');
+ if(ticks.length)ticks.shift()();await new Promise(r=>setImmediate(r));assert.equal(h.data.get('scanette_account_v1:alice'),saved);assert.equal(recent.length,4);
+ el('sweepUndo').onclick();assert.equal(h.run('Object.keys(sections[0].items).length'),4);
+});
+
