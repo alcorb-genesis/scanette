@@ -1,0 +1,5 @@
+private-import/
+*.env
+node_modules/
+.vercel/
+public/

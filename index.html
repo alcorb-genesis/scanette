@@ -2,8 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Scanette Inventaire</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>REPCLICK — Pointage</title>
 <style>
   :root{
     --bg:#0f1419;--panel:#1a2230;--panel2:#222d40;
@@ -176,9 +176,47 @@
   }
   .print-head{display:none;padding:16px;text-align:center;}
   .print-head h2{margin:0 0 4px;}
+
+  /* ---- écran de connexion ---- */
+  .loginscreen{position:fixed;inset:0;z-index:100;background:var(--bg);
+    display:flex;align-items:center;justify-content:center;padding:24px;}
+  .loginbox{width:100%;max-width:380px;background:var(--panel);
+    border:1px solid var(--line);border-radius:18px;padding:28px 22px;
+    box-shadow:0 10px 40px rgba(0,0,0,.5);}
+  .logintitle{font-size:26px;font-weight:800;text-align:center;margin-bottom:6px;}
+  .loginsub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:22px;
+    letter-spacing:.5px;text-transform:uppercase;}
+  .loginbox input{width:100%;padding:15px;font-size:16px;margin-bottom:12px;
+    border-radius:12px;border:1px solid var(--line);background:var(--panel2);
+    color:var(--text);}
+  .loginbox input:focus{outline:none;border-color:var(--accent2);}
+  .loginbox button{width:100%;padding:16px;font-size:17px;font-weight:800;
+    border:none;border-radius:12px;background:var(--accent);color:#fff;
+    box-shadow:0 5px 0 #c44a1d;cursor:pointer;letter-spacing:.5px;margin-top:6px;}
+  .loginbox button:active{transform:translateY(3px);box-shadow:0 2px 0 #c44a1d;}
+  .loginbox button:disabled{opacity:.6;cursor:default;}
+  .loginerr{margin-top:14px;font-size:14px;color:#ff8a7a;text-align:center;min-height:20px;}
+  .logoutbtn{background:none;border:none;color:var(--muted);font-size:18px;
+    cursor:pointer;padding:0 4px;}
 </style>
+<link rel="stylesheet" href="interface.css">
 </head>
 <body>
+
+<!-- ===== ECRAN DE CONNEXION ===== -->
+<div id="loginScreen" class="loginscreen">
+  <div class="loginbox">
+    <div class="logintitle">REPCLICK</div>
+    <div class="loginsub">Du rayon au pointage, sans détour.<br>Votre espace de réception et d’inventaire.</div>
+    <input type="email" id="loginEmail" placeholder="Adresse e-mail" autocomplete="username">
+    <input type="password" id="loginPass" placeholder="Mot de passe" autocomplete="current-password">
+    <button id="loginBtn">Se connecter</button>
+    <div class="loginerr" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ===== APPLICATION (masquée tant que non connecté) ===== -->
+<div id="appRoot" style="display:none">
 
 <div class="print-head">
   <h2>Feuille d'inventaire</h2>
@@ -186,14 +224,16 @@
 </div>
 
 <header>
-  <h1>📦 Scanette</h1>
+  <div class="brand"><div class="brand-mark" aria-hidden="true">▥</div><div><div class="brand-name">REPCLICK</div><div class="brand-caption">RÉCEPTION · INVENTAIRE</div></div></div>
   <div class="hright">
     <span class="count" id="lineCount">0 référence</span>
     <span class="syncdot" id="syncDot" title="État du catalogue partagé"></span>
+    <button class="logoutbtn" id="logoutBtn" title="Se déconnecter">⏻</button>
   </div>
 </header>
+<section class="intro-panel"><nav class="workspace-nav" aria-label="Espaces"><a class="active" href="./">Pointage</a><a href="bellecave.html">Bellecave · Catalogue</a></nav><h2>Chaque pièce compte.</h2><p>Choisissez un fournisseur, scannez vos pièces, puis exportez votre relevé.</p></section>
 
-<button class="scanbtn" id="scanBtn">▶ DÉMARRER LE SCAN</button>
+<button class="scanbtn" id="scanBtn">Démarrer le scan</button>
 
 <div id="reader"></div>
 <div id="zoomBar" class="zoombar">
@@ -214,7 +254,11 @@
   <button id="manualAdd">+</button>
 </div>
 
-<div class="feedback" id="feedback"></div>
+<div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+<div id="storageWarning" role="alert" hidden style="margin:16px;padding:16px;background:#6b2020;color:white"></div>
+<p style="margin:12px 16px;color:var(--muted);font-size:13px">Pointage personnel enregistré sur cet appareil. Le catalogue de références est partagé. Ces quantités ne représentent pas le stock disponible du magasin.</p>
+<div class="toolbar"><button id="backupBtn">Sauvegarder le pointage</button><button id="restoreBtn">Restaurer une sauvegarde</button></div>
+<input id="restoreFile" type="file" accept="application/json,.json" hidden>
 
 <div id="lastScanBar" class="lastscan">
   <div class="lastscan-info" id="lastScanInfo"></div>
@@ -288,6 +332,8 @@
 <canvas id="ocrCanvas"></canvas>
 <input type="file" id="ocrFile" accept="image/*" capture="environment" style="display:none">
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+<script src="core.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
@@ -298,106 +344,129 @@
      Le scan ajoute toujours dans la DERNIÈRE section.
    - aliases : ean -> ref  (catalogue PARTAGÉ via Supabase)
    ========================================================= */
-const K_SECTIONS='scanette_sections_v4';
-const K_ALIAS='scanette_aliases_v3';      // on hérite du catalogue local existant
-const K_PUSHQ='scanette_pushq_v4';
-const K_MIGR='scanette_supa_migrated_v1';
-
-let sections = load(K_SECTIONS) || [];
-/* migration : les quantités simples deviennent {qty, prix} */
-sections.forEach(sec=>{
-  Object.keys(sec.items||{}).forEach(r=>{
-    if(typeof sec.items[r]==='number') sec.items[r]={qty:sec.items[r], prix:null};
-  });
+let currentUserId=null, sessionEpoch=0, storageReady=false;
+let sections=[], aliases=Object.create(null), pushQueue=[];
+let pendingEan=null, selected={};
+function snapshot(){return {version:1,sections,aliases,pushQueue};}
+function storageError(error){
+  storageReady=false;
+  const notice=document.getElementById('storageWarning');
+  notice.hidden=false;
+  notice.textContent='Enregistrement impossible. Arrêtez le pointage et utilisez « Sauvegarder le pointage » pour conserver vos données. '+error.message;
+  if(scanning)stopScan();
+}
+function save(){
+  try{
+    if(!currentUserId || !storageReady)throw Error('Stockage indisponible.');
+    ScanetteCore.write(localStorage,currentUserId,snapshot());
+    return true;
+  }catch(error){storageError(error);throw error;}
+}
+function loadAccount(userId){
+  const data=ScanetteCore.read(localStorage,userId);
+  sections=data.sections;aliases=data.aliases;pushQueue=data.pushQueue;
+  storageReady=true;
+  document.getElementById('storageWarning').hidden=true;
+  // Explicitly assign legacy device data once; leave original keys untouched for recovery.
+  if(localStorage.getItem(ScanetteCore.storageKey(userId))===null &&
+     localStorage.getItem('scanette_sections_v4')!==null &&
+     localStorage.getItem('scanette_legacy_owner_v1')===null &&
+     confirm('Cet appareil contient un ancien pointage non associé à un compte. Est-ce votre pointage, à récupérer dans ce compte ?')){
+    const legacy=ScanetteCore.validate({version:1,
+      sections:JSON.parse(localStorage.getItem('scanette_sections_v4')||'[]'),
+      aliases:JSON.parse(localStorage.getItem('scanette_aliases_v3')||'{}'),
+      pushQueue:JSON.parse(localStorage.getItem('scanette_pushq_v4')||'[]')});
+    sections=legacy.sections;aliases=legacy.aliases;pushQueue=legacy.pushQueue;
+    save();localStorage.setItem('scanette_legacy_owner_v1',userId);
+  }else{save();}
+}
+document.getElementById('backupBtn').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;
+  a.download='scanette-pointage-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
-let aliases  = load(K_ALIAS) || {};
-let pushQueue= load(K_PUSHQ) || [];
-let pendingEan = null;
-let selected = {};   // "si|ref" -> true : lignes cochées pour déplacement
+document.getElementById('restoreBtn').addEventListener('click',()=>document.getElementById('restoreFile').click());
+document.getElementById('restoreFile').addEventListener('change',async event=>{
+  const file=event.target.files[0],epoch=sessionEpoch;event.target.value='';if(!file)return;
+  try{
+    if(file.size>25000000)throw Error('Fichier trop volumineux (25 Mo maximum).');
+    const restored=ScanetteCore.validate(JSON.parse(await file.text()));
+    if(epoch!==sessionEpoch)return;
+    if(!confirm('Remplacer le pointage de ce compte sur cet appareil ? Sauvegardez d’abord le pointage actuel.'))return;
+    // Restoring a file must never publish its catalogue or pending uploads to the server.
+    restored.pushQueue=[];
+    ScanetteCore.write(localStorage,currentUserId,restored);
+    sections=restored.sections;aliases=restored.aliases;pushQueue=[];storageReady=true;
+    document.getElementById('storageWarning').hidden=true;lastAction=null;selected={};
+    render();updateLastScanBar();flash('Pointage restauré sur cet appareil.');
+  }catch(error){alert('Restauration impossible : '+error.message);}
+});
+window.addEventListener('storage',event=>{
+  if(currentUserId && event.key===ScanetteCore.storageKey(currentUserId)){
+    storageError(Error('Ce compte a été modifié dans un autre onglet. Sauvegardez puis rechargez cette page.'));
+  }
+});
 
-function load(k){ try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;} }
-function save(){ try{
-  localStorage.setItem(K_SECTIONS,JSON.stringify(sections));
-  localStorage.setItem(K_ALIAS,JSON.stringify(aliases));
-  localStorage.setItem(K_PUSHQ,JSON.stringify(pushQueue));
-}catch(e){} }
-
-/* ---------- Catalogue partagé (Supabase) ---------- */
+/* ---------- Configuration Supabase ---------- */
+/* ⚠️ REMETS TES VRAIES VALEURS ICI ⚠️ */
 const SUPA_URL='https://pryocchvwmnuoidtitow.supabase.co';
 const SUPA_KEY='sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ';
-const SUPA_HEADERS={
-  'apikey':SUPA_KEY,
-  'Authorization':'Bearer '+SUPA_KEY,
-  'Content-Type':'application/json'
-};
-const syncDot=document.getElementById('syncDot');
 
-async function supaPull(){
-  try{
-    const r=await fetch(SUPA_URL+'/rest/v1/catalogue?select=ean,ref',{headers:SUPA_HEADERS});
-    if(!r.ok) throw new Error(r.status);
-    const rows=await r.json();
-    let added=0;
-    rows.forEach(row=>{
-      if(row.ean && row.ref && aliases[row.ean]!==row.ref){
-        aliases[row.ean]=row.ref; added++;
-      }
-    });
-    if(added) save();
-    syncDot.className='syncdot ok';
-    return true;
-  }catch(e){ syncDot.className='syncdot off'; return false; }
+/* ---------- Authentification ---------- */
+const supaClient = (window.supabase || supabase).createClient(SUPA_URL, SUPA_KEY);
+let authToken = null;   // jeton de session, renseigné après connexion
+
+/* En-têtes : le jeton de session remplace la clé seule.
+   Cela permet de durcir les RLS (rôle authenticated). */
+const syncDot=document.getElementById('syncDot');
+let syncJob=null;
+async function authenticatedFetch(path,options,epoch){
+  const {data,error}=await supaClient.auth.getSession();
+  if(error || !data.session || epoch!==sessionEpoch)throw Error('Reconnectez-vous.');
+  const response=await fetch(SUPA_URL+path,{...options,headers:{
+    apikey:SUPA_KEY,Authorization:'Bearer '+data.session.access_token,
+    'Content-Type':'application/json',...(options?.headers||{})}});
+  if(epoch!==sessionEpoch)throw Error('Session modifiée.');
+  if(!response.ok)throw Error('Catalogue indisponible ('+response.status+').');
+  return response;
 }
-async function supaPush(){
-  if(!pushQueue.length) return true;
-  try{
-    const batch=pushQueue.slice(0,200);
-    const r=await fetch(SUPA_URL+'/rest/v1/catalogue',{
-      method:'POST',
-      headers:{...SUPA_HEADERS,'Prefer':'resolution=merge-duplicates'},
-      body:JSON.stringify(batch)
-    });
-    if(!r.ok) throw new Error(r.status);
-    pushQueue=pushQueue.slice(batch.length);
-    save();
-    if(pushQueue.length) return supaPush();
-    syncDot.className='syncdot ok';
-    return true;
-  }catch(e){ syncDot.className='syncdot off'; return false; }
+async function synchronize(){
+  if(!currentUserId || !storageReady)return false;
+  if(syncJob)return syncJob;
+  const epoch=sessionEpoch;
+  syncJob=(async()=>{
+    try{
+      syncDot.className='syncdot';
+      while(pushQueue.length){
+        const batch=pushQueue.slice(0,200).map(row=>({...row}));
+        await authenticatedFetch('/rest/v1/catalogue',{method:'POST',headers:{Prefer:'resolution=merge-duplicates'},body:JSON.stringify(batch)},epoch);
+        if(epoch!==sessionEpoch)return false;
+        pushQueue=ScanetteCore.acknowledge(pushQueue,batch);save();
+      }
+      const rows=await ScanetteCore.pullAll(async(offset,size)=>{
+        const r=await authenticatedFetch('/rest/v1/catalogue?select=ean,ref&order=ean.asc&offset='+offset+'&limit='+size,{},epoch);
+        return r.json();
+      },()=>epoch===sessionEpoch);
+      if(epoch!==sessionEpoch)return false;
+      const pending=new Set(pushQueue.map(x=>x.ean));
+      for(const row of rows)if(row.ean && row.ref && !pending.has(row.ean))aliases[row.ean]=row.ref;
+      save();syncDot.className='syncdot ok';render();return true;
+    }catch(error){
+      if(epoch===sessionEpoch){syncDot.className='syncdot off';syncDot.title=error.message;}
+      return false;
+    }finally{if(epoch===sessionEpoch)syncJob=null;}
+  })();
+  return syncJob;
 }
 function queueAlias(ean,ref){
-  // remplace une entrée en attente pour le même ean
-  pushQueue=pushQueue.filter(x=>x.ean!==ean);
-  pushQueue.push({ean:ean,ref:ref});
-  save();
-  supaPush();
+  pushQueue=pushQueue.filter(row=>row.ean!==ean);pushQueue.push({ean,ref});save();synchronize();
 }
-async function fullSync(){
-  flash('🔄 Synchronisation…');
-  const a=await supaPush(); const b=await supaPull();
-  flash(a&&b?'✓ Catalogue à jour':'⚠ Hors-ligne — réessaie plus tard');
-  render();
-}
-/* migration : pousse le catalogue local existant une fois */
-(async function migrate(){
-  if(!localStorage.getItem(K_MIGR)){
-    Object.keys(aliases).forEach(e=>{
-      pushQueue=pushQueue.filter(x=>x.ean!==e);
-      pushQueue.push({ean:e,ref:aliases[e]});
-    });
-    save();
-    localStorage.setItem(K_MIGR,'1');
-  }
-  await supaPush();
-  await supaPull();
-  render();
-})();
-/* re-sync léger quand on revient sur l'app + toutes les 2 min */
-document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'){ supaPush(); supaPull().then(render); }
-});
-setInterval(()=>{ supaPush(); supaPull().then(render); }, 120000);
-document.getElementById('syncBtn').addEventListener('click', fullSync);
+async function fullSync(){flash('Synchronisation du catalogue…');const ok=await synchronize();flash(ok?'Catalogue à jour':'Catalogue non synchronisé — réessayez.');}
+async function startApp(){render();updateCurSection();await synchronize();}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible' && currentUserId)synchronize();});
+setInterval(()=>{if(currentUserId)synchronize();},120000);
+document.getElementById('syncBtn').addEventListener('click',fullSync);
 
 /* ---------- Normalisation ---------- */
 function normRef(r){ return String(r||'').toUpperCase().replace(/\s+/g,'').trim(); }
@@ -406,7 +475,7 @@ function normName(n){ return String(n||'').toUpperCase().trim(); }
 /* ---------- Sections fournisseurs ---------- */
 function currentSection(){
   if(!sections.length){
-    sections.push({name:'DIVERS', items:{}});
+    sections.push({name:'DIVERS', items:Object.create(null)});
     save();
   }
   return sections[sections.length-1];
@@ -415,7 +484,7 @@ document.getElementById('newSectionBtn').addEventListener('click',()=>{
   const n=prompt('Nom du fournisseur / de la marque :');
   const name=normName(n);
   if(!name) return;
-  sections.push({name:name, items:{}});
+  sections.push({name:name, items:Object.create(null)});
   save(); render(); updateCurSection();
   flash('▶ Section '+name);
 });
@@ -429,10 +498,11 @@ let lastAction=null; // {si, ref, n, ean} : dernier ajout, pour affichage + annu
 let lastScanEanDisplay=null; // ean du dernier code scanné (renseigné par onBarcode/assignRef)
 
 function bumpRef(ref, n){
+  if(!storageReady){alert('Enregistrement indisponible. Sauvegardez le pointage avant de continuer.');return;}
   ref=normRef(ref); n=Math.max(1,parseInt(n)||1);
   if(!ref) return;
   const sec=currentSection();
-  if(!sec.items[ref]) sec.items[ref]={qty:0, prix:null};
+  if(!Object.hasOwn(sec.items,ref)) sec.items[ref]={qty:0, prix:null};
   sec.items[ref].qty+=n;
   lastAction={si:sections.length-1, ref:ref, n:n, ean:lastScanEanDisplay};
   lastScanEanDisplay=null;
@@ -598,7 +668,7 @@ document.getElementById('moveBtn').addEventListener('click',()=>{
     if(!name) return;
     // réutilise une section de même nom si elle existe, sinon en crée une
     destIdx=sections.findIndex(s=>s.name===name);
-    if(destIdx<0){ sections.push({name:name, items:{}}); destIdx=sections.length-1; }
+    if(destIdx<0){ sections.push({name:name, items:Object.create(null)}); destIdx=sections.length-1; }
   }
   moveSelectedTo(destIdx, keys);
 });
@@ -760,14 +830,15 @@ function scanConfig(){
 }
 
 function startScan(){
+  if(!storageReady){alert('Enregistrement indisponible.');return;}
   readerDiv.style.display='block';
-  scanBtn.textContent='⏹ ARRÊTER LE SCAN';scanBtn.classList.add('stop');scanning=true;
+  scanBtn.textContent='Arrêter le scan';scanBtn.classList.add('stop');scanning=true;
   lastCode='';lastTime=0;scanLocked=false;candidateCode='';candidateCount=0;
   html5Qr=new Html5Qrcode("reader");
   html5Qr.start({facingMode:'environment'}, scanConfig(), onScan, ()=>{})
    .then(()=>{ applyZoomIfPossible(); })
    .catch(()=>{flash('⚠ Caméra refusée');
-     scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
+     scanBtn.textContent='Démarrer le scan';scanBtn.classList.remove('stop');
      scanning=false;readerDiv.style.display='none';});
 }
 let zoomCaps=null, currentZoom=3;
@@ -816,7 +887,7 @@ function stopScan(){
   if(html5Qr){html5Qr.stop().then(()=>html5Qr.clear()).catch(()=>{});}
   scanning=false;readerDiv.style.display='none';
   document.getElementById('zoomBar').classList.remove('show');
-  scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
+  scanBtn.textContent='Démarrer le scan';scanBtn.classList.remove('stop');
 }
 function pauseScanForModal(){
   wasScanningBeforeModal=scanning;
@@ -824,7 +895,7 @@ function pauseScanForModal(){
     html5Qr.stop().then(()=>html5Qr.clear()).catch(()=>{});
     scanning=false;readerDiv.style.display='none';
     document.getElementById('zoomBar').classList.remove('show');
-    scanBtn.textContent='▶ DÉMARRER LE SCAN';scanBtn.classList.remove('stop');
+    scanBtn.textContent='Démarrer le scan';scanBtn.classList.remove('stop');
   }
 }
 function resumeScanAfterModal(){
@@ -1111,8 +1182,90 @@ document.getElementById('clearBtn').addEventListener('click',()=>{
 /* ---------- Filtre ---------- */
 document.getElementById('filterBox').addEventListener('input',render);
 
-render();
-updateCurSection();
+/* =========================================================
+   AUTHENTIFICATION — l'app ne démarre qu'une fois connecté
+   ========================================================= */
+const loginScreen=document.getElementById('loginScreen');
+const appRoot=document.getElementById('appRoot');
+const loginBtn=document.getElementById('loginBtn');
+const loginErr=document.getElementById('loginErr');
+
+function showApp(session){
+  if(currentUserId!==session.user.id){
+    sessionEpoch++;syncJob=null;currentUserId=session.user.id;
+    sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
+    try{loadAccount(currentUserId);}catch(error){storageError(error);}
+  }
+  authToken=session.access_token;
+  loginScreen.style.display='none';appRoot.style.display='block';startApp();
+}
+function showLogin(msg){
+  appRoot.style.display='none';
+  loginScreen.style.display='flex';
+  loginErr.textContent=msg||'';
+}
+
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!email||!pass){ loginErr.textContent='Renseigne ton e-mail et ton mot de passe.'; return; }
+  loginBtn.disabled=true;
+  loginBtn.textContent='Connexion…';
+  loginErr.textContent='';
+  try{
+    const {data,error}=await supaClient.auth.signInWithPassword({email:email,password:pass});
+    if(error) throw error;
+    authToken=data.session.access_token;
+    document.getElementById('loginPass').value='';
+    showApp(data.session);
+  }catch(e){
+    loginErr.textContent='Identifiants incorrects.';
+  }
+  loginBtn.disabled=false;
+  loginBtn.textContent='Se connecter';
+}
+loginBtn.addEventListener('click', doLogin);
+document.getElementById('loginPass').addEventListener('keypress',e=>{
+  if(e.key==='Enter') doLogin();
+});
+document.getElementById('loginEmail').addEventListener('keypress',e=>{
+  if(e.key==='Enter') document.getElementById('loginPass').focus();
+});
+
+/* Déconnexion */
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+  if(!confirm('Se déconnecter ?')) return;
+  try{ await supaClient.auth.signOut(); }catch(e){}
+  clearAccount();
+  showLogin('');
+});
+
+function clearAccount(){
+  sessionEpoch++;syncJob=null;currentUserId=null;authToken=null;storageReady=false;
+  sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
+  if(scanning)stopScan();stopLiveStream();refModal.classList.remove('open');
+  render();updateLastScanBar();
+}
+// Defer work outside the auth callback, avoiding Supabase's auth lock.
+supaClient.auth.onAuthStateChange((event,session)=>{
+  setTimeout(()=>{
+    if(session)showApp(session);
+    else{clearAccount();showLogin(event==='SIGNED_OUT'?'Session fermée.':'');}
+  },0);
+});
+/* Session existante : si déjà connecté, on entre directement */
+(async function checkSession(){
+  try{
+    const {data}=await supaClient.auth.getSession();
+    if(data && data.session){
+      authToken=data.session.access_token;
+      showApp(data.session);
+      return;
+    }
+  }catch(e){}
+  showLogin('');
+})();
 </script>
+</div>
 </body>
 </html>

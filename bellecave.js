@@ -1,0 +1,105 @@
+'use strict';
+const client=supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co','sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ');
+const workspaceId='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
+const el=id=>document.getElementById(id);
+let userId=null,role=null,pageIndex=0,total=0,epoch=0,requestId=0,selectedProduct=null;
+let cameraScanner=null,cameraStarting=false,cameraGeneration=0;
+function status(text,error=false){el('status').textContent=text;el('status').classList.toggle('error',error);}
+async function enter(session){
+ if(!session){stopLookup();userId=null;role=null;epoch++;requestId++;selectedProduct=null;el('results').replaceChildren();el('detail').close();el('catalogue').hidden=true;el('login').hidden=false;el('logout').hidden=true;return;}
+ if(userId===session.user.id)return;
+ stopLookup();role=null;selectedProduct=null;el('results').replaceChildren();el('detail').close();el('catalogue').hidden=true;
+ userId=session.user.id;const current=++epoch;
+ el('login').hidden=true;el('logout').hidden=false;status('Vérification de l’accès Bellecave…');
+ const {data,error}=await client.from('scanette_members').select('role').eq('workspace_id',workspaceId).eq('user_id',userId).maybeSingle();
+ if(current!==epoch)return;
+ if(error||!data){status('Ce compte ne dispose pas encore d’un accès Bellecave. Contactez l’administrateur.',true);return;}
+ role=data.role;el('catalogue').hidden=false;pageIndex=0;await search();
+}
+async function search(){
+ if(!userId||!role)return;
+ const current=epoch,request=++requestId;
+ status('Recherche…');el('previous').disabled=true;el('next').disabled=true;
+ // Only letters, digits, spaces and common reference punctuation are used in PostgREST filters.
+ const term=el('query').value.trim().replace(/[^\p{L}\p{N}\s./_-]/gu,' ').replace(/[%_*]/g,' ').trim();
+ let query=client.from('scanette_products').select('*',{count:'exact'}).eq('workspace_id',workspaceId);
+ if(term){query=query.or('reference.ilike.%'+term+'%,order_reference.ilike.%'+term+'%,description.ilike.%'+term+'%,internal_barcode.eq.'+term+',manufacturer_barcode.eq.'+term);}
+ const {data,error,count}=await query.order('reference').order('id').range(pageIndex*40,pageIndex*40+39);
+ if(current!==epoch||request!==requestId)return;
+ if(error){status('Recherche indisponible. Réessayez dans un instant.',true);return;}
+ total=count||0;el('results').replaceChildren();
+ for(const product of data){
+  const card=document.createElement('article');card.className='card';
+  const ref=document.createElement('div');ref.className='ref';ref.textContent=product.reference;
+  const description=document.createElement('p');description.textContent=product.description;
+  const info=document.createElement('p');info.className='muted';info.textContent='Emplacement : '+(product.location||'non renseigné')+' · Stock : '+(product.stock_quantity===null?'non renseigné':product.stock_quantity+' (état daté)');
+  const button=document.createElement('button');button.textContent='Voir la fiche';button.addEventListener('click',()=>detail(product));
+  card.append(ref,description,info,button);el('results').append(card);
+ }
+ el('summary').textContent=total.toLocaleString('fr-FR')+' fiche(s) trouvée(s). En cas de code-barres partagé, vérifiez la désignation.';
+ el('page').textContent='Page '+(pageIndex+1)+' / '+Math.max(1,Math.ceil(total/40));
+ el('previous').disabled=pageIndex===0;el('next').disabled=(pageIndex+1)*40>=total;
+ status(total?'':'Aucune fiche correspondante.');
+}
+function detail(product){
+ selectedProduct=product;el('detailRef').textContent=product.reference;el('description').textContent=product.description;
+ el('identifiers').textContent='Référence commande : '+(product.order_reference||'—')+'\nCode interne : '+(product.internal_barcode||'—')+'\nCode fabricant : '+(product.manufacturer_barcode||'—');
+ el('quantity').textContent='Stock : '+(product.stock_quantity===null?'non renseigné':product.stock_quantity);
+ el('observed').textContent=product.stock_observed_at?'État du '+new Date(product.stock_observed_at).toLocaleString('fr-FR')+' — ne tient pas compte des mouvements non enregistrés.':'Aucune quantité de stock fournie dans le catalogue importé.';
+ el('location').value=product.location||'';el('location').disabled=role==='reader';el('saveLocation').hidden=role==='reader';el('saveLocation').disabled=false;el('detailStatus').textContent='';el('detail').showModal();
+}
+el('loginForm').addEventListener('submit',async event=>{
+ event.preventDefault();el('connect').disabled=true;status('Connexion…');
+ const {data,error}=await client.auth.signInWithPassword({email:el('email').value.trim(),password:el('password').value});
+ el('password').value='';el('connect').disabled=false;
+ if(error)status('Connexion impossible. Vérifiez vos identifiants.',true);else await enter(data.session);
+});
+el('logout').addEventListener('click',async()=>{const {error}=await client.auth.signOut();if(error)status('Déconnexion impossible. Réessayez.',true);else{enter(null);status('Déconnecté.');}});
+el('searchForm').addEventListener('submit',event=>{event.preventDefault();pageIndex=0;search();});
+el('previous').addEventListener('click',()=>{if(pageIndex>0){pageIndex--;search();}});
+el('next').addEventListener('click',()=>{if((pageIndex+1)*40<total){pageIndex++;search();}});
+el('closeDetail').addEventListener('click',()=>el('detail').close());
+el('saveLocation').addEventListener('click',async()=>{
+ if(!selectedProduct)return;
+ const product=selectedProduct,current=epoch;el('saveLocation').disabled=true;
+ const value=el('location').value.trim();
+ const {error}=await client.rpc('scanette_set_location',{product_id:product.id,new_location:value,expected_updated_at:product.updated_at});
+ if(current!==epoch)return;
+ el('saveLocation').disabled=false;
+ if(error){el('detailStatus').textContent='Enregistrement refusé ou fiche modifiée ailleurs. Fermez la fiche et relancez la recherche.';return;}
+ el('detail').close();await search();status('Emplacement enregistré.');
+});
+client.auth.onAuthStateChange((_event,session)=>setTimeout(()=>enter(session),0));
+client.auth.getSession().then(({data})=>enter(data.session));
+async function stopLookup(){
+ cameraGeneration++;
+ if(cameraScanner){const scanner=cameraScanner;cameraScanner=null;try{await scanner.stop();await scanner.clear();}catch(_){}}
+ el('camera').hidden=true;el('scanLookup').textContent='Scanner un code-barres';
+}
+el('scanLookup').addEventListener('click',async()=>{
+ if(cameraStarting)return;
+ if(cameraScanner){await stopLookup();return;}
+ cameraStarting=true;el('camera').hidden=false;el('scanLookup').disabled=true;
+ const generation=++cameraGeneration,current=epoch;
+ const scanner=new Html5Qrcode('camera');cameraScanner=scanner;let found=false;
+ try{
+  await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:120}},async code=>{
+   if(found||generation!==cameraGeneration||current!==epoch)return;found=true;el('query').value=code;pageIndex=0;
+   if(navigator.vibrate)navigator.vibrate(60);
+   await stopLookup();await search();
+  },()=>{});
+  if(generation!==cameraGeneration||current!==epoch){try{await scanner.stop();await scanner.clear();}catch(_){}return;}
+  el('scanLookup').textContent='Arrêter la caméra';
+ }catch(_){await stopLookup();status('Caméra indisponible. Vous pouvez saisir le code ou utiliser un lecteur externe.',true);}
+ finally{cameraStarting=false;el('scanLookup').disabled=false;}
+});
+el('copyReference').addEventListener('click',async()=>{
+ if(!selectedProduct)return;
+ try{await navigator.clipboard.writeText(selectedProduct.reference);el('detailStatus').textContent='Référence copiée.';}
+ catch(_){el('detailStatus').textContent='Copie indisponible. Référence : '+selectedProduct.reference;}
+});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')stopLookup();});
+document.addEventListener('keydown',event=>{
+ if(event.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)&&!el('catalogue').hidden){event.preventDefault();el('query').focus();}
+ if(event.key==='Escape')stopLookup();
+});
