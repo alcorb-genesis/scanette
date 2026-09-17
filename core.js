@@ -16,6 +16,9 @@
         if(!ref || !it || !Number.isSafeInteger(it.qty) || it.qty<0 ||
            (it.prix!==null && (!Number.isFinite(it.prix) || it.prix<0))) throw Error('Quantité ou prix invalide.');
         items[ref]={qty:it.qty,prix:it.prix};
+        for(const key of ['productId','reference','description','barcode']){
+          if(it[key]!==undefined){if(typeof it[key]!=='string'||it[key].length>2000)throw Error('Fiche invalide.');items[ref][key]=it[key];}
+        }
       }
       return {name:s.name,items};
     });

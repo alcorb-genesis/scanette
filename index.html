@@ -256,7 +256,7 @@
 
 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
 <div id="storageWarning" role="alert" hidden style="margin:16px;padding:16px;background:#6b2020;color:white"></div>
-<p style="margin:12px 16px;color:var(--muted);font-size:13px">Pointage personnel enregistré sur cet appareil. Le catalogue de références est partagé. Ces quantités ne représentent pas le stock disponible du magasin.</p>
+<p style="margin:12px 16px;color:var(--muted);font-size:13px">Pointage personnel enregistré sur cet appareil. Les codes sont recherchés dans Bellecave, puis dans le catalogue historique. Ces quantités ne représentent pas le stock disponible du magasin.</p>
 <div class="toolbar"><button id="backupBtn">Sauvegarder le pointage</button><button id="restoreBtn">Restaurer une sauvegarde</button></div>
 <input id="restoreFile" type="file" accept="application/json,.json" hidden>
 
@@ -516,8 +516,9 @@ function updateLastScanBar(){
   if(!lastAction){ bar.classList.remove('show'); return; }
   const sec=sections[lastAction.si];
   const stillThere = sec && sec.items[lastAction.ref];
+  const shownRef=stillThere?.reference||lastAction.ref;
   document.getElementById('lastScanInfo').innerHTML=
-    '<span class="ls-ref">'+esc(lastAction.ref)+'</span>'+
+    '<span class="ls-ref">'+esc(shownRef)+'</span>'+
     '  (+'+lastAction.n+(stillThere?(' → ×'+sec.items[lastAction.ref].qty):'')+')'+
     (lastAction.ean?('<div class="ls-ean">'+esc(lastAction.ean)+'</div>'):'');
   bar.classList.toggle('show', true);
@@ -525,7 +526,7 @@ function updateLastScanBar(){
 document.getElementById('lastScanInfo').addEventListener('click',()=>{
   if(!lastAction) return;
   // retrouve la ligne : filtre sur la référence
-  document.getElementById('filterBox').value=lastAction.ref;
+  document.getElementById('filterBox').value=sections[lastAction.si]?.items[lastAction.ref]?.reference||lastAction.ref;
   render();
 });
 document.getElementById('lastScanUndo').addEventListener('click',()=>{
@@ -542,12 +543,22 @@ document.getElementById('lastScanUndo').addEventListener('click',()=>{
 });
 
 /* ---------- Arrivée d'un scan code-barres ---------- */
-function onBarcode(ean){
+async function onBarcode(ean){
   ean=String(ean||'').trim();
-  if(!ean) return;
-  const known=aliases[ean];
-  if(known){ lastScanEanDisplay=ean; bumpRef(known,1); }
-  else { pendingEan=ean; captureFrameAndAsk(ean); }
+  if(!ean || !storageReady)return;
+  const epoch=sessionEpoch;
+  try{
+    const matches=await Warehouse.resolve(ean);
+    if(epoch!==sessionEpoch)return;
+    if(matches.length){
+      const product=matches.length===1?matches[0]:await Warehouse.choose(matches);
+      if(product && epoch===sessionEpoch)Warehouse.commit([{product,code:ean,qty:1}]);
+      return;
+    }
+    const known=aliases[ean];
+    if(known){lastScanEanDisplay=ean;bumpRef(known,1);}
+    else{pendingEan=ean;captureFrameAndAsk(ean);}
+  }catch(error){if(epoch===sessionEpoch)alert('Pièce non ajoutée : '+error.message);}
 }
 
 /* ---------- Association EAN -> réf ---------- */
@@ -582,7 +593,7 @@ function changeQty(si,ref,d){
 }
 function setQty(si,ref){
   const sec=sections[si]; if(!sec||!sec.items[ref])return;
-  const v=prompt('Quantité totale pour '+ref+' :', sec.items[ref].qty);
+  const v=prompt('Quantité totale pour '+(sec.items[ref].reference||ref)+' :', sec.items[ref].qty);
   if(v===null) return;
   const n=parseInt(v);
   if(isNaN(n)||n<0) return;
@@ -592,7 +603,7 @@ function setQty(si,ref){
 function setPrice(si,ref){
   const sec=sections[si]; if(!sec||!sec.items[ref])return;
   const cur=sec.items[ref].prix;
-  const v=prompt('Prix unitaire (€) pour '+ref+' :\n(vide pour effacer)',
+  const v=prompt('Prix unitaire (€) pour '+(sec.items[ref].reference||ref)+' :\n(vide pour effacer)',
                  cur!=null?String(cur).replace('.',','):'');
   if(v===null) return;
   const t=v.trim();
@@ -612,6 +623,7 @@ function delLine(si,ref){
   delete sec.items[ref]; save(); render();
 }
 function renameRef(si,oldRef){
+  if(sections[si]?.items[oldRef]?.productId){alert('Cette référence provient de Bellecave. Sa fiche conserve son identité dans le catalogue.');return;}
   const sec=sections[si]; if(!sec)return;
   const nr=prompt('Nouvelle référence :', oldRef);
   if(!nr) return;
@@ -708,7 +720,7 @@ function render(){
     let refs=Object.keys(sec.items).sort();
     Object.values(sec.items).forEach(it=>total+=it.qty);
     refCount+=refs.length;
-    if(filter) refs=refs.filter(r=>r.includes(filter));
+    if(filter) refs=refs.filter(r=>normRef(sec.items[r].reference||r).includes(filter)||normRef(sec.items[r].description||'').includes(filter));
     if(!refs.length && filter) return; // section vide sous filtre : masquée
     const trs=document.createElement('tr');
     trs.className='sec';
@@ -719,13 +731,13 @@ function render(){
     refs.forEach(ref=>{
       anyLine=true;
       const it=sec.items[ref];
-      const eans=Object.keys(aliases).filter(e=>aliases[e]===ref);
+      const eans=it.barcode?[it.barcode]:Object.keys(aliases).filter(e=>aliases[e]===ref);
       const tr=document.createElement('tr');
       const key=si+'|'+ref;
       tr.innerHTML=`
         <td>
           <input type="checkbox" class="selchk" data-sel="${esc(key)}" ${selected[key]?'checked':''}>
-          <div class="ref-name" style="display:inline-block;vertical-align:middle">${esc(ref)}</div>
+          <div class="ref-name" style="display:inline-block;vertical-align:middle">${esc(it.reference||ref)}</div>${it.description?'<div class="ean">'+esc(it.description)+'</div>':''}
           <div class="prix ${it.prix==null?'noprice':''}" data-setprice="${si}|${esc(ref)}">${it.prix!=null?fmtPrix(it.prix):'+ prix'}</div>
           ${eans.length?('<div class="ean">'+eans.slice(0,3).map(esc).join(' · ')+'</div>'):''}
         </td>
@@ -879,8 +891,7 @@ function onScan(decoded){
   lastCode=decoded; lastTime=now;
   candidateCode=''; candidateCount=0;
   scanLocked=true;
-  onBarcode(decoded);
-  setTimeout(()=>{ scanLocked=false; }, SCAN_COOLDOWN);
+  Promise.resolve(onBarcode(decoded)).finally(()=>setTimeout(()=>{scanLocked=false;},SCAN_COOLDOWN));
 }
 
 function stopScan(){
@@ -1149,12 +1160,12 @@ function preprocessCanvas(canvas){
 
 /* ---------- Export CSV ---------- */
 document.getElementById('csvBtn').addEventListener('click',()=>{
-  const rows=[['Fournisseur','Reference','Quantite','Prix']];
+  const rows=[['Fournisseur','Reference','Quantite','Prix','Designation','CodeBarres']];
   sections.forEach(sec=>{
     Object.keys(sec.items).sort().forEach(ref=>{
       const it=sec.items[ref];
-      rows.push([sec.name,ref,it.qty,
-        it.prix!=null?String(it.prix.toFixed(2)).replace('.',','):'']);
+      rows.push([sec.name,it.reference||ref,it.qty,
+        it.prix!=null?String(it.prix.toFixed(2)).replace('.',','):'',it.description||'',it.barcode||'']);
     });
   });
   const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
@@ -1192,6 +1203,7 @@ const loginErr=document.getElementById('loginErr');
 
 function showApp(session){
   if(currentUserId!==session.user.id){
+    window.Warehouse?.reset();
     sessionEpoch++;syncJob=null;currentUserId=session.user.id;
     sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
     try{loadAccount(currentUserId);}catch(error){storageError(error);}
@@ -1241,6 +1253,7 @@ document.getElementById('logoutBtn').addEventListener('click', async ()=>{
 });
 
 function clearAccount(){
+  window.Warehouse?.reset();
   sessionEpoch++;syncJob=null;currentUserId=null;authToken=null;storageReady=false;
   sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
   if(scanning)stopScan();stopLiveStream();refModal.classList.remove('open');
@@ -1267,5 +1280,6 @@ supaClient.auth.onAuthStateChange((event,session)=>{
 })();
 </script>
 </div>
+<script src="warehouse.js"></script>
 </body>
 </html>
