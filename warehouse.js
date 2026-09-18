@@ -123,6 +123,31 @@ function decodeCanvas(canvas){
   catch(error){finish(error);}
  });
 }
+async function photoDecodeWidth(file){
+ // Read dimensions without decoding a full-resolution camera image.
+ const header=new DataView(await file.slice(0,262144).arrayBuffer());
+ let width=0,height=0,orientation=1;
+ if(header.byteLength>=24&&header.getUint32(0)===0x89504e47&&header.getUint32(4)===0x0d0a1a0a){width=header.getUint32(16);height=header.getUint32(20);}
+ else if(header.byteLength>4&&header.getUint16(0)===0xffd8){
+  for(let offset=2;offset+4<=header.byteLength;){
+   if(header.getUint8(offset)!==0xff)break;
+   const marker=header.getUint8(offset+1),size=header.getUint16(offset+2),end=offset+2+size;
+   if(marker===0xda||marker===0xd9||size<2||end>header.byteLength)break;
+   if([0xc0,0xc1,0xc2,0xc3,0xc5,0xc6,0xc7,0xc9,0xca,0xcb,0xcd,0xce,0xcf].includes(marker)&&size>=8){height=header.getUint16(offset+5);width=header.getUint16(offset+7);}
+   if(marker===0xe1&&size>=16&&header.getUint32(offset+4)===0x45786966){
+    const base=offset+10,little=header.getUint16(base)===0x4949;
+    const directory=base+header.getUint32(base+4,little);
+    if(directory>=base&&directory+2<=end){
+     const count=header.getUint16(directory,little);
+     for(let i=0;i<count;i++){const entry=directory+2+i*12;if(entry+12>end)break;if(header.getUint16(entry,little)===0x112){orientation=header.getUint16(entry+8,little);break;}}
+    }
+   }
+   offset=end;
+  }
+ }
+ if(width>0&&height>0){if(orientation>=5&&orientation<=8)[width,height]=[height,width];return Math.max(1,Math.round(width*Math.min(1,1600/Math.max(width,height))));}
+ return 1200;
+}
 byId('paletteFile').onchange=async event=>{
  const file=event.target.files[0];event.target.value='';if(!file)return;
  stopPaletteCamera();const token=++generation,epoch=sessionEpoch;busy=true;committed=false;rows=[];detections=[];byId('paletteRows').replaceChildren();byId('paletteVerified').checked=false;byId('paletteFile').disabled=true;update();
@@ -130,7 +155,9 @@ byId('paletteFile').onchange=async event=>{
  const oldCanvas=byId('paletteCanvas');oldCanvas.width=1;oldCanvas.height=1;releaseDecoder();
  try{
   if(file.size>25000000)throw Error('Photo trop volumineuse (25 Mo maximum).');
-  const bitmap=await createImageBitmap(file,{resizeWidth:1200,resizeQuality:'medium'});
+  const resizeWidth=await photoDecodeWidth(file);
+  if(token!==generation)return;
+  const bitmap=await createImageBitmap(file,{resizeWidth,resizeQuality:'high'});
   if(token!==generation){bitmap.close();return;}
   const canvas=byId('paletteCanvas'),scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
   await analyzePalette(canvas,token,epoch);

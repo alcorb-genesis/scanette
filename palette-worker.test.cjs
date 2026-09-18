@@ -1,4 +1,13 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+test('photo import preserves small PNG pixels and bounds rotated JPEG decoding',async()=>{
+ const source=fs.readFileSync(__dirname+'/warehouse.js','utf8');
+ const fn=source.slice(source.indexOf('async function photoDecodeWidth('),source.indexOf("byId('paletteFile').onchange="));
+ const context=vm.createContext({DataView});vm.runInContext(fn,context);
+ const png=Buffer.alloc(24);png.writeUInt32BE(0x89504e47,0);png.writeUInt32BE(0x0d0a1a0a,4);png.writeUInt32BE(720,16);png.writeUInt32BE(1600,20);
+ assert.equal(await context.photoDecodeWidth(new Blob([png])),720);
+ const jpeg=Buffer.alloc(49);jpeg.writeUInt16BE(0xffd8,0);jpeg.writeUInt16BE(0xffe1,2);jpeg.writeUInt16BE(34,4);jpeg.write('Exif\0\0',6);jpeg.write('II',12);jpeg.writeUInt16LE(42,14);jpeg.writeUInt32LE(8,16);jpeg.writeUInt16LE(1,20);jpeg.writeUInt16LE(0x112,22);jpeg.writeUInt16LE(3,24);jpeg.writeUInt32LE(1,26);jpeg.writeUInt16LE(6,30);jpeg.writeUInt16BE(0xffc0,38);jpeg.writeUInt16BE(9,40);jpeg.writeUInt16BE(3000,43);jpeg.writeUInt16BE(4000,45);
+ assert.equal(await context.photoDecodeWidth(new Blob([jpeg])),1200);
+});
 test('photo zoom stays bounded, maps coordinates back and merges overlapping detections',async()=>{
  let calls=0,reply;
  const ctx={Uint8ClampedArray,ImageData:class{constructor(data,width,height){Object.assign(this,{data,width,height});}},importScripts(){},self:{postMessage(r){reply=r;}},ZXingWASM:{async readBarcodes(image){
