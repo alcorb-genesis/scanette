@@ -113,13 +113,13 @@ let activeDecoder=null;
 function releaseDecoder(){if(activeDecoder){activeDecoder.cancel();activeDecoder=null;}}
 function decodeCanvas(canvas){
  return new Promise((resolve,reject)=>{
-  const worker=new Worker('palette-worker.js');let settled=false;
+  const worker=new Worker('palette-worker.js?v=20260919-photo1');let settled=false;
   const finish=(error,result)=>{if(settled)return;settled=true;clearTimeout(timer);worker.terminate();activeDecoder=null;error?reject(error):resolve(result);};
   const timer=setTimeout(()=>finish(Error('Analyse trop longue. Photographiez une zone plus petite.')),35000);
   activeDecoder={cancel:()=>finish(Error('Analyse annulée.'))};
   worker.onmessage=event=>event.data.error?finish(Error(event.data.error)):finish(null,event.data.results);
   worker.onerror=()=>finish(Error('Mémoire ou moteur de lecture indisponible. Essayez une photo plus petite.'));
-  try{const image=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height);worker.postMessage({width:image.width,height:image.height,buffer:image.data.buffer},[image.data.buffer]);}
+  try{const image=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height);worker.postMessage({width:image.width,height:image.height,buffer:image.data.buffer,photo:true},[image.data.buffer]);}
   catch(error){finish(error);}
  });
 }
@@ -140,7 +140,7 @@ byId('paletteFile').onchange=async event=>{
 async function analyzePalette(canvas,token,epoch){
  const status=byId('paletteStatus');
   byId('paletteOverlay').setAttribute('viewBox','0 0 '+canvas.width+' '+canvas.height);
-  status.textContent='Lecture des codes · mode mémoire réduite…';
+  status.textContent='Lecture des codes puis agrandissement par zones · patientez…';
   const found=await decodeCanvas(canvas);
   if(token!==generation||epoch!==sessionEpoch)return;
   detections=found.filter(x=>x.text&&x.isValid!==false);
