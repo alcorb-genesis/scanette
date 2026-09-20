@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync('gestion-demo.js','utf8');
-function setup(){const body={innerHTML:''},root={querySelector:()=>body,querySelectorAll:()=>[],dataset:{},style:{setProperty(){}},addEventListener(){}};const c={document:{getElementById:()=>root},window:{addEventListener(){}},console};vm.createContext(c);vm.runInContext(source.replace(' restore(window.openai?.widgetState);',' globalThis.api={handle,stock,extension,routing,calendarRows,replenishmentState,dueFor,creditFor,ttc,journalRows,views,render,readyQty,simulationStale,getState:()=>s}; restore(window.openai?.widgetState);'),c);return c.api;}
+function setup(){const body={innerHTML:''},root={querySelector:()=>body,querySelectorAll:()=>[],dataset:{},style:{setProperty(){}},addEventListener(){}};const c={document:{getElementById:()=>root},window:{addEventListener(){}},console};vm.createContext(c);vm.runInContext(source.replace(' restore(window.openai?.widgetState);',' globalThis.api={switchStore,handle,stock,extension,routing,calendarRows,replenishmentState,dueFor,creditFor,ttc,journalRows,views,render,readyQty,simulationStale,getState:()=>s}; restore(window.openai?.widgetState);'),c);return c.api;}
 {
 const a=setup(),d=a.getState().docs.find(d=>d.type==='FA');a.handle('x-pay-open:'+d.id);a.handle('x-pay-confirm');a.handle('return-open:'+d.id);a.handle('return-confirm');assert.equal(a.creditFor(d),1740);assert.ok(a.views.payments().includes('Crédit client'));a.handle('refund:'+d.id);a.handle('refund:'+d.id);assert.equal(a.creditFor(d),0);assert.equal(a.journalRows().reduce((n,r)=>n+r[2]-r[3],0),0);
 }
@@ -20,3 +20,5 @@ const a=setup();a.handle('m-simulate');const r=a.routing();a.replenishmentState(
 const a=setup();for(const page of Object.keys(a.views)){a.getState().page=page;a.render();}const initial=a.stock(0);a.handle('x-portal-add:0');a.handle('x-portal-send');const d=a.getState().docs.at(-1);a.handle('invoice:'+d.id);a.handle('invoice:'+d.id);a.handle('stage:'+d.id);a.handle('dispatch-ready');assert.equal(a.stock(0),initial-1);
 }
 console.log('PASS six corrections, remboursement unique, 15 vues, portail/facturation/départ sans double sortie');
+
+{const a=setup();a.getState().moves.push({i:0,n:7,doc:'STORE-TEST',kind:'receive'});const first=a.stock(0);a.switchStore('landes');assert.equal(a.stock(0),first-7);a.getState().moves.push({i:0,n:2,doc:'OTHER-TEST',kind:'receive'});a.switchStore('bellecave');assert.equal(a.stock(0),first);a.switchStore('landes');assert.equal(a.stock(0),first-5);}console.log('PASS magasins de demonstration independants pendant la session');

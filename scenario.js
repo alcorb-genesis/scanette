@@ -26,3 +26,5 @@ $('view').onclick=e=>{const target=e.target.closest('[data-go]');if(target){page
 $('view').onchange=e=>{if(e.target.dataset.orderqty){act('orderqty',{id:e.target.dataset.orderqty,quantity:e.target.value.trim()===''?NaN:Number(e.target.value)});render();}else if(e.target.dataset.count){act('count',{id:e.target.dataset.count,quantity:e.target.value.trim()===''?NaN:Number(e.target.value)});render();}};
 $('reset').onclick=()=>{if(!confirm('Effacer uniquement la progression de ce scénario fictif sur cet appareil ?'))return;try{const next=C.initial(new Date().toISOString());localStorage.setItem(key,JSON.stringify(next));state=next;loadError=false;page='home';$('notice').textContent='Nouvelle simulation.';render();}catch{$('notice').textContent='Impossible de sauvegarder sur cet appareil.';}};
 render();if(loadError)$('notice').textContent='Sauvegarde illisible. Utilise « Recommencer la simulation » pour repartir explicitement de zéro.';
+
+if(new URLSearchParams(location.search).get('embedded')==='1')document.querySelectorAll('header a').forEach(el=>el.style.display='none');
