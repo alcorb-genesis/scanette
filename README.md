@@ -2,6 +2,22 @@
 
 Application statique de pointage et catalogue magasin. Aucun serveur applicatif n'est nécessaire ; l'authentification et les données partagées utilisent Supabase.
 
+## Alcorb Gestion — réception partagée, 20 septembre 2026
+
+`gestion.html` est le module réel de réception et de suivi de stock. `gestion-demo.html` reste une démonstration indépendante avec données fictives : elle ne produit aucune vente réelle et n'alimente pas le stock partagé.
+
+Depuis Scanette, « Contrôler et transmettre » crée une réception sans mouvement de stock. Les lignes doivent toutes être liées à Bellecave. Les quantités déjà transmises sur ce compte et cet appareil sont conservées ; une transmission suivante ne reprend que l'augmentation du pointage. Un pointage diminué nécessite un nouveau cycle, après vidage explicite du pointage et vérification des réceptions précédentes. Un changement d'appareil ne transporte pas automatiquement cette mémoire locale : ne pas retransmettre un ancien export depuis un autre appareil.
+
+Dans Gestion, l'opérateur contrôle les quantités acceptées maintenant ; une validation partielle laisse le reliquat visible. Les réessais utilisent un identifiant conservé avant la requête. La fonction PostgreSQL contrôle le rôle, les quantités et l'identifiant, puis enregistre lignes et mouvements dans une transaction. Le catalogue Bellecave consulte le même stock suivi.
+
+Le stock reste inconnu jusqu'à un comptage initial administrateur. Un comptage est un nouvel état de référence, pas une réception. Les ventes du logiciel externe ne sont pas importées : le stock suivi ne doit pas être présenté comme une disponibilité commerciale complète. Les réceptions ne sont pas encore rapprochées de véritables commandes fournisseur ; leur nom permet d'indiquer le bon concerné.
+
+`gestion-schema.sql` a été appliqué le 20 septembre 2026 : ne pas le rejouer sans vérifier la base. `gestion-security-test.sql` teste les RPC en annulant les écritures. Les migrations et les tests sont exclus des fichiers publics par `build.cjs`.
+
+Validation : 32 tests Scanette/transmission passent avec `node --test --test-isolation=none core.test.cjs warehouse.test.cjs sweep.test.cjs palette-worker.test.cjs gestion-core.test.cjs gestion-bridge.test.cjs`. `node gestion-demo.test.cjs` vérifie les six corrections de la démonstration. Des tests PostgreSQL locaux couvrent aussi RLS, rôles, rejeu, réception partielle, comptage et conflit de version ; les tests transactionnels sur Supabase ont réussi, avec zéro réception de test conservée.
+
+Corrections de la démonstration : crédit client visible et remboursement simulé unique ; quantité à préparer réduite après annulation physique avant départ ; achat supplémentaire bloqué pour un attendu APO non daté/en retard ; prix fournisseur commun aux deux chemins ; synthèse CA magasin rétablie ; nouvelle validation bloquée après modification des paramètres de simulation.
+
 ## Fichiers de publication
 
 Publier uniquement `index.html`, `core.js`, `interface.css`, `bellecave.html` `bellecave.js`, `warehouse.js`, `palette-worker.js`, `sweep-tracker.js` et `sweep.js`. Conserver les deux pages HTML accessibles. Aucune donnée catalogue ni aucun mot de passe ne doit être ajouté au dépôt.

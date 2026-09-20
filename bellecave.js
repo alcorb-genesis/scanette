@@ -27,12 +27,12 @@ async function search(){
  const {data,error,count}=await query.order('reference').order('id').range(pageIndex*40,pageIndex*40+39);
  if(current!==epoch||request!==requestId)return;
  if(error){status('Recherche indisponible. Réessayez dans un instant.',true);return;}
- total=count||0;el('results').replaceChildren();
+ const stocks=data.length?await client.from('gestion_stock').select('product_id,quantity,updated_at').in('product_id',data.map(p=>p.id)):{data:[]};if(current!==epoch||request!==requestId)return;for(const product of data)product.gestionStock=stocks.error?{unavailable:true}:stocks.data.find(s=>s.product_id===product.id)||null;total=count||0;el('results').replaceChildren();
  for(const product of data){
   const card=document.createElement('article');card.className='card';
   const ref=document.createElement('div');ref.className='ref';ref.textContent=product.reference;
   const description=document.createElement('p');description.textContent=product.description;
-  const info=document.createElement('p');info.className='muted';info.textContent='Emplacement : '+(product.location||'non renseigné')+' · Stock : '+(product.stock_quantity===null?'non renseigné':product.stock_quantity+' (état daté)');
+  const info=document.createElement('p');info.className='muted';info.textContent='Emplacement : '+(product.location||'non renseigné')+' · Stock : '+(product.gestionStock?.unavailable?'suivi indisponible':product.gestionStock?.quantity==null?'initial inconnu':product.gestionStock.quantity+' (suivi Gestion)');
   const button=document.createElement('button');button.textContent='Voir la fiche';button.addEventListener('click',()=>detail(product));
   card.append(ref,description,info,button);el('results').append(card);
  }
@@ -44,8 +44,8 @@ async function search(){
 function detail(product){
  selectedProduct=product;el('detailRef').textContent=product.reference;el('description').textContent=product.description;
  el('identifiers').textContent='Référence commande : '+(product.order_reference||'—')+'\nCode interne : '+(product.internal_barcode||'—')+'\nCode fabricant : '+(product.manufacturer_barcode||'—');
- el('quantity').textContent='Stock : '+(product.stock_quantity===null?'non renseigné':product.stock_quantity);
- el('observed').textContent=product.stock_observed_at?'État du '+new Date(product.stock_observed_at).toLocaleString('fr-FR')+' — ne tient pas compte des mouvements non enregistrés.':'Aucune quantité de stock fournie dans le catalogue importé.';
+ el('quantity').textContent='Stock suivi : '+(product.gestionStock?.unavailable?'indisponible':product.gestionStock?.quantity==null?'initial inconnu':product.gestionStock.quantity);
+ el('observed').textContent=(product.gestionStock?.updated_at?'Dernier mouvement : '+new Date(product.gestionStock.updated_at).toLocaleString('fr-FR')+'. ':'')+'Les réceptions validées dans Gestion alimentent ce suivi. Les ventes externes ne sont pas encore importées. Un comptage initial est nécessaire pour connaître la quantité.';
  el('location').value=product.location||'';el('location').disabled=role==='reader';el('saveLocation').hidden=role==='reader';el('saveLocation').disabled=false;el('detailStatus').textContent='';el('detail').showModal();
 }
 el('loginForm').addEventListener('submit',async event=>{
