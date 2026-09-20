@@ -1,5 +1,9 @@
 #alcorb-demo .ws-bar{padding:14px 24px;background:#fff;border-bottom:1px solid #d5e1e7}
 #alcorb-demo .ws-toolbar{display:flex;align-items:end;gap:14px;justify-content:space-between}
+#alcorb-demo .ws-toolbar{flex-wrap:wrap}
+#alcorb-demo .ws-toolbar label{flex:1;min-width:140px}
+#alcorb-demo .ws-links{display:grid;gap:12px;margin-top:12px;padding-top:16px;border-top:1px solid #cfdee5}
+#alcorb-demo .ag-top-right small{display:block}
 #alcorb-demo .ws-toolbar label{width:min(280px,55%)}
 #alcorb-demo .ws-customize{padding:20px 0 8px;display:grid;gap:16px}
 #alcorb-demo .ws-customize p,#alcorb-demo .ws-customize small{color:#536c77;line-height:1.6}
