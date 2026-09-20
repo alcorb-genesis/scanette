@@ -1168,6 +1168,48 @@
       ],
       "curated": true,
       "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "51948880300015",
+      "siret": "51948880300015",
+      "name": "First Stop Biarritz Pneus",
+      "city": "Biarritz",
+      "address": "21 rue Chapelet, ZI de la Négresse, 64200 Biarritz",
+      "phone": "05 59 23 02 76",
+      "email": "atelier@firststopbiarritz.fr",
+      "source": "https://biarritz-pneus.firststop.fr/contact",
+      "network": "First Stop",
+      "kind": "garage",
+      "country": "France",
+      "department": "64",
+      "curated": true,
+      "retrievedAt": "2026-09-20",
+      "aliases": [
+        "First Stop",
+        "Firststop"
+      ],
+      "quality": "Enseigne et coordonnées vérifiées sur le site du centre ; SIRET rapproché de Sirene par nom et adresse"
+    },
+    {
+      "id": "49381683900010",
+      "siret": "49381683900010",
+      "name": "First Stop Laboudigue Saint-Jean-de-Luz",
+      "city": "Saint-Jean-de-Luz",
+      "address": "ZI de Jalday, 64500 Saint-Jean-de-Luz",
+      "phone": "05 59 85 22 15",
+      "email": null,
+      "source": "https://laboudigue-saint-jean-de-luz.firststop.fr/",
+      "network": "First Stop",
+      "kind": "garage",
+      "country": "France",
+      "department": "64",
+      "curated": true,
+      "retrievedAt": "2026-09-20",
+      "aliases": [
+        "First Stop",
+        "Firststop"
+      ],
+      "quality": "Enseigne et coordonnées vérifiées sur le site du centre ; SIRET rapproché de Sirene par nom et adresse"
     }
   ]
 }

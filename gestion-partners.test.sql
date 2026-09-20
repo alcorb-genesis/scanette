@@ -1,0 +1,27 @@
+begin;
+do $$begin perform set_config('request.jwt.claim.sub',(select user_id::text from public.scanette_members where workspace_id='8770297c-cadb-4cc6-8b93-55a0f9bd154e' and role='admin' limit 1),true);end;$$;
+set local role authenticated;
+do $$declare p public.gestion_partners; blocked boolean:=false; pid uuid:=gen_random_uuid();begin
+ p:=public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',pid,0,'client','TEST ROLLBACK','{}','[]','test-rollback');
+ if p.version<>1 or p.updated_by<>auth.uid() then raise exception 'Bad revision or actor';end if;
+ begin perform public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',pid,0,'client','Stale','{}','[]','');exception when serialization_failure then blocked:=true;end;
+ if not blocked then raise exception 'Concurrent overwrite';end if;
+ blocked:=false;
+ begin update public.gestion_partners set name='Direct';exception when insufficient_privilege then blocked:=true;end;
+ if not blocked then raise exception 'Direct write';end if;
+ blocked:=false;
+ begin perform public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',gen_random_uuid(),0,'client','Duplicate','{}','[]','test-rollback');exception when unique_violation then blocked:=true;end;
+ if not blocked then raise exception 'Duplicate source';end if;
+ blocked:=false;
+ begin perform public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',pid,1,'client','Invalid','{}','[{"mode":"external","carrier":"TEST","time":"09:00","cutoff":"10:00","days":[1]}]','test-rollback');exception when raise_exception then blocked:=true;end;
+ if not blocked then raise exception 'Invalid cutoff accepted';end if;
+ p:=public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',pid,1,'client','TEST ROLLBACK','{}','[{"mode":"external","carrier":"TEST","time":"09:00","cutoff":"08:45","days":[1]}]','test-rollback');
+ if p.version<>2 then raise exception 'Valid schedule rejected';end if;
+ perform set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+ if exists(select 1 from public.gestion_partners) then raise exception 'Outsider read';end if;
+ blocked:=false;
+ begin perform public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',pid,2,'client','Intruder','{}','[]','');exception when insufficient_privilege then blocked:=true;end;
+ if not blocked then raise exception 'Outsider write';end if;
+end;$$;
+rollback;
+select 'PASS partners: isolated, versioned, validated; test writes rolled back' as result;
