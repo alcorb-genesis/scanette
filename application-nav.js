@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const routes={'store-settings.html':'settings','index.html':'scan','gestion.html':'receipts','bellecave.html':'catalogue','gestion-demo.html':'demo'};
+const routes={'team.html':'team','store-settings.html':'settings','index.html':'scan','gestion.html':'receipts','bellecave.html':'catalogue','gestion-demo.html':'demo'};
 const file=location.pathname.split('/').pop()||'index.html';
 const embedded=window.parent!==window&&new URLSearchParams(location.search).get('embedded')==='1';
 if(embedded){
