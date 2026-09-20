@@ -1,0 +1,20 @@
+#alcorb-demo .ws-bar{padding:14px 24px;background:#fff;border-bottom:1px solid #d5e1e7}
+#alcorb-demo .ws-toolbar{display:flex;align-items:end;gap:14px;justify-content:space-between}
+#alcorb-demo .ws-toolbar label{width:min(280px,55%)}
+#alcorb-demo .ws-customize{padding:20px 0 8px;display:grid;gap:16px}
+#alcorb-demo .ws-customize p,#alcorb-demo .ws-customize small{color:#536c77;line-height:1.6}
+#alcorb-demo .ws-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#alcorb-demo .ws-picker>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:#f1f6f7;border-radius:9px}
+#alcorb-demo .ws-picker button{min-width:44px;min-height:44px;border-radius:8px;border:1px solid #b5cccf;background:white;color:#165f58;font-size:23px}
+#alcorb-demo .ws-picker button[aria-pressed=true]{background:#164c55;color:white}
+#alcorb-demo .ws-welcome{background:linear-gradient(120deg,#102f42,#13525a);border-radius:16px;color:white;padding:28px;display:grid;gap:12px}
+#alcorb-demo .ws-welcome small{color:#91e9df;letter-spacing:.12em}
+#alcorb-demo .ws-welcome p{color:#d3e8ee}
+#alcorb-demo .ws-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#alcorb-demo .ws-shortcuts button{display:flex;align-items:center;gap:16px;text-align:left;min-height:110px;padding:22px;background:white;color:#173847;border:1px solid #ccdde3;border-radius:14px;box-shadow:0 5px 20px #173a4910;font-weight:600}
+#alcorb-demo .ws-shortcuts button>span:last-child{margin-left:auto;color:#177569}
+#alcorb-demo .ws-number{color:#658b96;font-size:13px}
+#alcorb-demo .ws-shortcuts button:hover{border-color:#167367;background:#f0faf8}
+#alcorb-demo .ws-bar button:focus-visible,#alcorb-demo .ws-shortcuts button:focus-visible{outline:3px solid #258bce;outline-offset:3px}
+@media(max-width:1000px){#alcorb-demo .ws-shortcuts,#alcorb-demo .ws-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){#alcorb-demo .ws-bar{padding:12px 16px}#alcorb-demo .ws-toolbar{gap:8px}#alcorb-demo .ws-toolbar button{min-height:44px;padding:10px}#alcorb-demo .ws-picker{grid-template-columns:1fr}#alcorb-demo .ws-shortcuts{gap:10px}#alcorb-demo .ws-shortcuts button{padding:16px 12px;min-height:96px;flex-wrap:wrap;font-size:14px}#alcorb-demo .ws-number{display:none}}
