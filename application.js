@@ -10,7 +10,7 @@ function section(name){if(!access)return;if(name!=='home'&&!Object.hasOwn(routes
  current=name;$('module').replaceChildren();$('home').hidden=name!=='home';
  $('sectionNotice').hidden=!['demo','sale','restock','dispatch','accounting','stats'].includes(name);$('sectionNotice').textContent='Démonstration : les ventes, la comptabilité et les profils ci-dessous sont simulés. Ils ne modifient pas les données réelles du magasin.';
  document.querySelectorAll('#sections [data-section]').forEach(b=>{if(b.dataset.section===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
- if(name!=='home'){const frame=document.createElement('iframe');frame.title=labels[name];frame.src=routes[name];frame.allow='camera';$('module').append(frame);}
+ if(name!=='home'){const frame=document.createElement('iframe');frame.title=labels[name];frame.src=routes[name];frame.allow='camera; geolocation';$('module').append(frame);}
  history.replaceState(null,'','#'+name);
 }
 async function enter(session){const id=session?.user?.id||null;if(id!==actor){clear();actor=id;}$('login').hidden=!!id;$('logout').hidden=!id;if(!id){$('status').textContent='';return;}
