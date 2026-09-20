@@ -1,6 +1,6 @@
 {
   "retrievedAt": "2026-09-20",
-  "scope": "Coordonnées professionnelles ponctuellement vérifiées sur les sites officiels. Aucun accès catalogue ni compte commercial présumé.",
+  "scope": "Annuaire France et international de marques, fabricants, distributeurs et réseaux automobiles. Chaque fiche conserve sa source. Une marque ne constitue pas un compte fournisseur ni un catalogue de produits importé.",
   "entries": [
     {
       "id": "official-bilstein-france",
@@ -15,7 +15,19 @@
       "email": "info@bilsteingroup.com",
       "website": "https://www.bilsteingroup.com/fr/",
       "source": "https://www.bilsteingroup.com/fr/contact/",
-      "quality": "Coordonnées publiées par le fournisseur, consultées le 20/09/2026"
+      "quality": "Coordonnées publiées par le fournisseur, consultées le 20/09/2026",
+      "country": "France",
+      "brands": [
+        "febi",
+        "SWAG",
+        "Blue Print"
+      ],
+      "families": [
+        "Pièces automobiles multimarques"
+      ],
+      "entityType": "Fabricant",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
     },
     {
       "id": "official-sidat-france",
@@ -30,7 +42,17 @@
       "email": "contact@sidat.fr",
       "website": "https://www.sidat.fr/",
       "source": "https://www.sidat.fr/",
-      "quality": "Coordonnées publiées par le distributeur, consultées le 20/09/2026"
+      "quality": "Coordonnées publiées par le distributeur, consultées le 20/09/2026",
+      "country": "France",
+      "brands": [
+        "SIDAT"
+      ],
+      "families": [
+        "Pièces techniques"
+      ],
+      "entityType": "Distributeur",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
     },
     {
       "id": "official-sidat-italie",
@@ -45,7 +67,17 @@
       "email": "sales@sidatgroup.it",
       "website": "https://www.sidatgroup.it/",
       "source": "https://www.sidatgroup.it/en/where_we_are",
-      "quality": "Coordonnées du site opérationnel publiées par le fabricant, consultées le 20/09/2026"
+      "quality": "Coordonnées du site opérationnel publiées par le fabricant, consultées le 20/09/2026",
+      "country": "Italie",
+      "brands": [
+        "SIDAT"
+      ],
+      "families": [
+        "Pièces techniques"
+      ],
+      "entityType": "Fabricant",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
     },
     {
       "id": "official-purflux-france",
@@ -60,7 +92,1082 @@
       "email": "aftermarketcontact@purfluxgroup.com",
       "website": "https://www.purflux.com/fr/",
       "source": "https://www.purflux.com/fr/contacts/contacts.html",
-      "quality": "Contact aftermarket publié par le fabricant, consulté le 20/09/2026"
+      "quality": "Contact aftermarket publié par le fabricant, consulté le 20/09/2026",
+      "country": "France",
+      "brands": [
+        "PURFLUX"
+      ],
+      "families": [
+        "Filtration"
+      ],
+      "entityType": "Fabricant",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-fuchs-france",
+      "siret": null,
+      "name": "FUCHS · France",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "France",
+      "brands": [
+        "FUCHS"
+      ],
+      "families": [
+        "Huiles et lubrifiants",
+        "Fluides automobiles"
+      ],
+      "aliases": [],
+      "address": "Campus Arboretum, bâtiment Cèdre, 1 place des Papeteries, CS 80340, 92737 Nanterre Cedex",
+      "city": "Nanterre",
+      "postcode": "92737",
+      "department": "92",
+      "phone": "+33 1 41 37 42 00",
+      "email": "commandes.auto@fuchs.com",
+      "website": "https://www.fuchs.com/fr/fr/contact/",
+      "source": "https://www.fuchs.com/fr/fr/contact/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Service clients automobile France",
+      "sources": [
+        {
+          "url": "https://www.fuchs.com/fr/fr/contact/",
+          "label": "FUCHS · contacts automobile"
+        },
+        {
+          "url": "https://www.fuchs-automotive.fr/",
+          "label": "FUCHS · adresse France"
+        }
+      ],
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-minerva",
+      "siret": null,
+      "name": "Minerva Oil",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "France",
+      "brands": [
+        "Minerva Oil"
+      ],
+      "families": [
+        "Huiles et lubrifiants",
+        "Fluides automobiles"
+      ],
+      "aliases": [],
+      "address": "Rue du 11 Novembre, 87380 Meuzac, France",
+      "city": "Meuzac",
+      "postcode": "87380",
+      "department": "87",
+      "phone": null,
+      "email": "contact@minervaoil.fr",
+      "website": "https://minervaoil.fr/",
+      "source": "https://minervaoil.fr/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "sources": [
+        {
+          "url": "https://minervaoil.fr/",
+          "label": "Minerva Oil · adresse"
+        },
+        {
+          "url": "https://minervaoil.fr/wp-content/uploads/Mentions-legales-et-politique-de-confidentialite.pdf",
+          "label": "Minerva Oil · mentions légales"
+        }
+      ],
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-yacco",
+      "siret": null,
+      "name": "Yacco",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "France",
+      "brands": [
+        "Yacco"
+      ],
+      "families": [
+        "Huiles et lubrifiants",
+        "Fluides automobiles"
+      ],
+      "aliases": [],
+      "address": "1 rue de l'Union, 92500 Rueil-Malmaison, France",
+      "city": "Rueil-Malmaison",
+      "postcode": "92500",
+      "department": "92",
+      "phone": null,
+      "email": null,
+      "website": "https://www.yacco.com/",
+      "source": "https://www.yacco.com/fr/page/mentions-legales",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Contact par le site officiel ; courriel commercial non confirmé",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-kennol",
+      "siret": null,
+      "name": "KENNOL",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "France",
+      "brands": [
+        "KENNOL"
+      ],
+      "families": [
+        "Huiles et lubrifiants",
+        "Fluides automobiles"
+      ],
+      "aliases": [
+        "kenol"
+      ],
+      "address": "101–109 rue Jean Jaurès, 92300 Levallois-Perret, France",
+      "city": "Levallois-Perret",
+      "postcode": "92300",
+      "department": "92",
+      "phone": null,
+      "email": "info@kennol.com",
+      "website": "https://kennol.com/",
+      "source": "https://kennol.com/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-restagraf",
+      "siret": null,
+      "name": "Restagraf",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "France",
+      "brands": [
+        "Restagraf"
+      ],
+      "families": [
+        "Fixations",
+        "Carrosserie"
+      ],
+      "aliases": [],
+      "address": "1 allée des Bouleaux, 95110 Sannois, France",
+      "city": "Sannois",
+      "postcode": "95110",
+      "department": "95",
+      "phone": "+33 1 39 98 55 00",
+      "email": "info@restagraf.com",
+      "website": "https://www.restagraf.com/fr/",
+      "source": "https://www.restagraf.com/fr/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-intfradis",
+      "siret": null,
+      "name": "INTFRADIS",
+      "kind": "supplier",
+      "entityType": "Marque et distributeur",
+      "country": "France",
+      "brands": [
+        "INTFRADIS"
+      ],
+      "families": [
+        "Pièces techniques",
+        "Outillage",
+        "Consommables atelier"
+      ],
+      "aliases": [
+        "infradis"
+      ],
+      "address": "ZAE Peri Ouest, 11 avenue du Parc, 24430 Marsac-sur-l’Isle, France",
+      "city": "Marsac-sur-l’Isle",
+      "postcode": "24430",
+      "department": "24",
+      "phone": "+33 5 53 04 45 89",
+      "email": "contact@intfradis.fr",
+      "website": "https://www.intfradis.com/fr/contact",
+      "source": "https://www.intfradis.com/fr/contact",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Contact réservé aux professionnels ; accès commande réservé aux distributeurs stockistes",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-corteco",
+      "siret": null,
+      "name": "Corteco",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "",
+      "brands": [
+        "Corteco"
+      ],
+      "families": [
+        "Étanchéité",
+        "Pièces techniques"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://www.corteco.com/fr/",
+      "source": "https://www.corteco.com/fr/entreprise/contact/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Formulaire officiel ; établissement commercial à préciser",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-bosch",
+      "siret": null,
+      "name": "Bosch · Automotive Aftermarket",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "",
+      "brands": [
+        "Bosch"
+      ],
+      "families": [
+        "Pièces techniques",
+        "Diagnostic"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://www.boschaftermarket.com/fr/fr",
+      "source": "https://www.boschaftermarket.com/fr/fr",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Portail automobile France ; distributeur de commande à choisir",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-gates",
+      "siret": null,
+      "name": "Gates · Automotive Replacement",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "États-Unis",
+      "brands": [
+        "Gates"
+      ],
+      "families": [
+        "Distribution et courroies"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://www.gates.com/us/en/customer-support/gates-automotive-replacement-and-support.html",
+      "source": "https://www.gates.com/us/en/customer-support/gates-automotive-replacement-and-support.html",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Contact automobile États-Unis ; interlocuteur local à préciser",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-cevam",
+      "siret": null,
+      "name": "CEVAM · France",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "France",
+      "brands": [
+        "CEVAM"
+      ],
+      "families": [
+        "Démarrage et charge",
+        "Transmission",
+        "Climatisation",
+        "Direction"
+      ],
+      "aliases": [],
+      "address": "ZI de Chappes, 43390 Auzon, France",
+      "city": "Auzon",
+      "postcode": "43390",
+      "department": "43",
+      "phone": "+33 4 71 76 13 00",
+      "email": null,
+      "website": "https://www.cevam.com/",
+      "source": "https://www.cevam.com/en/locations/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-delphi",
+      "siret": null,
+      "name": "Delphi · Aftermarket",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "États-Unis",
+      "brands": [
+        "Delphi"
+      ],
+      "families": [
+        "Pièces techniques"
+      ],
+      "aliases": [],
+      "address": "3000 University Dr., Auburn Hills, MI 48326, États-Unis",
+      "city": "Auburn Hills",
+      "postcode": "48326",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://www.delphiautoparts.com/fr-fr/contactez-nous",
+      "source": "https://www.delphiautoparts.com/fr-fr/contactez-nous",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Adresse groupe publiée sur le formulaire officiel ; distributeur local à préciser",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-napa",
+      "siret": null,
+      "name": "NAPA · automobile",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "",
+      "brands": [
+        "NAPA"
+      ],
+      "families": [
+        "Pièces automobiles multimarques"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://distributeur.napafrance.com/fr/france-FR/all",
+      "source": "https://www.allianceautomotive.fr/nos-marques/napa/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Réseau automobile NAPA France ; distributeur à sélectionner",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-mann-filter",
+      "siret": null,
+      "name": "MANN-FILTER · MANN+HUMMEL",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "Allemagne",
+      "brands": [
+        "MANN-FILTER"
+      ],
+      "families": [
+        "Filtration"
+      ],
+      "aliases": [
+        "mann filter"
+      ],
+      "address": "Schwieberdinger Straße 126, 71636 Ludwigsburg, Allemagne",
+      "city": "Ludwigsburg",
+      "postcode": "71636",
+      "department": "",
+      "phone": "+49 7141 980",
+      "email": "info@mann-hummel.com",
+      "website": "https://www.mann-filter.com/fr-fr.html",
+      "source": "https://www.mann-filter.com/fr-fr.html",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Contact général MANN+HUMMEL Allemagne",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-back2car",
+      "siret": null,
+      "name": "Back2car",
+      "kind": "supplier",
+      "entityType": "Réseau de distribution",
+      "country": "France",
+      "brands": [
+        "Back2car"
+      ],
+      "families": [
+        "Pièces de réemploi"
+      ],
+      "aliases": [
+        "back to car"
+      ],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": "0800 800 222",
+      "email": null,
+      "website": "https://back2car.fr/fr/",
+      "source": "https://back2car.fr/fr/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Accueil réseau ; centre de pièces de réemploi à choisir",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-renault",
+      "siret": null,
+      "name": "Renault Group · R-Parts Store",
+      "kind": "supplier",
+      "entityType": "Réseau constructeur",
+      "country": "France",
+      "brands": [
+        "Renault",
+        "Dacia",
+        "Motrio"
+      ],
+      "families": [
+        "Pièces d’origine",
+        "Pièces automobiles multimarques"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://rpartstore.renault.com/",
+      "source": "https://rpartstore.renault.com/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Portail professionnel Renault Group ; concession et compte commercial à définir. Motrio est une offre multimarque.",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-distrigo",
+      "siret": null,
+      "name": "DISTRIGO · Stellantis",
+      "kind": "supplier",
+      "entityType": "Réseau constructeur",
+      "country": "France",
+      "brands": [
+        "Peugeot",
+        "Citroën",
+        "DS",
+        "Opel",
+        "Eurorepar"
+      ],
+      "families": [
+        "Pièces d’origine",
+        "Pièces automobiles multimarques"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://distrigo.com/fr-FR/",
+      "source": "https://distrigo.com/fr-FR/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Réseau de distribution ; plaque locale et compte commercial à choisir",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-nps-france",
+      "siret": null,
+      "name": "NPS · Nippon Pièces Services France",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "France",
+      "brands": [
+        "NPS"
+      ],
+      "families": [
+        "Pièces véhicules asiatiques"
+      ],
+      "aliases": [],
+      "address": "CRT 2, 170 rue de la Voyette, 59273 Fretin, France",
+      "city": "Fretin",
+      "postcode": "59273",
+      "department": "59",
+      "phone": "0820 003 004",
+      "email": "contact@nippon-pieces.com",
+      "website": "https://www.nippon-pieces.com/index.php?page=agencies",
+      "source": "https://www.nippon-pieces.com/index.php?page=agencies",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-nps-madrid",
+      "siret": null,
+      "name": "NPS · Madrid",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "Espagne",
+      "brands": [
+        "NPS"
+      ],
+      "families": [
+        "Pièces véhicules asiatiques"
+      ],
+      "aliases": [],
+      "address": "Av. Real de Pinto 150, Nave C, 28021 Madrid, Espagne",
+      "city": "Madrid",
+      "postcode": "28021",
+      "department": "",
+      "phone": "+34 913 247 379",
+      "email": "pedidos@npscentro.com",
+      "website": "https://www.nippon-pieces.com/index.php?page=agencies",
+      "source": "https://www.nippon-pieces.com/index.php?page=agencies",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-nps-japon",
+      "siret": null,
+      "name": "NPS · Japon",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "Japon",
+      "brands": [
+        "NPS"
+      ],
+      "families": [
+        "Pièces véhicules asiatiques"
+      ],
+      "aliases": [],
+      "address": "1-19-1 Kitahorie, Nishi-Ku, 550-0014 Osaka, Japon",
+      "city": "Osaka",
+      "postcode": "550-0014",
+      "department": "",
+      "phone": "+81 6 4390 3131",
+      "email": null,
+      "website": "https://www.nippon-pieces.com/index.php?page=agencies",
+      "source": "https://www.nippon-pieces.com/index.php?page=agencies",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-ks-tools",
+      "siret": null,
+      "name": "KS Tools · France",
+      "kind": "supplier",
+      "entityType": "Marque outillage",
+      "country": "France",
+      "brands": [
+        "KS Tools"
+      ],
+      "families": [
+        "Outillage",
+        "Équipement atelier"
+      ],
+      "aliases": [
+        "kstool",
+        "kstools"
+      ],
+      "address": "1 rue de Londres, 67670 Mommenheim, France",
+      "city": "Mommenheim",
+      "postcode": "67670",
+      "department": "67",
+      "phone": "03 88 14 38 00",
+      "email": "kstools@kstools.fr",
+      "website": "https://www.kstools.com/fr/contact",
+      "source": "https://pdf.kstools.fr/KSTOOLS_selection_PL_JANVIER_2026.pdf",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "sources": [
+        {
+          "url": "https://pdf.kstools.fr/KSTOOLS_selection_PL_JANVIER_2026.pdf",
+          "label": "KS Tools · document fabricant 2026"
+        },
+        {
+          "url": "https://www.secimpac.org/adherent/ks-tools/",
+          "label": "SECIMPAC · coordonnées adhérent"
+        }
+      ],
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-dayco",
+      "siret": null,
+      "name": "Dayco · EMEA",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "",
+      "brands": [
+        "Dayco"
+      ],
+      "families": [
+        "Distribution et courroies"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://www.dayco.com/emea-fr/contactez-nous/",
+      "source": "https://www.dayco.com/emea-fr/contactez-nous/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Formulaire officiel Europe / Moyen-Orient / Afrique ; établissement à préciser",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-car-repair-system",
+      "siret": null,
+      "name": "Car Repair System · France",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "France",
+      "brands": [
+        "Car Repair System"
+      ],
+      "families": [
+        "Carrosserie",
+        "Consommables atelier"
+      ],
+      "aliases": [],
+      "address": "57 route du Lac, centre d’affaires Actipole, 84600 Valréas, France",
+      "city": "Valréas",
+      "postcode": "84600",
+      "department": "84",
+      "phone": "+33 4 90 66 76 35",
+      "email": null,
+      "website": "https://carrepairsystem.eu/contact/?lang=fr",
+      "source": "https://carrepairsystem.eu/contact/?lang=fr",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-carpolish",
+      "siret": "41245855600021",
+      "name": "Carpolish · France",
+      "kind": "supplier",
+      "entityType": "Marque et distributeur",
+      "country": "France",
+      "brands": [
+        "Carpolish"
+      ],
+      "families": [
+        "Nettoyage et préparation esthétique"
+      ],
+      "aliases": [],
+      "address": "334 rue de la Lys, 59250 Halluin, France",
+      "city": "Halluin",
+      "postcode": "59250",
+      "department": "59",
+      "phone": "03 20 23 63 44",
+      "email": null,
+      "website": "https://www.carpolish.fr/",
+      "source": "https://www.carpolish.fr/contact/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-bardahl",
+      "siret": null,
+      "name": "Bardahl · SADAPS France",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "France",
+      "brands": [
+        "Bardahl"
+      ],
+      "families": [
+        "Huiles et lubrifiants",
+        "Additifs",
+        "Consommables atelier"
+      ],
+      "aliases": [],
+      "address": "71 avenue Guynemer, 59700 Marcq-en-Barœul, France",
+      "city": "Marcq-en-Barœul",
+      "postcode": "59700",
+      "department": "59",
+      "phone": "+33 3 10 38 38 38",
+      "email": null,
+      "website": "https://bardahloils.com/fr-be/mentions-legales",
+      "source": "https://bardahloils.com/fr-be/mentions-legales",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Adresse du siège France ; accueil général",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-osram",
+      "siret": null,
+      "name": "OSRAM · automobile",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "",
+      "brands": [
+        "OSRAM"
+      ],
+      "families": [
+        "Éclairage"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://www.osram.fr/cb/services/contact/index.jsp",
+      "source": "https://www.osram.fr/cb/services/contact/index.jsp",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Formulaire de contact France ; service automobile à sélectionner",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-steco",
+      "siret": null,
+      "name": "Steco Power",
+      "kind": "supplier",
+      "entityType": "Marque équipementière",
+      "country": "France",
+      "brands": [
+        "Steco Power"
+      ],
+      "families": [
+        "Batteries"
+      ],
+      "aliases": [],
+      "address": "Rue de Poily, 45480 Outarville, France",
+      "city": "Outarville",
+      "postcode": "45480",
+      "department": "45",
+      "phone": null,
+      "email": null,
+      "website": "https://stecopower.com/contact/contact.html",
+      "source": "https://stecopower.com/mentions-legales/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-bahco",
+      "siret": null,
+      "name": "Bahco · SNA Europe",
+      "kind": "supplier",
+      "entityType": "Marque outillage",
+      "country": "",
+      "brands": [
+        "Bahco"
+      ],
+      "families": [
+        "Outillage"
+      ],
+      "aliases": [
+        "baccho"
+      ],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": "02 41 22 98 40",
+      "email": null,
+      "website": "https://www.bahco.com/fr_fr/",
+      "source": "https://www.bahco.com/fr_fr/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Site français ; revendeur à choisir",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-diframa",
+      "siret": null,
+      "name": "Diframa",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "France",
+      "brands": [
+        "Diframa"
+      ],
+      "families": [
+        "Fluides automobiles",
+        "Huiles et lubrifiants",
+        "Nettoyage et préparation esthétique"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": "info@diframa.com",
+      "website": "https://diframa.com",
+      "source": "https://www.synchro-diffusion.com/media/akeneo_connector/asset_files/2/3/234931_FT_fr_FR_4502.pdf",
+      "quality": "Fiche technique fabricant diffusée par Synchro Diffusion, consultée le 20/09/2026 ; adresse non retenue car sources divergentes",
+      "sourceLabel": "Fiche technique DIFRAMA · Synchro Diffusion",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-proxitech",
+      "siret": null,
+      "name": "Proxitech",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "France",
+      "brands": [
+        "Proxitech"
+      ],
+      "families": [
+        "Outillage",
+        "Consommables atelier"
+      ],
+      "aliases": [],
+      "address": "3 avenue Gutenberg, 77600 Bussy-Saint-Georges, France",
+      "city": "Bussy-Saint-Georges",
+      "postcode": "77600",
+      "department": "77",
+      "phone": "01 71 58 26 10",
+      "email": "contact@proxitech.com",
+      "website": "https://www.proxitech.com/telechargement/presentation-proxitech/",
+      "source": "https://www.proxitech.com/telechargement/presentation-proxitech/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-rema-tip-top-uk",
+      "siret": null,
+      "name": "REMA TIP TOP · Automotive UK",
+      "kind": "supplier",
+      "entityType": "Fabricant",
+      "country": "Royaume-Uni",
+      "brands": [
+        "REMA TIP TOP"
+      ],
+      "families": [
+        "Réparation pneumatique",
+        "Équipement atelier"
+      ],
+      "aliases": [
+        "tip top"
+      ],
+      "address": "Westland Square, Leeds, West Yorkshire, LS11 5XS, Royaume-Uni",
+      "city": "Leeds",
+      "postcode": "LS11 5XS",
+      "department": "",
+      "phone": "+44 113 277 0044",
+      "email": "info@tip-top.co.uk",
+      "website": "https://www.rema-tiptop.co.uk/contact/",
+      "source": "https://www.rema-tiptop.co.uk/contact/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Filiale automobile Royaume-Uni",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-sonic",
+      "siret": null,
+      "name": "Sonic Equipment",
+      "kind": "supplier",
+      "entityType": "Marque outillage",
+      "country": "Pays-Bas",
+      "brands": [
+        "Sonic Equipment"
+      ],
+      "families": [
+        "Outillage",
+        "Équipement atelier"
+      ],
+      "aliases": [],
+      "address": "Component 114–116, 1446 WP Purmerend, Pays-Bas",
+      "city": "Purmerend",
+      "postcode": "1446 WP",
+      "department": "",
+      "phone": "+31 299 437 000",
+      "email": "info@sonic-equipment.com",
+      "website": "https://www.sonic-equipment.com/",
+      "source": "https://www.sonic-equipment.com/media/dbjgpx5r/general-terms-and-conditions.pdf",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-kraftwerk",
+      "siret": null,
+      "name": "Kraftwerk · Suisse",
+      "kind": "supplier",
+      "entityType": "Marque outillage",
+      "country": "Suisse",
+      "brands": [
+        "Kraftwerk"
+      ],
+      "families": [
+        "Outillage",
+        "Équipement atelier"
+      ],
+      "aliases": [],
+      "address": "Mettlenbachstrasse 23, 8617 Mönchaltorf, Suisse",
+      "city": "Mönchaltorf",
+      "postcode": "8617",
+      "department": "",
+      "phone": "+41 44 949 40 50",
+      "email": "info.ch@kraftwerktools.com",
+      "website": "https://www.kraftwerktools.ch/fr-ch/serviceclients",
+      "source": "https://www.kraftwerktools.ch/fr-ch/serviceclients",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Kraftwerk Schweiz AG ; service clients Suisse",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-idlp",
+      "siret": null,
+      "name": "IDLP · plateforme nationale",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "France",
+      "brands": [],
+      "families": [
+        "Pièces automobiles multimarques"
+      ],
+      "aliases": [],
+      "address": "Avenue du Parc Médicis, 94260 Fresnes, France",
+      "city": "Fresnes",
+      "postcode": "94260",
+      "department": "94",
+      "phone": "01 49 84 66 00",
+      "email": null,
+      "website": "https://www.idlpgroupe.fr/plateforme",
+      "source": "https://www.idlpgroupe.fr/plateforme",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-sodise",
+      "siret": null,
+      "name": "SODISE",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "France",
+      "brands": [],
+      "families": [
+        "Outillage",
+        "Équipement atelier",
+        "Consommables atelier"
+      ],
+      "aliases": [],
+      "address": "85 route du Pont Gwin, 29510 Briec, France",
+      "city": "Briec",
+      "postcode": "29510",
+      "department": "29",
+      "phone": "02 98 86 52 53",
+      "email": null,
+      "website": "https://www.sodise.com/",
+      "source": "https://www.sodise.com/",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-itex",
+      "siret": null,
+      "name": "ITEX France",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "France",
+      "brands": [],
+      "families": [
+        "Consommables atelier"
+      ],
+      "aliases": [],
+      "address": "ZI Vallée du Salaison, 620 rue de la Garenne, 34740 Vendargues, France",
+      "city": "Vendargues",
+      "postcode": "34740",
+      "department": "34",
+      "phone": "04 67 91 60 50",
+      "email": null,
+      "website": "https://itex-france.com/contact-itex-france",
+      "source": "https://itex-france.com/contact-itex-france",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-doyen",
+      "siret": null,
+      "name": "Doyen Auto",
+      "kind": "supplier",
+      "entityType": "Distributeur",
+      "country": "",
+      "brands": [],
+      "families": [
+        "Pièces automobiles multimarques"
+      ],
+      "aliases": [],
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": null,
+      "email": null,
+      "website": "https://doyen-auto.com/fr",
+      "source": "https://doyen-auto.com/fr",
+      "quality": "Identité et informations publiques consultées le 20/09/2026 ; champs absents non confirmés",
+      "contactScope": "Réseau international ; plateforme locale et coordonnées commerciales à confirmer",
+      "curated": true,
+      "retrievedAt": "2026-09-20"
+    },
+    {
+      "id": "official-preference-aquitaine",
+      "siret": "45277264300071",
+      "name": "Préférence Aquitaine · Alliance Automotive",
+      "kind": "supplier",
+      "entityType": "Plateforme",
+      "country": "France",
+      "brands": [],
+      "families": [
+        "Pièces automobiles multimarques"
+      ],
+      "aliases": [
+        "APO",
+        "Préférence Aquitaine",
+        "ALLIANCE AUTOMOTIVE PLATEFORMES PREFERENCE"
+      ],
+      "address": "AVENUE MARCEL PAUL BATIMENT E 5 AVENUE JEAN ALFONSEA 33270 FLOIRAC",
+      "city": "FLOIRAC",
+      "postcode": "33270",
+      "department": "33",
+      "phone": null,
+      "email": null,
+      "website": "",
+      "source": "https://annuaire-entreprises.data.gouv.fr/etablissement/45277264300071",
+      "quality": "Identité et adresse Sirene ; nom commercial Préférence Aquitaine documenté, alias APO fourni par le magasin",
+      "activity": "45.31Z",
+      "sourceLabel": "Sirene · établissement de Floirac",
+      "sources": [
+        {
+          "url": "https://annuaire-entreprises.data.gouv.fr/etablissement/45277264300071",
+          "label": "Sirene · établissement de Floirac"
+        },
+        {
+          "url": "https://j2rauto.com/rechange/alliance-automotive-inaugure-sa-nouvelle-plateforme-preference-aquitaine/",
+          "label": "J2R · implantation Préférence Aquitaine"
+        }
+      ],
+      "curated": true,
+      "retrievedAt": "2026-09-20"
     }
   ]
 }

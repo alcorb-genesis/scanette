@@ -37,3 +37,6 @@
 @media(max-width:1000px){#alcorb-demo .ref-hero,#alcorb-demo .ref-launch{align-items:flex-start;flex-direction:column}#alcorb-demo .ref-shortcuts{width:100%;min-width:0}}
 @media(max-width:650px){#alcorb-demo .ref-grid,#alcorb-demo .ref-filters{grid-template-columns:1fr}#alcorb-demo .ref-hero,#alcorb-demo .ref-launch{padding:20px;border-radius:12px}#alcorb-demo .ref-hero h1{font-size:27px}#alcorb-demo .ref-total strong{font-size:34px}#alcorb-demo .ref-card{padding:18px}#alcorb-demo .ref-shortcuts{grid-template-columns:1fr 1fr}#alcorb-demo .ref-shortcuts button{font-size:13px}#alcorb-demo .ref-tabs{gap:6px}#alcorb-demo .ref-tabs button{flex:1;padding:10px 6px}#alcorb-demo .ref-tabs span{display:block;margin:4px 0 0}}
 #alcorb-demo{overflow:clip}
+#alcorb-demo .ref-tags{display:flex;flex-wrap:wrap;gap:6px}
+#alcorb-demo .ref-tags span{background:#e7f3f2;border:1px solid #c0dcd8;border-radius:18px;padding:4px 10px;color:#195e55;font-size:12px}
+#alcorb-demo .ref-families{font-weight:600;color:#2b5368}

@@ -48,6 +48,16 @@ Ne pas publier automatiquement les résultats : vérifier changements de schéma
 
 ## Vérification
 
+### Extension internationale du 20 septembre 2026
+
+Le fichier `suppliers-official-data.json` contient désormais 41 fiches documentées (37 ajouts). Les demandes Fuchs, Minerva, Yacco, KENNOL, Restagraf, INTFRADIS, Corteco, Bosch, Gates, CEVAM, Delphi, NAPA automobile, MANN-FILTER, Back2car, Renault, Peugeot/DISTRIGO, NPS, KS Tools, Dayco, Car Repair System, Carpolish, Bardahl, OSRAM, Steco, Bahco, Diframa, Proxitech, REMA TIP TOP, Sonic, Kraftwerk, IDLP, SODISE, ITEX, Préférence Aquitaine et Doyen sont couvertes par une identité sourcée. PURFLUX, Bilstein et SIDAT étaient déjà présents. Le contact précis, les coordonnées et le pays restent explicitement inconnus lorsqu'ils n'ont pas été confirmés. Les identités internationales comprennent neuf pays de contact renseignés.
+
+Les données fusionnées comportent 11 872 fiches : 6 783 garages et 5 089 fournisseurs/marques/réseaux ; 1 041 téléphones et 289 courriels renseignés, toutes sources confondues. Ces nombres ne prouvent pas l'absence de doublons entre fiches sans SIRET. Préférence Aquitaine est fusionnée avec le SIRET existant ; les sources et le nom juridique restent recherchables. L'alias APO vient de l'utilisateur. Aucune marque distribuée par APO n'est automatiquement déduite de cette déclaration.
+
+Recherche sur les marques, familles et alias, filtres pays et famille, filtre des seules fiches documentées. Les noms usuels « kenol », « infradis », « baccho », « back to car » restent recherchables. L'ajout à un magasin est une sélection locale de contact, pas un compte fournisseur actif. Aucune nouvelle référence produit, compatibilité, disponibilité ou condition tarifaire n'est déduite de ces fiches.
+
+Le script idempotent `node scripts/extend-official-suppliers.cjs` applique cette collecte éditoriale. Il ne télécharge pas des catalogues ni ne rafraîchit les sources ; une nouvelle date exige une nouvelle vérification. Les tests couvrent la présence des noms demandés, les filtres internationaux, la fusion de provenance et les parcours existants. Essai navigateur : recherche KENNOL par « kenol », ajout puis ouverture de sa fiche, conservation après rechargement, filtre Suisse → Kraftwerk, filtre France + huiles → six fiches. Vue mobile 390 × 844 sans débordement horizontal.
+
 - `node reference.test.cjs` : provenance, IDs, GTIN, coordonnées, géographie locale, fusion SIRET, absence des champs dirigeants/finances, protection HTML, index portail, ajout idempotent, magasins indépendants et restauration des fiches/documents.
 - `node gestion-demo.test.cjs` : régressions métier, facturation sans double sortie, retours, remboursements et réapprovisionnement.
 - `node scenario.test.cjs` : trois palettes, manquants non bloquants pour la comptabilité, stock et journaux.
