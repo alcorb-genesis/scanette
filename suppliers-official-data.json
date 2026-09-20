@@ -1,0 +1,66 @@
+{
+  "retrievedAt": "2026-09-20",
+  "scope": "Coordonnées professionnelles ponctuellement vérifiées sur les sites officiels. Aucun accès catalogue ni compte commercial présumé.",
+  "entries": [
+    {
+      "id": "official-bilstein-france",
+      "siret": null,
+      "name": "Ferdinand Bilstein France · febi / SWAG / Blue Print",
+      "kind": "supplier",
+      "address": "10-12 rue de Chevries, ZAC de Chevries, 78410 Aubergenville, France",
+      "city": "Aubergenville",
+      "postcode": "78410",
+      "department": "78",
+      "phone": "+33 1 30 99 94 00",
+      "email": "info@bilsteingroup.com",
+      "website": "https://www.bilsteingroup.com/fr/",
+      "source": "https://www.bilsteingroup.com/fr/contact/",
+      "quality": "Coordonnées publiées par le fournisseur, consultées le 20/09/2026"
+    },
+    {
+      "id": "official-sidat-france",
+      "siret": null,
+      "name": "SIDAT France · distribution M&D France",
+      "kind": "supplier",
+      "address": "",
+      "city": "",
+      "postcode": "",
+      "department": "",
+      "phone": "02 72 88 18 86",
+      "email": "contact@sidat.fr",
+      "website": "https://www.sidat.fr/",
+      "source": "https://www.sidat.fr/",
+      "quality": "Coordonnées publiées par le distributeur, consultées le 20/09/2026"
+    },
+    {
+      "id": "official-sidat-italie",
+      "siret": null,
+      "name": "S.I.D.A.T. S.p.A. · Italie",
+      "kind": "supplier",
+      "address": "Via E. Ferrari, 10, 10028 Trofarello (TO), Italie · site opérationnel",
+      "city": "Trofarello",
+      "postcode": "10028",
+      "department": "IT",
+      "phone": "+39 011 647 4060",
+      "email": "sales@sidatgroup.it",
+      "website": "https://www.sidatgroup.it/",
+      "source": "https://www.sidatgroup.it/en/where_we_are",
+      "quality": "Coordonnées du site opérationnel publiées par le fabricant, consultées le 20/09/2026"
+    },
+    {
+      "id": "official-purflux-france",
+      "siret": null,
+      "name": "PURFLUX FILTRATION SAS · Aftermarket",
+      "kind": "supplier",
+      "address": "Immeuble Renaissance, 1 avenue Claude Monet, 78280 Guyancourt, France",
+      "city": "Guyancourt",
+      "postcode": "78280",
+      "department": "78",
+      "phone": null,
+      "email": "aftermarketcontact@purfluxgroup.com",
+      "website": "https://www.purflux.com/fr/",
+      "source": "https://www.purflux.com/fr/contacts/contacts.html",
+      "quality": "Contact aftermarket publié par le fabricant, consulté le 20/09/2026"
+    }
+  ]
+}

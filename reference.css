@@ -1,0 +1,39 @@
+#alcorb-demo .ag-side{background:linear-gradient(165deg,#0c2433,#102c3c 60%,#113f49);border-right:1px solid #284957}
+#alcorb-demo .ag-top{box-shadow:0 4px 24px #142c3810}
+#alcorb-demo .ag-panel,#alcorb-demo .ag-metric{box-shadow:0 5px 22px #173a4910;border-color:#d5e1e7}
+#alcorb-demo .ref-hero,#alcorb-demo .ref-launch{background:linear-gradient(125deg,#112e42,#124a55);border:1px solid #276377;border-radius:16px;color:#f5fcff;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px}
+#alcorb-demo .ref-hero h1{color:white;font-size:32px;line-height:1.18;margin:12px 0}
+#alcorb-demo .ref-hero p,#alcorb-demo .ref-launch p{color:#d2e6ec;line-height:1.6;margin:10px 0}
+#alcorb-demo .ref-hero small,#alcorb-demo .ref-launch small{color:#80ded7;letter-spacing:.12em;font-size:11px}
+#alcorb-demo .ref-launch h2{color:white;font-size:22px}
+#alcorb-demo .ref-total{display:grid;gap:8px;min-width:190px}
+#alcorb-demo .ref-total strong{font-size:44px;letter-spacing:-.04em;color:#83ebe1}
+#alcorb-demo .ref-total span{font-size:13px;line-height:1.6;color:#d3e9ee}
+#alcorb-demo .ref-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:340px}
+#alcorb-demo .ref-shortcuts .ag-secondary{background:#ffffff10;border-color:#77a9b8;color:#fff}
+#alcorb-demo .ref-shortcuts .ag-action{white-space:normal;text-align:left;justify-content:flex-start}
+#alcorb-demo .ref-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+#alcorb-demo .ref-tabs span{margin-left:8px;font-size:12px;background:#e4edf1;padding:3px 8px;border-radius:20px;color:#233e49}
+#alcorb-demo .ref-filters{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+#alcorb-demo .ref-check{display:flex;align-items:center;gap:9px;font-size:14px;min-height:44px}
+#alcorb-demo .ref-check input{width:19px;height:19px;accent-color:#167663}
+#alcorb-demo .ref-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}
+#alcorb-demo .ref-card{background:white;border:1px solid #cfdee5;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 16px #1b3d4710;min-width:0;overflow-wrap:anywhere}
+#alcorb-demo .ref-card h2{font-size:18px;line-height:1.35;margin:0;color:#173847}
+#alcorb-demo .ref-card p{font-size:14px;line-height:1.5;margin:0}
+#alcorb-demo .ref-card small{display:block;font-size:12px;line-height:1.6;color:#4b636d}
+#alcorb-demo .ref-card a,#alcorb-demo .ref-sources a{color:#17655c;text-underline-offset:3px}
+#alcorb-demo .ref-card>.ag-action{margin-top:auto}
+#alcorb-demo .ref-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#alcorb-demo .ref-contact{display:grid;gap:5px;font-size:13px;padding:12px;background:#f0f5f7;border-radius:8px;color:#314d5b;line-height:1.5}
+#alcorb-demo .ref-code{font-family:monospace;background:#eff5f7;padding:10px;border-radius:7px}
+#alcorb-demo .ref-sources{margin-top:24px;font-size:13px;line-height:1.7}
+#alcorb-demo .ref-sources summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600}
+#alcorb-demo .ref-more{width:100%;margin-bottom:16px}
+#alcorb-demo .ref-contact+small,#alcorb-demo .ref-contact+small+small{display:block;margin:8px 0;line-height:1.5;overflow-wrap:anywhere}
+#alcorb-demo .ag-content:has(.ref-hero){gap:18px}
+#alcorb-demo .ag-content>.ref-hero,#alcorb-demo .ag-content>.ref-grid,#alcorb-demo .ag-content>.ref-tabs{margin:0}
+@media(min-width:1500px){#alcorb-demo .ref-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1000px){#alcorb-demo .ref-hero,#alcorb-demo .ref-launch{align-items:flex-start;flex-direction:column}#alcorb-demo .ref-shortcuts{width:100%;min-width:0}}
+@media(max-width:650px){#alcorb-demo .ref-grid,#alcorb-demo .ref-filters{grid-template-columns:1fr}#alcorb-demo .ref-hero,#alcorb-demo .ref-launch{padding:20px;border-radius:12px}#alcorb-demo .ref-hero h1{font-size:27px}#alcorb-demo .ref-total strong{font-size:34px}#alcorb-demo .ref-card{padding:18px}#alcorb-demo .ref-shortcuts{grid-template-columns:1fr 1fr}#alcorb-demo .ref-shortcuts button{font-size:13px}#alcorb-demo .ref-tabs{gap:6px}#alcorb-demo .ref-tabs button{flex:1;padding:10px 6px}#alcorb-demo .ref-tabs span{display:block;margin:4px 0 0}}
+#alcorb-demo{overflow:clip}
