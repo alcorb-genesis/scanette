@@ -1,0 +1,37 @@
+begin;
+do $$declare pid uuid:=gen_random_uuid();begin
+ perform set_config('test.product',pid::text,true);
+ perform set_config('request.jwt.claim.sub',(select user_id::text from public.scanette_members where workspace_id='8770297c-cadb-4cc6-8b93-55a0f9bd154e' and role='admin' limit 1),true);
+ insert into public.scanette_products(id,workspace_id,reference,description,source_line,source_sha256) values(pid,'8770297c-cadb-4cc6-8b93-55a0f9bd154e','TEST-ROLLBACK','Article de test transactionnel',1,pid::text);
+ insert into public.gestion_stock(product_id,workspace_id,quantity) values(pid,'8770297c-cadb-4cc6-8b93-55a0f9bd154e',0);
+end;$$;
+set local role authenticated;
+do $$declare client public.gestion_partners; draft public.gestion_sale_drafts; sale public.gestion_sales; pid uuid:=current_setting('test.product')::uuid; did uuid:=gen_random_uuid(); eid uuid:=gen_random_uuid(); q bigint; blocked boolean:=false;begin
+ client:=public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',gen_random_uuid(),0,'client','TEST ROLLBACK','{}','[]','');
+ draft:=public.gestion_save_sale_draft('8770297c-cadb-4cc6-8b93-55a0f9bd154e',did,0,jsonb_build_object('client_id',client.id,'client_version',1,'items',jsonb_build_array(jsonb_build_object('product_id',pid,'quantity',2,'base_cents',1234,'discount_bp',1000))));
+ sale:=public.gestion_validate_sale(did,1);
+ if sale.total_cents<>2222 or sale.actor_id<>auth.uid() then raise exception 'Price or actor incorrect';end if;
+ select quantity into q from public.gestion_stock where product_id=pid;
+ if q<>-2 then raise exception 'Negative sale failed';end if;
+ perform public.gestion_validate_sale(did,1);
+ select quantity into q from public.gestion_stock where product_id=pid;
+ if q<>-2 or (select count(*) from public.gestion_movements where operation_id=did)<>1 then raise exception 'Duplicate exit';end if;
+ begin perform public.gestion_save_sale_draft('8770297c-cadb-4cc6-8b93-55a0f9bd154e',did,1,'{}');exception when raise_exception then blocked:=true;end;
+ if not blocked then raise exception 'Closed draft editable';end if;
+ sale:=public.gestion_sale_action(did,eid,1,'prepared','');
+ perform public.gestion_sale_action(did,eid,1,'prepared','');
+ select quantity into q from public.gestion_stock where product_id=pid;
+ if q<>-2 then raise exception 'Preparation changed stock';end if;
+ eid:=gen_random_uuid();sale:=public.gestion_sale_action(did,eid,2,'cancelled','Annulation de test');
+ perform public.gestion_sale_action(did,eid,2,'cancelled','Annulation de test');
+ select quantity into q from public.gestion_stock where product_id=pid;
+ if q<>0 then raise exception 'Cancellation not exactly once';end if;
+ blocked:=false;begin update public.gestion_sales set total_cents=1;exception when insufficient_privilege then blocked:=true;end;
+ if not blocked then raise exception 'Direct write permitted';end if;
+ perform set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+ if exists(select 1 from public.gestion_sales) or exists(select 1 from public.gestion_sale_drafts) or exists(select 1 from public.gestion_sale_events) then raise exception 'Outsider read';end if;
+ blocked:=false;begin perform public.gestion_validate_sale(did,1);exception when insufficient_privilege then blocked:=true;end;
+ if not blocked then raise exception 'Outsider write';end if;
+end;$$;
+rollback;
+select 'PASS BL negative stock, price, retry, preparation, cancellation, access; all test writes rolled back' as result;

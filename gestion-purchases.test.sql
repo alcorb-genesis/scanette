@@ -1,0 +1,37 @@
+begin;
+do $$declare pid uuid:=gen_random_uuid();begin
+ perform set_config('test.product',pid::text,true);
+ perform set_config('request.jwt.claim.sub',(select user_id::text from public.scanette_members where workspace_id='8770297c-cadb-4cc6-8b93-55a0f9bd154e' and role='admin' limit 1),true);
+ insert into public.scanette_products(id,workspace_id,reference,description,source_line,source_sha256) values(pid,'8770297c-cadb-4cc6-8b93-55a0f9bd154e','TEST-CHAIN','Article transactionnel',1,pid::text);
+ insert into public.gestion_stock(product_id,workspace_id,quantity) values(pid,'8770297c-cadb-4cc6-8b93-55a0f9bd154e',0);
+end;$$;
+set local role authenticated;
+do $$declare c public.gestion_partners; supplier public.gestion_partners; po public.gestion_purchase_orders; pid uuid:=current_setting('test.product')::uuid; did uuid:=gen_random_uuid(); oid uuid:=gen_random_uuid(); aid uuid:=gen_random_uuid(); old_time timestamptz; qty bigint; need bigint; blocked boolean:=false;begin
+ c:=public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',gen_random_uuid(),0,'client','TEST CLIENT','{}','[]','');
+ supplier:=public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',gen_random_uuid(),0,'supplier','TEST FOURNISSEUR','{}','[]','');
+ perform public.gestion_save_sale_draft('8770297c-cadb-4cc6-8b93-55a0f9bd154e',did,0,jsonb_build_object('client_id',c.id,'client_version',1,'items',jsonb_build_array(jsonb_build_object('product_id',pid,'quantity',2,'base_cents',1000,'discount_bp',0))));
+ perform public.gestion_validate_sale(did,1);
+ select proposed into need from public.gestion_replenishment_needs('8770297c-cadb-4cc6-8b93-55a0f9bd154e') where product_id=pid;
+ if need<>2 then raise exception 'Negative need incorrect';end if;
+ po:=public.gestion_create_purchase('8770297c-cadb-4cc6-8b93-55a0f9bd154e',oid,supplier.id,jsonb_build_array(jsonb_build_object('product_id',pid,'quantity',2)),null,'TEST');
+ perform public.gestion_create_purchase('8770297c-cadb-4cc6-8b93-55a0f9bd154e',oid,supplier.id,jsonb_build_array(jsonb_build_object('product_id',pid,'quantity',2)),null,'TEST');
+ select quantity into qty from public.gestion_stock where product_id=pid;
+ select proposed into need from public.gestion_replenishment_needs('8770297c-cadb-4cc6-8b93-55a0f9bd154e') where product_id=pid;
+ if qty<>-2 or need<>0 then raise exception 'Order changed stock or duplicated need';end if;
+ perform public.gestion_accept_receipt(oid,aid,jsonb_build_array(jsonb_build_object('product_id',pid,'quantity',1)));
+ perform public.gestion_accept_receipt(oid,aid,jsonb_build_array(jsonb_build_object('product_id',pid,'quantity',1)));
+ select quantity into qty from public.gestion_stock where product_id=pid;
+ if qty<>-1 or (select status from public.gestion_receipts where id=oid)<>'partial' then raise exception 'Partial receipt incorrect';end if;
+ perform public.gestion_accept_receipt(oid,gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',pid,'quantity',1)));
+ select quantity,updated_at into qty,old_time from public.gestion_stock where product_id=pid;
+ if qty<>0 or (select status from public.gestion_receipts where id=oid)<>'received' then raise exception 'Complete receipt incorrect';end if;
+ aid:=gen_random_uuid();perform public.gestion_adjust_stock(aid,pid,-1,old_time,'TEST REGULATION');perform public.gestion_adjust_stock(aid,pid,-1,old_time,'TEST REGULATION');
+ select quantity into qty from public.gestion_stock where product_id=pid;
+ if qty<>-1 then raise exception 'Adjustment duplicate';end if;
+ begin perform public.gestion_adjust_stock(gen_random_uuid(),pid,1,old_time,'STALE');exception when serialization_failure then blocked:=true;end;
+ if not blocked then raise exception 'Stale adjustment allowed';end if;
+ perform set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+ if exists(select 1 from public.gestion_purchase_orders) or exists(select 1 from public.gestion_replenishment_needs('8770297c-cadb-4cc6-8b93-55a0f9bd154e')) then raise exception 'Outsider read';end if;
+end;$$;
+rollback;
+select 'PASS sale -> negative need -> purchase -> partial/full receipt -> regulation; no duplicate movements; rolled back' as result;
