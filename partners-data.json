@@ -1,0 +1,2208 @@
+{
+  "retrievedAt": "2026-09-20T14:13:55.7498940Z",
+  "source": "API Recherche d entreprises — données Sirene",
+  "license": "Licence Ouverte 2.0 (données Sirene)",
+  "scope": "Échantillon non exhaustif : sociétés, entretien et réparation automobile, établissements ouverts des départements 64 et 40. Quatre pages par département ; les établissements retournés par entreprise peuvent être limités.",
+  "queries": [
+    "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1",
+    "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2",
+    "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3",
+    "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4",
+    "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1",
+    "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2",
+    "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3",
+    "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+  ],
+  "entries": [
+    {
+      "siret": "44469211500074",
+      "name": "CAR WAX (CAR WAX)",
+      "address": "77 AVENUE DE BAYONNE 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "82991553700155",
+      "name": "DBF CESTAS",
+      "address": "490 AVENUE GASTON LESCOUZERES 40120 ROQUEFORT",
+      "city": "ROQUEFORT",
+      "postcode": "40120",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "41971057900014",
+      "name": "GARAGE JO IRIBARREN",
+      "address": "QUARTIER SUTAR 48 AVENUE DE CAMBO 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "82208820900025",
+      "name": "FONTINHA",
+      "address": "CHEMIN DE LA BOUDIGUE 40300 PEYREHORADE",
+      "city": "PEYREHORADE",
+      "postcode": "40300",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "34814373600034",
+      "name": "CLEAN SERVICE AUTO",
+      "address": "ZAC DU MAIL 1 BOULEVARD DE BRUXELLES 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "38060841400021",
+      "name": "BERSANS FILS",
+      "address": "RUE DE LA PACHERE 64260 LOUVIE-JUZON",
+      "city": "LOUVIE-JUZON",
+      "postcode": "64260",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "80302566700020",
+      "name": "AUTOP LE TUNNEL DES PYRENEES",
+      "address": "1 IMPASSE CLEMENT ADER 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "48320162000018",
+      "name": "DUVERGE",
+      "address": "381 RTE CHANZY 40400 TARTAS",
+      "city": "TARTAS",
+      "postcode": "40400",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "75203022100747",
+      "name": "PDR-TEAM",
+      "address": "55 RUE DE L'AUBISQUE 64121 SERRES-CASTET",
+      "city": "SERRES-CASTET",
+      "postcode": "64121",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "40310955600023",
+      "name": "GORDES",
+      "address": "803 ROUTE DE BELLEVUE 40700 HAGETMAU",
+      "city": "HAGETMAU",
+      "postcode": "40700",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "10350514500013",
+      "name": "CARROSS'L",
+      "address": "375 CHEMIN DE L'HOMY 40990 SAINT-VINCENT-DE-PAUL",
+      "city": "SAINT-VINCENT-DE-PAUL",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "43947169900025",
+      "name": "HOURTICOT (HOURTICOT)",
+      "address": "3 CHEMIN DES VIGNES 64350 LEMBEYE",
+      "city": "LEMBEYE",
+      "postcode": "64350",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "90482971000014",
+      "name": "LOKHAL AUTOMOBILE",
+      "address": "12 AVENUE DES LACS 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "80278311800010",
+      "name": "MMC COLOR (AD CARROSSERIE)",
+      "address": "CENTRE COMMERCIAL DE LA COTE D ARGENT 135 ROUTE DE PONTENX 40160 PARENTIS-EN-BORN",
+      "city": "PARENTIS-EN-BORN",
+      "postcode": "40160",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "42988238400010",
+      "name": "BOLLET AUTO",
+      "address": "AV MARTYRS DE LA RESISTANCE 40250 MUGRON",
+      "city": "MUGRON",
+      "postcode": "40250",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "50234431000045",
+      "name": "PROXI PNEUSERVICE (PROXI PNEUSERVICE)",
+      "address": "324 ROUTE DE BORDEAUX 64121 SERRES-CASTET",
+      "city": "SERRES-CASTET",
+      "postcode": "64121",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "48872556500037",
+      "name": "BOSS D BOSSES",
+      "address": "2 AVENUE DU CAMP 64320 IDRON",
+      "city": "IDRON",
+      "postcode": "64320",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "90975913600023",
+      "name": "AUTO SERVICE LABADIE",
+      "address": "1 AVENUE GUILLAUME DE VILLARET 40240 SAINT-JUSTIN",
+      "city": "SAINT-JUSTIN",
+      "postcode": "40240",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "82382623500025",
+      "name": "CAR-CLEAN",
+      "address": "CHEMIN DES HOSSES 64360 ABOS",
+      "city": "ABOS",
+      "postcode": "64360",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "10360900400025",
+      "name": "NH AUTO",
+      "address": "3335 ROUTE DE NORTHON 40390 SAINT-MARTIN-DE-SEIGNANX",
+      "city": "SAINT-MARTIN-DE-SEIGNANX",
+      "postcode": "40390",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "49472425500018",
+      "name": "DAC AUTOMOBILES",
+      "address": "126 RUE ALPHONSE DAUDET 40180 NARROSSE",
+      "city": "NARROSSE",
+      "postcode": "40180",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "81035599000021",
+      "name": "DSP 40 (DSP 40)",
+      "address": "8 IMPASSE CLEMENT ADER 40180 NARROSSE",
+      "city": "NARROSSE",
+      "postcode": "40180",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "44316456100013",
+      "name": "LES DEUX PINS (LES DEUX PINS)",
+      "address": "ZONE ARTISANALE ROUTE D'ANGRESSE 40130 CAPBRETON",
+      "city": "CAPBRETON",
+      "postcode": "40130",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "43040298200028",
+      "name": "CARROSSERIE DACQUOISE",
+      "address": "RTE DE PEYREHORADE ZI 6 RUE DE L'INDUSTRIE 40100 DAX",
+      "city": "DAX",
+      "postcode": "40100",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "37752957300067",
+      "name": "AQUITAINE DEPANNAGE SERVICE (ADS)",
+      "address": "490 AVENUE GASTON LESCOUZERES 40120 ROQUEFORT",
+      "city": "ROQUEFORT",
+      "postcode": "40120",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "10020321500015",
+      "name": "GLASS DRIVE SERVICES",
+      "address": "11 RUE MARECHAL FOCH 64000 PAU",
+      "city": "PAU",
+      "postcode": "64000",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "94879696600026",
+      "name": "DESFECHO CINTILANTE",
+      "address": "ZA DES 2 PINS 2 RUE BARRASQUIT 40130 CAPBRETON",
+      "city": "CAPBRETON",
+      "postcode": "40130",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "97806331100044",
+      "name": "LE GARAGE DE MIMIZAN PLAGE",
+      "address": "256 ROUTE DE BORDEAUX 40630 SABRES",
+      "city": "SABRES",
+      "postcode": "40630",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "82162198400011",
+      "name": "ROBIN GUILLET",
+      "address": "133 RUE NORMANDIE NIEMEN 64121 SERRES-CASTET",
+      "city": "SERRES-CASTET",
+      "postcode": "64121",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "41212655900027",
+      "name": "MARLAU",
+      "address": "LOT DU CRAMAT ROUTE DE TOSSE 40140 SOUSTONS",
+      "city": "SOUSTONS",
+      "postcode": "40140",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "98169171000017",
+      "name": "PALOQUE (AUTOBOSSES 64)",
+      "address": "11 LOTISSEMENT LOU BILATGE 64230 SAUVAGNON",
+      "city": "SAUVAGNON",
+      "postcode": "64230",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "51231119200037",
+      "name": "SNC PROVENCE",
+      "address": "5754 ROUTE DE SAMADET 64410 ARZACQ ARRAZIGUET",
+      "city": "ARZACQ ARRAZIGUET",
+      "postcode": "64410",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "99509747400010",
+      "name": "ADVENTURE OFF-ROAD CONCEPT",
+      "address": "34 ROUTE DE RAYRET 40700 DOAZIT",
+      "city": "DOAZIT",
+      "postcode": "40700",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "45279848100019",
+      "name": "SARL DARTIGUENAVE",
+      "address": "ZONE ARTISANALE 46 ROUTE DU PAYS DE GOSSE 40390 SAINT-MARTIN-DE-HINX",
+      "city": "SAINT-MARTIN-DE-HINX",
+      "postcode": "40390",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "39790626400015",
+      "name": "DULAMON AUTO",
+      "address": "15 AVENUE SALVADOR ALLENDE 40220 TARNOS",
+      "city": "TARNOS",
+      "postcode": "40220",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "95280486200011",
+      "name": "SAGARDIA DEPANNAGE (LE PETIT GARAGE)",
+      "address": "1331 ROUTE DE SAINT-JEAN-PIED-DE-PORT 64220 LACARRE",
+      "city": "LACARRE",
+      "postcode": "64220",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "41989006600030",
+      "name": "CENTRE AUTO BELLE MARION",
+      "address": "AVENUE DU 8 MAI 1945 5 ALLEE DE LESTANG 64100 BAYONNE",
+      "city": "BAYONNE",
+      "postcode": "64100",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "47780396900013",
+      "name": "SARL GARAGE GILLES DUCHON",
+      "address": "7 RUE DE GASCOGNE 40140 SOUSTONS",
+      "city": "SOUSTONS",
+      "postcode": "40140",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "41971057900022",
+      "name": "GARAGE JO IRIBARREN",
+      "address": "3 AVENUE DE GRAMMONT 64200 BIARRITZ",
+      "city": "BIARRITZ",
+      "postcode": "64200",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "94851398100019",
+      "name": "GARAGE AUTO SERVICES",
+      "address": "24 B ROUTE DE BAYONNE 40410 SAUGNAC-ET-MURET",
+      "city": "SAUGNAC-ET-MURET",
+      "postcode": "40410",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "95197624000022",
+      "name": "GASCONA LAVAGE",
+      "address": "1 RUE DE GASCOGNE 40140 SOUSTONS",
+      "city": "SOUSTONS",
+      "postcode": "40140",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "43360963300048",
+      "name": "HARI ESKER",
+      "address": "2 RUE CHARLES CAMI 64310 SAINT-PEE-SUR-NIVELLE",
+      "city": "SAINT-PEE-SUR-NIVELLE",
+      "postcode": "64310",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "40908782200014",
+      "name": "MENDES CROSA",
+      "address": "59 AV MAL JUIN 64200 BIARRITZ",
+      "city": "BIARRITZ",
+      "postcode": "64200",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "94136862300026",
+      "name": "STYL'AUTO",
+      "address": "16 RUE DU SOUVENIR FRANCAIS 64230 LESCAR",
+      "city": "LESCAR",
+      "postcode": "64230",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "43359368800024",
+      "name": "SARL CAZENAVE ET FILS",
+      "address": "RTE DE LEMBEYE 64160 GERDEREST",
+      "city": "GERDEREST",
+      "postcode": "64160",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "39952990800010",
+      "name": "CORREIA ET FILS",
+      "address": "ROUTE DE TOSSE 40140 SOUSTONS",
+      "city": "SOUSTONS",
+      "postcode": "40140",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "90862889400010",
+      "name": "DALLARD AUTOMOBILES 64",
+      "address": "10 AVENUE DU PR GREGORIO MARAÑON 64500 SAINT-JEAN-DE-LUZ",
+      "city": "SAINT-JEAN-DE-LUZ",
+      "postcode": "64500",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "42330683600010",
+      "name": "NETCAR",
+      "address": "28 BOULEVARD TOURASSE 64000 PAU",
+      "city": "PAU",
+      "postcode": "64000",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "39482628300019",
+      "name": "AHEXETCHEVERRY",
+      "address": "513 ROUTE DE MAULEON 64130 VIODOS-ABENSE-DE-BAS",
+      "city": "VIODOS-ABENSE-DE-BAS",
+      "postcode": "64130",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "42330683600028",
+      "name": "NETCAR",
+      "address": "ANGLE RUE RENE CHAR 64000 PAU",
+      "city": "PAU",
+      "postcode": "64000",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "91948749600029",
+      "name": "OLD MECANIC (OLD MECANIC)",
+      "address": "300 RUE DE GOUVEIA 40210 LABOUHEYRE",
+      "city": "LABOUHEYRE",
+      "postcode": "40210",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "10013439400012",
+      "name": "THE CLASSIC WORKSHOP",
+      "address": "1 CHEMIN DU PIED DU BOIS 64420 LIMENDOUS",
+      "city": "LIMENDOUS",
+      "postcode": "64420",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "80836786600023",
+      "name": "LANDES PNEUS",
+      "address": "LOCAL 2 VILLAGE D ENTREPRISES 162 RUE PHILIBERT DELORME 40990 SAINT-PAUL-LES-DAX",
+      "city": "SAINT-PAUL-LES-DAX",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "44909580100022",
+      "name": "SARL THIAGAR 2",
+      "address": "12 RUE D' ALEXANDRE 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "33919480500018",
+      "name": "SOC D'EXPLOITATION DESCHAMPS",
+      "address": "5 BOULEVARD CHARLES DE GAULLE 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "40109559100038",
+      "name": "BUD RACING (BUD RACING)",
+      "address": "ZA DE PEDEBERT 34 AVENUE DES CHARPENTIERS 40150 SOORTS-HOSSEGOR",
+      "city": "SOORTS-HOSSEGOR",
+      "postcode": "40150",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "94851398100027",
+      "name": "GARAGE AUTO SERVICES",
+      "address": "591 ROUTE DE BORDEAUX 40410 PISSOS",
+      "city": "PISSOS",
+      "postcode": "40410",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "40039765900022",
+      "name": "GARAGE DUBOURDIEU ET FILS",
+      "address": "ZONE INDUSTRIELLE 108 RUE DES TISSERANDS 40600 BISCARROSSE",
+      "city": "BISCARROSSE",
+      "postcode": "40600",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "81482918000011",
+      "name": "A D K",
+      "address": "ZONE ARTISALE LE MOUNEOU 93 ROUTE DE LA GARE 40400 TARTAS",
+      "city": "TARTAS",
+      "postcode": "40400",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "89143399700022",
+      "name": "IMPACT 64",
+      "address": "20 RUE DE L'ARTISANAT 64110 JURANCON",
+      "city": "JURANCON",
+      "postcode": "64110",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "90221806400027",
+      "name": "MICKA AUTO SERVICES",
+      "address": "13 B RUE FARADAY 64140 BILLERE",
+      "city": "BILLERE",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "75239686100037",
+      "name": "COVERING SOLUTION",
+      "address": "1 RUE DES BRUYERES 40990 SAINT-PAUL-LES-DAX",
+      "city": "SAINT-PAUL-LES-DAX",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "82510186800016",
+      "name": "LUIGY (CARROSSERIE MARINELA)",
+      "address": "11 AVENUE GABRIEL DELAUNAY 64500 CIBOURE",
+      "city": "CIBOURE",
+      "postcode": "64500",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "44967346600016",
+      "name": "SARL LUTRAN",
+      "address": "27 RUE DU CASTALLET 40500 SAINT-SEVER",
+      "city": "SAINT-SEVER",
+      "postcode": "40500",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "44469211500082",
+      "name": "CAR WAX (CAR WAX)",
+      "address": "2 - 4 ROUTE DE PORTOU 64990 SAINT PIERRE D'IRUBE",
+      "city": "SAINT PIERRE D'IRUBE",
+      "postcode": "64990",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "90450399200029",
+      "name": "SAMSON ASSISTANCE",
+      "address": "147 RUE DES MOUSQUETAIRES 40260 CASTETS",
+      "city": "CASTETS",
+      "postcode": "40260",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "82128988100012",
+      "name": "BFP (BFP)",
+      "address": "290 RUE TUQUET 2 40150 ANGRESSE",
+      "city": "ANGRESSE",
+      "postcode": "40150",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "53960362100027",
+      "name": "AQUITAINE TUYAUTERIE SOUDURE (A T S) (A T S)",
+      "address": "16 AVENUE LEON BLUM 64000 PAU",
+      "city": "PAU",
+      "postcode": "64000",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "91473479300021",
+      "name": "PARE-BRISE BAZADAIS",
+      "address": "293 AVENUE DU MARECHAL FOCH 40000 MONT-DE-MARSAN",
+      "city": "MONT-DE-MARSAN",
+      "postcode": "40000",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "45014070200025",
+      "name": "ADOUR REPARATIONS AUTOMOBILES",
+      "address": "197 CHEMIN DE L'HERTE 40465 PONTONX-SUR-L'ADOUR",
+      "city": "PONTONX-SUR-L'ADOUR",
+      "postcode": "40465",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "90997478400029",
+      "name": "LAU BIHOTZAK",
+      "address": "LD DELA LA VOIE 64800 MIREPEIX",
+      "city": "MIREPEIX",
+      "postcode": "64800",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "40129890600025",
+      "name": "GARAGE 2000",
+      "address": "610 KARRIKAPEA 64470 TROIS-VILLES",
+      "city": "TROIS-VILLES",
+      "postcode": "64470",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "81898657200019",
+      "name": "GARAGE RODRIGUEZ ET FILS",
+      "address": "ZONE ARTISANALE TUQUET 2 40150 ANGRESSE",
+      "city": "ANGRESSE",
+      "postcode": "40150",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "40114052000032",
+      "name": "GOSSET AUTOMOBILE",
+      "address": "9 RUE DE L'ARROUN 40510 SEIGNOSSE",
+      "city": "SEIGNOSSE",
+      "postcode": "40510",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "50152147000028",
+      "name": "R C F WASH",
+      "address": "ROUTE NATIONALE 10 145 ROUTE DE BORDEAUX 40230 SAINT-VINCENT-DE-TYROSSE",
+      "city": "SAINT-VINCENT-DE-TYROSSE",
+      "postcode": "40230",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "50762969900046",
+      "name": "EPERNAY VITRAGE",
+      "address": "2035 AV DU PRESIDENT KENNEDY 40280 SAINT-PIERRE-DU-MONT",
+      "city": "SAINT-PIERRE-DU-MONT",
+      "postcode": "40280",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "48839856100024",
+      "name": "CARROSSERIE JOUR ET NUIT",
+      "address": "22 AVENUE DUVERGIER DE HAURANNE 64100 BAYONNE",
+      "city": "BAYONNE",
+      "postcode": "64100",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "34814373600026",
+      "name": "CLEAN SERVICE AUTO",
+      "address": "ZAC DU MAIL AVENUE DIDIER DAURAT 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "48872556500029",
+      "name": "BOSS D BOSSES",
+      "address": "9 IMPASSE DES CHEVREFEUILLES 64320 OUSSE",
+      "city": "OUSSE",
+      "postcode": "64320",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "10429855900022",
+      "name": "AUTO VELASCO",
+      "address": "ZONE ACTIVITE DU BORN 66 RUE DES FORAGES 40200 MIMIZAN",
+      "city": "MIMIZAN",
+      "postcode": "40200",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "41989006600022",
+      "name": "CENTRE AUTO BELLE MARION",
+      "address": "4 AVENUE BELLE MARION 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "81895563500029",
+      "name": "ADOUR ET GAVES",
+      "address": "651 ROUTE DE TROMPE 40300 PEYREHORADE",
+      "city": "PEYREHORADE",
+      "postcode": "40300",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "82439068600015",
+      "name": "MECA MAWI (GARAGE DE L'AVENUE)",
+      "address": "GARAGE DE L'AVENUE AV MAL JUIN 64200 BIARRITZ",
+      "city": "BIARRITZ",
+      "postcode": "64200",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "79002290900010",
+      "name": "NAFARROA PNEUS",
+      "address": "CHEMIN DE LA NASSE 64220 SAINT-JEAN-PIED-DE-PORT",
+      "city": "SAINT-JEAN-PIED-DE-PORT",
+      "postcode": "64220",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "43359368800016",
+      "name": "SARL CAZENAVE ET FILS",
+      "address": "1 CHEMIN DE LABESIAUS 64160 MONASSUT-AUDIRACQ",
+      "city": "MONASSUT-AUDIRACQ",
+      "postcode": "64160",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "82239981200012",
+      "name": "J & J GARAGE",
+      "address": "680 ROUTE DE PAU 40500 EYRES-MONCUBE",
+      "city": "EYRES-MONCUBE",
+      "postcode": "40500",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "43947169900017",
+      "name": "HOURTICOT (HOURTICOT)",
+      "address": "83 RUE JOSEPH PEYRE 64350 LEMBEYE",
+      "city": "LEMBEYE",
+      "postcode": "64350",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "87796479100025",
+      "name": "LCM AUTOMOBILE",
+      "address": "432 RUE DE LA FERRONNERIE 40600 BISCARROSSE",
+      "city": "BISCARROSSE",
+      "postcode": "40600",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "39267154100010",
+      "name": "BEARN SERVICES & REPARATIONS DE OLIVEIRA",
+      "address": "3 CHEMIN DU MOULIN CASSOU 64360 MONEIN",
+      "city": "MONEIN",
+      "postcode": "64360",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "90450399200011",
+      "name": "SAMSON ASSISTANCE",
+      "address": "371 ALL CAROLINS 40110 MORCENX-LA-NOUVELLE",
+      "city": "MORCENX-LA-NOUVELLE",
+      "postcode": "40110",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "52328891800015",
+      "name": "DOS SANTOS",
+      "address": "ROUTE DE SAINT-VINCENT 64530 PONTACQ",
+      "city": "PONTACQ",
+      "postcode": "64530",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "34358060100031",
+      "name": "GARAGE LABACHOT",
+      "address": "ZONE INDUSTRIELLE DES PONTOTS 6 ALLEE DU CANAL 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "75136709500013",
+      "name": "GARAGE ARRAGON VEPA",
+      "address": "RUE DE CHALOSSE 40320 GEAUNE",
+      "city": "GEAUNE",
+      "postcode": "40320",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "48839856100016",
+      "name": "CARROSSERIE JOUR ET NUIT",
+      "address": "ZONE INDUSTRIELLE DE  L ADOUR 64990 MOUGUERRE",
+      "city": "MOUGUERRE",
+      "postcode": "64990",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "43195309000013",
+      "name": "GARAGE GIACOMIN",
+      "address": "ZONE INDUSTRIELLE 295 ROUTE DE BORDEAUX 40120 ARUE",
+      "city": "ARUE",
+      "postcode": "40120",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "79182652200033",
+      "name": "DANY FILM'S",
+      "address": "173 RUE NORMANDIE NIEMEN 64121 SERRES-CASTET",
+      "city": "SERRES-CASTET",
+      "postcode": "64121",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "30169230700020",
+      "name": "GARAGE BEYRIS",
+      "address": "70 RUE DE CHINE 40990 SAINT-VINCENT-DE-PAUL",
+      "city": "SAINT-VINCENT-DE-PAUL",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "40872498700040",
+      "name": "SARL AUTO MECA CONCEPT",
+      "address": "ZONE DU MOUTA 93 ROUTE DU CARQUEDEUIL 40230 JOSSE",
+      "city": "JOSSE",
+      "postcode": "40230",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "53489022300025",
+      "name": "EURL DUCASSOU",
+      "address": "4350 RTE D ARTHEZ DE BEARN 64370 MORLANNE",
+      "city": "MORLANNE",
+      "postcode": "64370",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "39748188800014",
+      "name": "CARROSSERIE DU ROND POINT",
+      "address": "ROND-POINT RTE DU BOURG 64150 MOURENX",
+      "city": "MOURENX",
+      "postcode": "64150",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "40856268400014",
+      "name": "GARAGE PERESTRELO SIMON",
+      "address": "101 ROUTE DE PARENTIS 40200 SAINTE-EULALIE-EN-BORN",
+      "city": "SAINTE-EULALIE-EN-BORN",
+      "postcode": "40200",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "39792559500019",
+      "name": "SARL SEPE",
+      "address": "51 AVENUE DU PIC DU MIDI 64800 IGON",
+      "city": "IGON",
+      "postcode": "64800",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "82288176900019",
+      "name": "GARAGE HIRIGOYEN MACAYE (GARAGE HIRIGOYEN MACAYE)",
+      "address": "MAISON MENDI XOLA 64240 MACAYE",
+      "city": "MACAYE",
+      "postcode": "64240",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "99328105400011",
+      "name": "GARAGE GRAND FORMAT",
+      "address": "POLE ECONOMIQUE VILLAGE DES ENTREPRISE 162 RUE PHILIBERT DELORME 40990 SAINT-PAUL-LES-DAX",
+      "city": "SAINT-PAUL-LES-DAX",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "94233042400022",
+      "name": "LAVAGE LGC",
+      "address": "ROUTE DE LA MARCOTTE CAPSUS 64530 GER",
+      "city": "GER",
+      "postcode": "64530",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "10052706800017",
+      "name": "A.T SERVICES",
+      "address": "11 CHEMIN MALHOS BAITA 64500 SAINT-JEAN-DE-LUZ",
+      "city": "SAINT-JEAN-DE-LUZ",
+      "postcode": "64500",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "82786627800027",
+      "name": "MAIRE ET KARPENKO (MK AUTO)",
+      "address": "69 AV HENRI 4 64110 JURANCON",
+      "city": "JURANCON",
+      "postcode": "64110",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "75205090600011",
+      "name": "SL OKI",
+      "address": "1 LOTISSEMENT INDUSTRIEL MASSIP 40110 MORCENX-LA-NOUVELLE",
+      "city": "MORCENX-LA-NOUVELLE",
+      "postcode": "40110",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "90482971000022",
+      "name": "LOKHAL AUTOMOBILE",
+      "address": "1 AVENUE DES LACS 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "81754303600039",
+      "name": "MECAMOBILE 40",
+      "address": "155 ROUTE DE LA LANDE 40180 BENESSE-LES-DAX",
+      "city": "BENESSE-LES-DAX",
+      "postcode": "40180",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "44837937000043",
+      "name": "CAROSSERIE 40 (CARROSSERIE 40)",
+      "address": "2366 AVENUE DU MARECHAL JUIN 40000 MONT-DE-MARSAN",
+      "city": "MONT-DE-MARSAN",
+      "postcode": "40000",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "97806331100010",
+      "name": "LE GARAGE DE MIMIZAN PLAGE",
+      "address": "CENTRE COMMERCIAL SEGOSA 43 AVENUE MAURICE MARTIN 40200 MIMIZAN",
+      "city": "MIMIZAN",
+      "postcode": "40200",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "83985713300012",
+      "name": "GARAGE CAZAUX MATHIEU (GARAGE CAZAUX MATHIEU)",
+      "address": "LD JUZAN 3 ZONE ARTISANALE AULONS 40350 POUILLON",
+      "city": "POUILLON",
+      "postcode": "40350",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "39324356300045",
+      "name": "MECALANDES",
+      "address": "ZONE ARTISANALE 40170 MEZOS",
+      "city": "MEZOS",
+      "postcode": "40170",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "82991553700064",
+      "name": "DBF CESTAS",
+      "address": "LIEU-DIT GALLEBEN 333 RUE JEAN JAURES 40210 LABOUHEYRE",
+      "city": "LABOUHEYRE",
+      "postcode": "40210",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "39982603100029",
+      "name": "CARROSSERIE DU LUY (GARAGE DU LUY)",
+      "address": "10 RUE GEORGES GUYNEMER 64230 SAUVAGNON",
+      "city": "SAUVAGNON",
+      "postcode": "64230",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "95137126900014",
+      "name": "CAR PRO REPAIR",
+      "address": "3 PLACE DE LA MAIRIE 64290 GAN",
+      "city": "GAN",
+      "postcode": "64290",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "43038840500010",
+      "name": "SARL CASTAGNET (GARAGE CASTAGNET)",
+      "address": "1501 ROUTE DE PEYREHORADE 40300 CAUNEILLE",
+      "city": "CAUNEILLE",
+      "postcode": "40300",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "79945729600124",
+      "name": "AUTO VITRAGE NOUVELLE AQUITAINE (BOY 2.0) (AVNA)",
+      "address": "47 RUE DES MIMOSAS 40990 HERM",
+      "city": "HERM",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "84066096300025",
+      "name": "BENCH TECH",
+      "address": "CHE DE LA MONTJOIE 64800 NAY",
+      "city": "NAY",
+      "postcode": "64800",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "44756769400016",
+      "name": "FIMAT (MECA AUTO)",
+      "address": "1170 CHEMIN DE PRAT 40440 ONDRES",
+      "city": "ONDRES",
+      "postcode": "40440",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "41063310100028",
+      "name": "ILUROTO",
+      "address": "CENTRE COMMERCIAL DE LA PORTE D'ASPE 7 BOULEVARD DE L'ARAGON 64400 OLORON-SAINTE-MARIE",
+      "city": "OLORON-SAINTE-MARIE",
+      "postcode": "64400",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "83300246200020",
+      "name": "AUTO RS 64",
+      "address": "ZAC PYRENEES BEARN EST ZAC PYRENEES EST BEARN 64420 NOUSTY",
+      "city": "NOUSTY",
+      "postcode": "64420",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "41152265900027",
+      "name": "DA GAMA RODRIGUES COMPAGNY LTD",
+      "address": "ROUTE RAOUL VERGEZ 64150 ABIDOS",
+      "city": "ABIDOS",
+      "postcode": "64150",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "44837937000035",
+      "name": "CAROSSERIE 40 (CARROSSERIE 40)",
+      "address": "ZA DU BOURRASSE 277 RUE ANTOINE BECQUEREL 40280 SAINT-PIERRE-DU-MONT",
+      "city": "SAINT-PIERRE-DU-MONT",
+      "postcode": "40280",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "91127228400025",
+      "name": "DALLARD AUTOMOBILES 31",
+      "address": "ZAC DU MAIL 1 BOULEVARD DE BRUXELLES 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "81035599000013",
+      "name": "DSP 40 (DSP 40)",
+      "address": "22 AVENUE DE L'AERODROME 40100 DAX",
+      "city": "DAX",
+      "postcode": "40100",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "51948880300015",
+      "name": "BIARRITZ PNEUS (LB PNEUS)",
+      "address": "ZI DE LA NEGRESSE 21 RUE CHAPELET 64200 BIARRITZ",
+      "city": "BIARRITZ",
+      "postcode": "64200",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "43360963300030",
+      "name": "HARI ESKER",
+      "address": "120 ZURAIDEKO ERREBIDEA 64250 ESPELETTE",
+      "city": "ESPELETTE",
+      "postcode": "64250",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "94102690800025",
+      "name": "L'ATELIER MECANIK",
+      "address": "79 KARRIKA NAGUSIA 64250 AINHOA",
+      "city": "AINHOA",
+      "postcode": "64250",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "35236723900691",
+      "name": "HYPROMAT LAVAGE (HYPROMAT LAVAGE)",
+      "address": "759 AVENUE DE LA REPUBLIQUE 40600 BISCARROSSE",
+      "city": "BISCARROSSE",
+      "postcode": "40600",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "41063310100010",
+      "name": "ILUROTO",
+      "address": "CTRE CIAL DE LA PORTE D'ASPE BOULEVARD ARAGON 64400 OLORON-SAINTE-MARIE",
+      "city": "OLORON-SAINTE-MARIE",
+      "postcode": "64400",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "82383948500021",
+      "name": "LEAFRAGAB",
+      "address": "2 CHEMIN DU BUSQUET 64100 BAYONNE",
+      "city": "BAYONNE",
+      "postcode": "64100",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "99006508800033",
+      "name": "DEPANNAGE FILLATRE-GROUPE DOLET",
+      "address": "407 RUE DE L'ATLANTIQUE 40700 HAGETMAU",
+      "city": "HAGETMAU",
+      "postcode": "40700",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "84460855400011",
+      "name": "FIX DAX (FIX AUTO DAX)",
+      "address": "11 RUE DES PRAIRIES 40100 DAX",
+      "city": "DAX",
+      "postcode": "40100",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "69272013900017",
+      "name": "CARROSSERIE CASTAINGS",
+      "address": "45 TRAVERSE SAINT-GOBAIN 64340 BOUCAU",
+      "city": "BOUCAU",
+      "postcode": "64340",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "50841891000024",
+      "name": "SAS GARAGE LANNEVERE",
+      "address": "658 ROUTE DE DAX 40380 MONTFORT-EN-CHALOSSE",
+      "city": "MONTFORT-EN-CHALOSSE",
+      "postcode": "40380",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "40088306200012",
+      "name": "MADALIA",
+      "address": "LD HARCHOUVIETA 64220 IROULEGUY",
+      "city": "IROULEGUY",
+      "postcode": "64220",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "40805949100014",
+      "name": "SARL GARAGE TRAITAT",
+      "address": "AU BOURG 40250 LAUREDE",
+      "city": "LAUREDE",
+      "postcode": "40250",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "34772427000017",
+      "name": "SARL GARAGE LANOT GROUSSET",
+      "address": "23 ROUTE DE BRUGES 64800 BRUGES-CAPBIS-MIFAGET",
+      "city": "BRUGES-CAPBIS-MIFAGET",
+      "postcode": "64800",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "34814373600018",
+      "name": "CLEAN SERVICE AUTO",
+      "address": "34 AVENUE JEAN MERMOZ 64000 PAU",
+      "city": "PAU",
+      "postcode": "64000",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "82417100300018",
+      "name": "CARROSSERIE GAUMONT",
+      "address": "RUE DE L'ARRAYADE 40280 SAINT-PIERRE-DU-MONT",
+      "city": "SAINT-PIERRE-DU-MONT",
+      "postcode": "40280",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "39952990800028",
+      "name": "CORREIA ET FILS",
+      "address": "QUA PHILIPP 40140 SOUSTONS",
+      "city": "SOUSTONS",
+      "postcode": "40140",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "78878191200035",
+      "name": "SAINT PAUL LAVAGE",
+      "address": "BOULEVARD YVES DU MANOIR 40100 DAX",
+      "city": "DAX",
+      "postcode": "40100",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "41212655900019",
+      "name": "MARLAU",
+      "address": "CENTRE COMMERCIAL CRAMAT ROUTE DE TOSSE 40140 SOUSTONS",
+      "city": "SOUSTONS",
+      "postcode": "40140",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "82173604800017",
+      "name": "HUCHET CARROSSERIE (HUCHET CARROSSERIE)",
+      "address": "ZONE INDUSTRIELLE 12 ZONE ARTISANALE DE MARTIN ZAHARRENEA 64122 URRUGNE",
+      "city": "URRUGNE",
+      "postcode": "64122",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "98524071200028",
+      "name": "MKTE RACING",
+      "address": "LE LESCOURRE 5 RUE DE SATAO 64230 LESCAR",
+      "city": "LESCAR",
+      "postcode": "64230",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "88930692400032",
+      "name": "DS RETOUCHE 64 (X TREME COLOR)",
+      "address": "39 AVENUE FREDERIC ET IRENE JOLIOT CURIE 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "90438241300055",
+      "name": "PRO PDR FRANCE",
+      "address": "1 MAIL DE L'HIPPODROME 64140 LONS",
+      "city": "LONS",
+      "postcode": "64140",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "34358060100015",
+      "name": "GARAGE LABACHOT",
+      "address": "64270 ESCOS",
+      "city": "ESCOS",
+      "postcode": "64270",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "87796479100017",
+      "name": "LCM AUTOMOBILE",
+      "address": "15 RUE DU SEGOT 40160 GASTES",
+      "city": "GASTES",
+      "postcode": "40160",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "95136334000021",
+      "name": "BAIN MOUSSE",
+      "address": "CENTRE COMMERCIAL L'OCEAN ROUTE NATIONALE 10 40220 TARNOS",
+      "city": "TARNOS",
+      "postcode": "40220",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "95135594000028",
+      "name": "RSF DEBOSSELAGE 64",
+      "address": "2 RUE THIMONNIER 64230 LESCAR",
+      "city": "LESCAR",
+      "postcode": "64230",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "82774710600033",
+      "name": "ASSISTANCE OCEAN DEPANNAGE",
+      "address": "49 AVENUE DOCTEUR CAMILLE DELVAILLE 64100 BAYONNE",
+      "city": "BAYONNE",
+      "postcode": "64100",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "80336331600024",
+      "name": "LAVAGE DE LA BIDOUZE",
+      "address": "AU BOURG 64120 UHART-MIXE",
+      "city": "UHART-MIXE",
+      "postcode": "64120",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "79466706300026",
+      "name": "SANTALIESTRA",
+      "address": "ZONE ARTISANALE PEDEBERT 34 AVENUE DES CHARPENTIERS 40150 SOORTS-HOSSEGOR",
+      "city": "SOORTS-HOSSEGOR",
+      "postcode": "40150",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "81798141800012",
+      "name": "ELHORRIA",
+      "address": "DE PLANUYA ZONE ARTISANALE 64200 ARCANGUES",
+      "city": "ARCANGUES",
+      "postcode": "64200",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "83129071300021",
+      "name": "SUD OUEST NETTOYAGE AUTO - SONA",
+      "address": "2 AVENUE DU CAMP 64320 IDRON",
+      "city": "IDRON",
+      "postcode": "64320",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "40805949100022",
+      "name": "SARL GARAGE TRAITAT",
+      "address": "20 ROUTE DU GRAND CAMP 40250 SOUPROSSE",
+      "city": "SOUPROSSE",
+      "postcode": "40250",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "33919480500026",
+      "name": "SOC D'EXPLOITATION DESCHAMPS",
+      "address": "LE BOURG RTE N 10 40230 BENESSE-MAREMNE",
+      "city": "BENESSE-MAREMNE",
+      "postcode": "40230",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "97806331100036",
+      "name": "LE GARAGE DE MIMIZAN PLAGE",
+      "address": "631 ROUTE DES ARTISANS 40200 AUREILHAN",
+      "city": "AUREILHAN",
+      "postcode": "40200",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "10415179000029",
+      "name": "MECA RACING SERVICES",
+      "address": "42 BOULEVARD D'HAUSSEZ 40000 MONT-DE-MARSAN",
+      "city": "MONT-DE-MARSAN",
+      "postcode": "40000",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "83865379800028",
+      "name": "DIGITAL CAR",
+      "address": "5 RUE RENE FOURNETS 64000 PAU",
+      "city": "PAU",
+      "postcode": "64000",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "90221806400019",
+      "name": "MICKA AUTO SERVICES",
+      "address": "7 CHEMIN LARRIBET 64160 MONASSUT-AUDIRACQ",
+      "city": "MONASSUT-AUDIRACQ",
+      "postcode": "64160",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "51948880300023",
+      "name": "BIARRITZ PNEUS (LB PNEUS)",
+      "address": "4 RUE JULES VEDRINES 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "45147418300014",
+      "name": "SAS ROY",
+      "address": "ROUTE DES LACS 40560 VIELLE-SAINT-GIRONS",
+      "city": "VIELLE-SAINT-GIRONS",
+      "postcode": "40560",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "98437707700016",
+      "name": "EUSKO GLASS",
+      "address": "ZA DE LIZARDIA  64310 SAINT-PEE-SUR-NIVELLE",
+      "city": "SAINT-PEE-SUR-NIVELLE",
+      "postcode": "64310",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "94879696600034",
+      "name": "DESFECHO CINTILANTE",
+      "address": "22 RUE CARNOT 40800 AIRE-SUR-L'ADOUR",
+      "city": "AIRE-SUR-L'ADOUR",
+      "postcode": "40800",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "53489022300017",
+      "name": "EURL DUCASSOU",
+      "address": "2829 RTE D ARTHEZ DE BEARN 64370 MORLANNE",
+      "city": "MORLANNE",
+      "postcode": "64370",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "44379662800032",
+      "name": "ASSISTANCE DEPANNAGE REMORQUAGE AUTO (ADRA)",
+      "address": "20 AVENUE ALBERT 1ER 64320 BIZANOS",
+      "city": "BIZANOS",
+      "postcode": "64320",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "47811568600022",
+      "name": "POINT SERVICES VEHICULES INDUSTRIELS (PSVI) (P S V I)",
+      "address": "1106 ROUTE DE BAYONNE 40280 SAINT-PIERRE-DU-MONT",
+      "city": "SAINT-PIERRE-DU-MONT",
+      "postcode": "40280",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "31566818600036",
+      "name": "CARROSSERIE MODERNE (CARROSSERIE MODERNE)",
+      "address": "CENTRE COMMERCIAL LE FORUM BATIMENT 34 6 RUE RAOUL PERPERE 64100 BAYONNE",
+      "city": "BAYONNE",
+      "postcode": "64100",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "94129725100014",
+      "name": "GTD AUTOMOBILES",
+      "address": "3 CHEMIN DES 3 PONTS 64230 LESCAR",
+      "city": "LESCAR",
+      "postcode": "64230",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "83129071300013",
+      "name": "SUD OUEST NETTOYAGE AUTO - SONA",
+      "address": "62 AVENUE DU BEARN 64320 IDRON",
+      "city": "IDRON",
+      "postcode": "64320",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "79002290900028",
+      "name": "NAFARROA PNEUS",
+      "address": "64220 AHAXE-ALCIETTE-BASCASSAN",
+      "city": "AHAXE-ALCIETTE-BASCASSAN",
+      "postcode": "64220",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "95072943400056",
+      "name": "BECHEMIN ASSISTANCE (GROUPE BECHEMIN ASSISTANCE)",
+      "address": "490 AVENUE GASTON LESCOUZERES 40120 ROQUEFORT",
+      "city": "ROQUEFORT",
+      "postcode": "40120",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "95137126900022",
+      "name": "CAR PRO REPAIR",
+      "address": "125 IMPASSE DU POMBIE 64121 SERRES-CASTET",
+      "city": "SERRES-CASTET",
+      "postcode": "64121",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "84446206900015",
+      "name": "GARAGE DES SALIGUES",
+      "address": "117 ROUTE DU MARSAN 40270 CAZERES-SUR-L'ADOUR",
+      "city": "CAZERES-SUR-L'ADOUR",
+      "postcode": "40270",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "69272013900041",
+      "name": "CARROSSERIE CASTAINGS",
+      "address": "165 IMPASSE DE LA VIGNE 64200 BASSUSSARRY",
+      "city": "BASSUSSARRY",
+      "postcode": "64200",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "34772427000025",
+      "name": "SARL GARAGE LANOT GROUSSET",
+      "address": "55 AVENUE DU PIC DU MIDI 64800 IGON",
+      "city": "IGON",
+      "postcode": "64800",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "81482792900021",
+      "name": "LILAUR",
+      "address": "RUE DU PIN FRANC 40270 GRENADE-SUR-L'ADOUR",
+      "city": "GRENADE-SUR-L'ADOUR",
+      "postcode": "40270",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "69272013900025",
+      "name": "CARROSSERIE CASTAINGS",
+      "address": "BATIMENT  31 ZONE ARTIS ST FREDERIC 64100 BAYONNE",
+      "city": "BAYONNE",
+      "postcode": "64100",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "91127228400033",
+      "name": "DALLARD AUTOMOBILES 31",
+      "address": "31 AVENUE DE BAYONNE 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "40310955600015",
+      "name": "GORDES",
+      "address": "ROUTE D'ORTHEZ 40700 HAGETMAU",
+      "city": "HAGETMAU",
+      "postcode": "40700",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "78878191200027",
+      "name": "SAINT PAUL LAVAGE",
+      "address": "LIEUDIT LA PINCE 1 ROUTE DE LESTRILLES 40990 SAINT-PAUL-LES-DAX",
+      "city": "SAINT-PAUL-LES-DAX",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "85326385300022",
+      "name": "AUTOMOBILES LANDES GARAGE",
+      "address": "224 RUE BERNARD PALISSY 40990 SAINT-PAUL-LES-DAX",
+      "city": "SAINT-PAUL-LES-DAX",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "38819341900016",
+      "name": "TEYSSIER ALBERT",
+      "address": "AVENUE DU 11 NOVEMBRE 1918 40250 SOUPROSSE",
+      "city": "SOUPROSSE",
+      "postcode": "40250",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "95135594000010",
+      "name": "RSF DEBOSSELAGE 64",
+      "address": "190 RUE DU BEARN 64360 LACOMMANDE",
+      "city": "LACOMMANDE",
+      "postcode": "64360",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "99006508800025",
+      "name": "DEPANNAGE FILLATRE-GROUPE DOLET",
+      "address": "240 ROUTE DE CLARGUET 40250 LOURQUEN",
+      "city": "LOURQUEN",
+      "postcode": "40250",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "82991553700098",
+      "name": "DBF CESTAS",
+      "address": "ZONE ARTISANALE MAITENA RTE DE MAITENA 40260 CASTETS",
+      "city": "CASTETS",
+      "postcode": "40260",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "90862889400028",
+      "name": "DALLARD AUTOMOBILES 64",
+      "address": "1535 AVENUE DE LA RESISTANCE 40990 SAINT-PAUL-LES-DAX",
+      "city": "SAINT-PAUL-LES-DAX",
+      "postcode": "40990",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "82979063300012",
+      "name": "M AUTOS ENTRETIEN SERVICES (M AUTOS ENTRETIEN SERVICES)",
+      "address": "148 AVENUE DE LA REPUBLIQUE 40600 BISCARROSSE",
+      "city": "BISCARROSSE",
+      "postcode": "40600",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "82991553700114",
+      "name": "DBF CESTAS",
+      "address": "108 RUE FORESTIERE 40600 BISCARROSSE",
+      "city": "BISCARROSSE",
+      "postcode": "40600",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "40483398000034",
+      "name": "TRISCOS AUTOMOBILES",
+      "address": "CENTRE COMMERCIAL DE LA COTE D ARGENT 135 ROUTE DE PONTENX 40160 PARENTIS-EN-BORN",
+      "city": "PARENTIS-EN-BORN",
+      "postcode": "40160",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "69272013900033",
+      "name": "CARROSSERIE CASTAINGS",
+      "address": "74-78 74 AVENUE CHARLES DE GAULLE 40530 LABENNE",
+      "city": "LABENNE",
+      "postcode": "40530",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "50099206000029",
+      "name": "FRANCIS MECANIQUE GENERALE   F.M.G",
+      "address": "LE GRAND BASQUE 976 ROUTE PAILLON 40380 POYARTIN",
+      "city": "POYARTIN",
+      "postcode": "40380",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "98844788400038",
+      "name": "FEVEZ EURL",
+      "address": "2 ROUTE DE BIGOT 64990 MOUGUERRE",
+      "city": "MOUGUERRE",
+      "postcode": "64990",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "97806331100028",
+      "name": "LE GARAGE DE MIMIZAN PLAGE",
+      "address": "621 ROUTE DES ARTISANS 40200 AUREILHAN",
+      "city": "AUREILHAN",
+      "postcode": "40200",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "34742413700086",
+      "name": "SPVI (GROUPE CLIM) (SPVI)",
+      "address": "54 IMPASSE DES REMOULEURS 40600 BISCARROSSE",
+      "city": "BISCARROSSE",
+      "postcode": "40600",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "49472425500026",
+      "name": "DAC AUTOMOBILES",
+      "address": "14 RUE LAVOISIER 40180 NARROSSE",
+      "city": "NARROSSE",
+      "postcode": "40180",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "84026778500011",
+      "name": "HUREAUX (GARAGE CAZAUX)",
+      "address": "1165 AVENUE DU 8 MAI 1945 40440 ONDRES",
+      "city": "ONDRES",
+      "postcode": "40440",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "90975913600015",
+      "name": "AUTO SERVICE LABADIE",
+      "address": "ZA LAMARRAQUE BOULEVARD DE L'AVENIR 40310 GABARRET",
+      "city": "GABARRET",
+      "postcode": "40310",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "79945729600140",
+      "name": "AUTO VITRAGE NOUVELLE AQUITAINE (BOY 2.0) (AVNA)",
+      "address": "184 ROUTE RECART 64990 LAHONCE",
+      "city": "LAHONCE",
+      "postcode": "64990",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "44236901300028",
+      "name": "SARL KENNEDY AUTO",
+      "address": "ROCADE SUD RUE DES TISSERANDS 40280 SAINT-PIERRE-DU-MONT",
+      "city": "SAINT-PIERRE-DU-MONT",
+      "postcode": "40280",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "53144838900027",
+      "name": "DISTRICT VEHICULES INDUSTRIELS (D.V.I.)",
+      "address": "ZA DEUS POUEYS  POLE 3 CHEMIN DE LA BARRIERE 64170 LABASTIDE-CEZERACQ",
+      "city": "LABASTIDE-CEZERACQ",
+      "postcode": "64170",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "10333718400016",
+      "name": "GRANDS LACS AUTOS SERVICES",
+      "address": "BATIMENT 5 - ZA DES GRANDS LAC 472 ROUTE DES GRANDS LACS 40210 LUE",
+      "city": "LUE",
+      "postcode": "40210",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "42369014800014",
+      "name": "MIKLIE",
+      "address": "36 RUE DE PITOYS 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "47796596600070",
+      "name": "ECOCLEAN AUTO",
+      "address": "11 RUE DU PONT DE L'AVEUGLE 64600 ANGLET",
+      "city": "ANGLET",
+      "postcode": "64600",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "50371800900023",
+      "name": "LES CIMES",
+      "address": "LOTISSEMENT GORRE ROUTE D'AINHARP 64130 MAULEON-LICHARRE",
+      "city": "MAULEON-LICHARRE",
+      "postcode": "64130",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "89143399700014",
+      "name": "IMPACT 64",
+      "address": "3 CHEMIN DE LA SERRE 64230 AUSSEVIELLE",
+      "city": "AUSSEVIELLE",
+      "postcode": "64230",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "80753460700039",
+      "name": "NATIEN",
+      "address": "82 AVENUE CAPITAINE RESPLANDY 64100 BAYONNE",
+      "city": "BAYONNE",
+      "postcode": "64100",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "75203022101018",
+      "name": "PDR-TEAM",
+      "address": "266 RTE D'ISTURITS 64240 AYHERRE",
+      "city": "AYHERRE",
+      "postcode": "64240",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "47796596600047",
+      "name": "ECOCLEAN AUTO",
+      "address": "69 AVENUE LOUIS DE FOIX 64100 BAYONNE",
+      "city": "BAYONNE",
+      "postcode": "64100",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "47811568600030",
+      "name": "POINT SERVICES VEHICULES INDUSTRIELS (PSVI) (P S V I)",
+      "address": "ZA HORSARRIEU 785 ROUTE DE SAINT-SEVER 40700 HORSARRIEU",
+      "city": "HORSARRIEU",
+      "postcode": "40700",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "98169171000025",
+      "name": "PALOQUE (AUTOBOSSES 64)",
+      "address": "3449 ROUTE DE BORDEAUX 64121 SERRES-CASTET",
+      "city": "SERRES-CASTET",
+      "postcode": "64121",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=2"
+    },
+    {
+      "siret": "40177903800017",
+      "name": "KORO",
+      "address": "RTE NATIONALE IO 40530 LABENNE",
+      "city": "LABENNE",
+      "postcode": "40530",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=4"
+    },
+    {
+      "siret": "94368392000020",
+      "name": "FLAC AUTOMOBILE",
+      "address": "566 ROUTE DE BAYONNE 40300 PEYREHORADE",
+      "city": "PEYREHORADE",
+      "postcode": "40300",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    },
+    {
+      "siret": "43195309000021",
+      "name": "GARAGE GIACOMIN",
+      "address": "315 ALL CAROLINS 40110 MORCENX-LA-NOUVELLE",
+      "city": "MORCENX-LA-NOUVELLE",
+      "postcode": "40110",
+      "department": "40",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=40&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=1"
+    },
+    {
+      "siret": "53144838900035",
+      "name": "DISTRICT VEHICULES INDUSTRIELS (D.V.I.)",
+      "address": "50 CHEMIN DU LAC 64170 ARTIX",
+      "city": "ARTIX",
+      "postcode": "64170",
+      "department": "64",
+      "activity": "45.20A",
+      "source": "https://recherche-entreprises.api.gouv.fr/search?activite_principale=45.20A&departement=64&etat_administratif=A&est_entrepreneur_individuel=false&per_page=25&page=3"
+    }
+  ]
+}
