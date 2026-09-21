@@ -3,3 +3,5 @@
 .skip{position:absolute;top:-100px;padding:12px;background:#173b44;color:white;z-index:10}.skip:focus{top:0}
 
 #backHome{margin-bottom:10px}#module iframe{height:calc(100dvh - 155px);min-height:350px}#sections summary{cursor:pointer;padding:10px}#sections details button{margin:6px}@media(max-width:620px){#module iframe{height:calc(100dvh - 150px);min-height:300px}#sections{display:block}}
+
+#pinPerson{width:100%;font:inherit;padding:12px;min-height:48px;border:1px solid #49606e;border-radius:10px;background:#1b303d;color:inherit}#pinCode{font-size:26px;letter-spacing:.3em}#pinRecovery{margin-top:24px}#pinRecovery summary,#pinSetup summary{cursor:pointer;padding:10px 0}#pinSetup{max-width:540px;padding:14px}#pinSetupStatus,#pinStatus{color:#f2cdb8}#pinSetup form button{margin-top:12px}

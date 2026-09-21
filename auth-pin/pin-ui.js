@@ -1,7 +1,8 @@
 /* Loaded only after the PIN server has been installed and verified. */
 (()=>{'use strict';
 const endpoint='https://pryocchvwmnuoidtitow.supabase.co/functions/v1/logistics-pin',publicKey='sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ';
-const db=supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co',publicKey),$=id=>document.getElementById(id),deviceKey='alcorb.logistics.device.v1';
+const db=window.AlcorbAuth,$=id=>document.getElementById(id),deviceKey='alcorb.logistics.device.v1';
+if(!db)return;
 let generation=0,busy=false,session=null;
 const recovery=document.createElement('details');recovery.id='pinRecovery';const summary=document.createElement('summary');summary.textContent='Première connexion / accès de secours';recovery.append(summary);$('loginForm').before(recovery);recovery.append($('loginForm'));
 const panel=document.createElement('section');panel.innerHTML='<h2>Choisissez votre nom</h2><form id="pinLogin"><label for="pinPerson">Votre nom</label><select id="pinPerson" required><option value="">Chargement…</option></select><label for="pinCode">Code PIN personnel</label><input id="pinCode" type="password" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="off" required><button id="pinConnect">Entrer</button></form><p id="pinStatus" role="status"></p>';recovery.before(panel);
