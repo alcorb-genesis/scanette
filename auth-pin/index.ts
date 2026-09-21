@@ -1,9 +1,9 @@
-import {createHandler} from './service.mjs';
+import {createHandler,createApiClient} from './service.mjs';
 const url=Deno.env.get('SUPABASE_URL');
 const key=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 // Dedicated encrypted Vault secret, independent from API-key rotation.
 let cachedHandler;
-async function call(path,body,token=key){const r=await fetch(url+path,{method:body===undefined?'GET':'POST',headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok)throw Error('Server operation failed');return r.json();}
+const call=createApiClient(url,key);
 async function getHandler(){
  if(cachedHandler)return cachedHandler;
  const pepper=await call('/rest/v1/rpc/logistics_pin_pepper',{});

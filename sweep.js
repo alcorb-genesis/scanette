@@ -2,11 +2,12 @@
 'use strict';
 const $=id=>document.getElementById(id);
 let tracker=new SweepTracker(),stream=null,worker=null,workerReject=null,running=false,revision=0,timer=null;
-let recent=[],undo=null,cache=new Map();
+let recent=[],undo=null,cache=new Map(),releaseCameraControls=null;
+const frameCanvas=document.createElement('canvas');
 const button=document.createElement('button');button.id='sweepOpen';button.textContent='Balayage vidéo · bêta';button.type='button';button.className='sweep-open';$('scanBtn').insertAdjacentElement('afterend',button);
-const mount=document.createElement('div');mount.innerHTML=`<dialog id="sweepDialog" class="warehouse-dialog sweep-dialog"><div class="row"><h2>Balayage vidéo</h2><button id="sweepClose">Fermer</button></div><p id="sweepStatus" role="status">Prêt. Avancez lentement, rangée par rangée.</p><div class="sweep-stage"><video id="sweepVideo" playsinline muted></video><svg id="sweepOverlay" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true"></svg></div><div class="sweep-actions"><button id="sweepToggle">Démarrer</button><button id="sweepUndo" disabled>Annuler le dernier ajout</button></div><p>Vert : ajouté · Orange : en lecture. Une boîte qui revient après sa sortie peut être recomptée.</p><h3>Les 4 derniers ajouts</h3><ol id="sweepRecent"></ol><p>Pause conserve ces repères. La caméra s’arrête aussi si vous quittez l’application. Après un déplacement important, vérifiez votre position avant de reprendre.</p></dialog>`;document.body.append(mount);
+const mount=document.createElement('div');mount.innerHTML=`<dialog id="sweepDialog" class="warehouse-dialog sweep-dialog"><div class="row"><h2>Balayage vidéo</h2><button id="sweepClose">Fermer</button></div><p id="sweepStatus" role="status">Prêt. Avancez lentement, rangée par rangée.</p><div class="sweep-stage"><video id="sweepVideo" playsinline muted></video><svg id="sweepOverlay" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true"></svg></div><div id="sweepCameraControls" class="camera-controls" hidden></div><div class="sweep-actions"><button id="sweepToggle">Démarrer</button><button id="sweepUndo" disabled>Annuler le dernier ajout</button></div><p>Vert : ajouté · Orange : en lecture. Une boîte qui revient après sa sortie peut être recomptée.</p><h3>Les 4 derniers ajouts</h3><ol id="sweepRecent"></ol><p>Pause conserve ces repères. La caméra s’arrête aussi si vous quittez l’application. Après un déplacement important, vérifiez votre position avant de reprendre.</p></dialog>`;document.body.append(mount);
 function history(){const list=$('sweepRecent');list.replaceChildren();for(const item of recent){const li=document.createElement('li');li.textContent=item.reference+' · +1 · '+new Date(item.time).toLocaleTimeString('fr-FR')+(item.description?' — '+item.description:'');list.append(li);}$('sweepUndo').disabled=!undo;}
-function stopResources(){clearTimeout(timer);timer=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}$('sweepVideo').pause();$('sweepVideo').srcObject=null;if(worker){worker.terminate();worker=null;}if(workerReject){workerReject(Error('Lecture interrompue.'));workerReject=null;}}
+function stopResources(){releaseCameraControls?.();releaseCameraControls=null;frameCanvas.width=1;frameCanvas.height=1;clearTimeout(timer);timer=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}$('sweepVideo').pause();$('sweepVideo').srcObject=null;if(worker){worker.terminate();worker=null;}if(workerReject){workerReject(Error('Lecture interrompue.'));workerReject=null;}}
 function pause(message='En pause. Retrouvez votre position puis reprenez.') {running=false;revision++;tracker.pause(Date.now());stopResources();$('sweepToggle').disabled=false;$('sweepToggle').textContent='Reprendre';$('sweepStatus').textContent=message;}
 function reset(){pause('Session fermée.');tracker=new SweepTracker();recent=[];undo=null;cache.clear();history();$('sweepOverlay').replaceChildren();$('sweepDialog').close();}
 window.Sweep={reset,pause};
@@ -24,8 +25,8 @@ async function frame(token,epoch){
  if(!running||token!==revision)return;
  try{
   const video=$('sweepVideo');if(!video.videoWidth){timer=setTimeout(()=>frame(token,epoch),250);return;}
-  const canvas=document.createElement('canvas'),scale=Math.min(1,1280/Math.max(video.videoWidth,video.videoHeight));canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);const width=canvas.width,height=canvas.height;
-  canvas.getContext('2d').drawImage(video,0,0,width,height);const pixels=canvas.getContext('2d').getImageData(0,0,width,height);canvas.width=1;canvas.height=1;
+  const canvas=frameCanvas,scale=Math.min(1,1280/Math.max(video.videoWidth,video.videoHeight));canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);const width=canvas.width,height=canvas.height;
+  canvas.getContext('2d').drawImage(video,0,0,width,height);const pixels=canvas.getContext('2d').getImageData(0,0,width,height);
   const found=await decode(pixels);if(!running||token!==revision||epoch!==sessionEpoch)return;
   const normalized=found.filter(d=>d.text&&d.isValid!==false).map(d=>({...d,position:Object.fromEntries(Object.entries(d.position).map(([key,p])=>[key,{x:p.x/width,y:p.y/height}]))}));
   const visible=tracker.update(normalized,Date.now());paint(visible);
@@ -48,7 +49,7 @@ async function start(){
   const next=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280,max:1280},height:{ideal:720,max:1280}}});
   if(token!==revision||epoch!==sessionEpoch){next.getTracks().forEach(t=>t.stop());return;}
   stream=next;const video=$('sweepVideo');video.srcObject=stream;await video.play();if(token!==revision)return;
-  worker=new Worker('palette-worker.js?v=20260917-sweep1');tracker.resume(Date.now());running=true;$('sweepToggle').disabled=false;$('sweepToggle').textContent='Pause';$('sweepStatus').textContent='Balayage actif. Attendez le signal de chaque ajout.';frame(token,epoch);
+  releaseCameraControls=CameraControls.mount(stream.getVideoTracks()[0],$('sweepCameraControls'));worker=new Worker('palette-worker.js?v=20260917-sweep1');tracker.resume(Date.now());running=true;$('sweepToggle').disabled=false;$('sweepToggle').textContent='Pause';$('sweepStatus').textContent='Balayage actif. Attendez le signal de chaque ajout.';frame(token,epoch);
  }catch(error){if(token===revision)pause('Caméra indisponible. Vérifiez son autorisation puis reprenez.');}
 }
 button.onclick=()=>{Warehouse.reset();if(scanning)stopScan();stopLiveStream();recent=(scanHistory||[]).slice();$('sweepDialog').showModal();$('sweepStatus').textContent=recent.length?'Vérifiez les derniers ajouts avant de reprendre.':'Prêt. Avancez lentement, rangée par rangée.';if(!recent.length)$('sweepToggle').textContent='Démarrer';history();};

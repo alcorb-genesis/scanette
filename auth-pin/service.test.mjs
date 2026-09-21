@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createHandler,digest,equal,validPin,freshPassword,sha} from './service.mjs';
+import {createHandler,createApiClient,digest,equal,validPin,freshPassword,sha} from './service.mjs';
 const origin='https://example.test',person='11111111-1111-4111-8111-111111111111',device='a'.repeat(64),salt='b'.repeat(32),pepper='server-test-secret-not-production';
 const request=body=>new Request(origin,{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
 test('PIN validation rejects malformed codes and obvious patterns',()=>{for(const p of ['123456','000000','543210','12345','1234567','ABCDEF',123456])assert.equal(validPin(p),false);assert.equal(validPin('283951'),true);});
@@ -11,3 +11,20 @@ test('Wrong PIN never issues a session; credential digest never returned',async(
 test('Success returns only real account session; revoked access or changed PIN fails closed',async()=>{const d=await digest('283951',salt,pepper);let allowed=true;const h=createHandler({origins:[origin],pepper,rpc:async(name)=>name==='logistics_pin_attempt'?{user_id:person,salt,digest:d,version:'version'}:allowed,issueSession:async()=>({user:{id:person},access_token:'test-access',refresh_token:'test-refresh'})});const body={action:'login',device,person,pin:'283951'};assert.deepEqual(await(await h(request(body))).json(),{access_token:'test-access',refresh_token:'test-refresh'});allowed=false;assert.equal((await h(request(body))).status,401);});
 test('Server denial prevents expensive PIN verification and session creation',async()=>{let issued=false;const h=createHandler({origins:[origin],pepper,rpc:async()=>null,issueSession:async()=>{issued=true;}});assert.equal((await h(request({action:'login',device,person,pin:'283951'}))).status,401);assert.equal(issued,false);});
 test('Device token is hashed before RPC',async()=>{let received;const h=createHandler({origins:[origin],rpc:async(_n,args)=>{received=args;return[]}});await h(request({action:'roster',device}));assert.equal(received.device_hash,await sha(device));assert.notEqual(received.device_hash,device);});
+
+test('Successful void RPCs do not parse an empty JSON body (pair, enrol, revoke)',async()=>{
+ const call=createApiClient('https://server.test','server-test-key',async()=>new Response(null,{status:204}));
+ for(const name of ['pair','enrol','revoke'])assert.equal(await call('/rpc/'+name,{}),undefined);
+});
+test('API adapter preserves JSON and rejects unsuccessful HTTP before parsing',async()=>{
+ const call=createApiClient('https://server.test','test',async()=>new Response('{"ok":true}',{status:200}));assert.deepEqual(await call('/rpc',{}),{ok:true});
+ await assert.rejects(createApiClient('https://server.test','test',async()=>new Response('private error',{status:403}))('/rpc',{}),/403/);
+});
+
+test('Pairing returns the device token after a real-style HTTP 204 RPC response',async()=>{
+ const call=createApiClient('https://server.test','test',async()=>new Response(null,{status:204}));
+ const h=createHandler({origins:[origin],shop:'test',authenticate:async()=>({id:person}),rpc:(name,args)=>call('/rpc/'+name,args)});
+ const token='a.'+Buffer.from(JSON.stringify({amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)}]})).toString('base64url')+'.x';
+ const response=await h(new Request(origin,{method:'POST',headers:{origin,authorization:'Bearer '+token},body:JSON.stringify({action:'pair'})}));
+ assert.equal(response.status,200);assert.match((await response.json()).device,/^[a-f0-9]{64}$/);
+});

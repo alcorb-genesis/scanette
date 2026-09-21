@@ -33,7 +33,7 @@ export function createHandler({rpc,authenticate,issueSession,pepper,shop,origins
     if(typeof body.device!=='string'||!/^[a-f0-9]{64}$/.test(body.device))return reply(400,{error:'Appareil inconnu.'});
     await rpc('logistics_pin_revoke',{actor:user.id,device_hash:await sha(body.device)});return reply(200,{ok:true});
    }
-   if(typeof body.device!=='string'||!/^[a-f0-9]{64}$/.test(body.device))return reply(401,{error:'Ce navigateur doit être associé au magasin par le responsable.'});
+   if(typeof body.device!=='string'||!/^[a-f0-9]{64}$/.test(body.device))return reply(401,{error:'Ce navigateur doit être associé à l’application par son administrateur.'});
    const device_hash=await sha(body.device);
    if(body.action==='roster'){const people=await rpc('logistics_pin_roster',{device_hash});return reply(200,{people});}
    if(body.action!=='login'||typeof body.person!=='string'||!/^[a-f0-9-]{36}$/i.test(body.person)||typeof body.pin!=='string'||!/^\d{6}$/.test(body.pin))return reply(400,{error:'Choisissez votre nom et saisissez six chiffres.'});
@@ -44,5 +44,15 @@ export function createHandler({rpc,authenticate,issueSession,pepper,shop,origins
    if(!await rpc('logistics_pin_finish',{device_hash,person:entry.user_id,credential_version:entry.version}))return reply(401,{error:'Accès modifié. Reconnectez-vous.'});
    return reply(200,{access_token:session.access_token,refresh_token:session.refresh_token});
   }catch{return reply(503,{error:'Connexion PIN indisponible. Utilisez la connexion de secours ou réessayez plus tard.'});}
+ };
+}
+
+// PostgREST returns HTTP 204 for successful void RPCs: there is no JSON body.
+export function createApiClient(url,key,fetcher=fetch){
+ return async (path,body,token=key)=>{
+  const r=await fetcher(url+path,{method:body===undefined?'GET':'POST',headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+  if(!r.ok)throw Error('Server operation failed ('+r.status+')');
+  if(r.status===204)return undefined;
+  return r.json();
  };
 }

@@ -48,7 +48,8 @@ test('video controller counts distinct labels, pauses, retains four recent adds 
  h.context.document.createElement=()=>({...originalCreate(),getContext:()=>({drawImage(){},getImageData:()=>({width:200,height:200,data:new Uint8ClampedArray(200*200*4)})})});
  const positions=[20,55,90,125,160];
  h.context.Worker=class{postMessage(){Promise.resolve().then(()=>this.onmessage({data:{results:positions.map((x,i)=>({text:'CODE'+i,position:{topLeft:{x,y:20},topRight:{x:x+10,y:20},bottomRight:{x:x+10,y:30},bottomLeft:{x,y:30}}}))}}));}terminate(){}};
- h.context.navigator.mediaDevices={getUserMedia:async()=>({getTracks:()=>[{stop(){}}]})};
+ h.context.navigator.mediaDevices={getUserMedia:async()=>({getTracks:()=>[{stop(){}}],getVideoTracks:()=>[{readyState:'live',getCapabilities:()=>({}),getSettings:()=>({width:200,height:200})}]})};
+ h.run(fs.readFileSync('camera-controls.js','utf8'));
  h.run(fs.readFileSync('sweep.js','utf8'));
  const el=id=>h.context.document.getElementById(id),recent=[];
  el('sweepRecent').replaceChildren=()=>recent.splice(0);el('sweepRecent').append=item=>recent.push(item.textContent);

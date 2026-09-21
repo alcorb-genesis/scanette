@@ -3,8 +3,8 @@
 'use strict';
 const workspace='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
 let generation=0,chooseCancel=null,rows=[],detections=[],committed=false,busy=false;
-let paletteStream=null,cameraRequest=0;
-function stopPaletteCamera(){cameraRequest++;if(paletteStream){paletteStream.getTracks().forEach(track=>track.stop());paletteStream=null;}const video=byId('paletteVideo');if(video){video.pause();video.srcObject=null;video.hidden=true;}if(byId('paletteCapture'))byId('paletteCapture').hidden=true;}
+let paletteStream=null,cameraRequest=0,releasePaletteControls=null;
+function stopPaletteCamera(){releasePaletteControls?.();releasePaletteControls=null;cameraRequest++;if(paletteStream){paletteStream.getTracks().forEach(track=>track.stop());paletteStream=null;}const video=byId('paletteVideo');if(video){video.pause();video.srcObject=null;video.hidden=true;}if(byId('paletteCapture'))byId('paletteCapture').hidden=true;}
 const byId=id=>document.getElementById(id);
 async function resolve(code){
  if(!currentUserId)throw Error('Reconnectez-vous.');
@@ -66,7 +66,7 @@ const dialogs=document.createElement('div');dialogs.innerHTML=`
 <dialog id="productChoice" class="warehouse-dialog"><h2>Quel produit souhaitez-vous pointer ?</h2><p>Ce code correspond à plusieurs fiches Bellecave. Vérifiez la désignation.</p><div id="productChoices"></div><button id="cancelProductChoice">Annuler</button></dialog>
 <dialog id="paletteDialog" class="warehouse-dialog"><div class="row"><h2>Palette · lecture multiple</h2><button id="paletteClose" type="button">Fermer</button></div>
 <p>Photographiez plusieurs étiquettes nettes, sans viser un seul code. L’image reste sur cet appareil.</p>
-<button id="paletteCamera" type="button">Ouvrir la caméra légère</button><video id="paletteVideo" playsinline muted hidden style="width:100%;max-height:45vh"></video><button id="paletteCapture" type="button" hidden>Capturer et analyser</button><p>Mode conseillé sur téléphone : image limitée pour économiser la mémoire.</p><label class="photo-button" for="paletteFile">Ou choisir une image existante</label><input id="paletteFile" type="file" accept="image/*">
+<button id="paletteCamera" type="button">Ouvrir la caméra légère</button><video id="paletteVideo" playsinline muted hidden style="width:100%;max-height:45vh"></video><div id="paletteCameraControls" class="camera-controls" hidden></div><button id="paletteCapture" type="button" hidden>Capturer et analyser</button><p>Mode conseillé sur téléphone : image limitée pour économiser la mémoire.</p><label class="photo-button" for="paletteFile">Ou choisir une image existante</label><input id="paletteFile" type="file" accept="image/*">
 <p id="paletteStatus" role="status" aria-live="polite">Choisissez une photo pour commencer.</p><div class="palette-stage"><canvas id="paletteCanvas" width="1" height="1"></canvas><svg id="paletteOverlay" aria-hidden="true"></svg></div>
 <p class="palette-legend">Vert : référence reconnue · Orange : à vérifier ou exclue · Gris : lot ajouté.</p>
 <p><strong>Un code détecté n’est pas une boîte comptée.</strong> La quantité proposée est 1 par code distinct. Vérifiez les boîtes identiques et les doubles étiquettes. Deux photos peuvent montrer les mêmes pièces.</p>
@@ -188,7 +188,7 @@ byId('paletteCamera').onclick=async()=>{
   if(request!==cameraRequest){stream.getTracks().forEach(track=>track.stop());return;}
   paletteStream=stream;const video=byId('paletteVideo');video.srcObject=stream;video.hidden=false;await video.play();
   if(request!==cameraRequest)return;
-  byId('paletteCapture').hidden=false;byId('paletteStatus').textContent='Approchez les étiquettes, stabilisez le téléphone puis capturez.';
+  releasePaletteControls=CameraControls.mount(stream.getVideoTracks()[0],byId('paletteCameraControls'));byId('paletteCapture').hidden=false;byId('paletteStatus').textContent='Approchez les étiquettes, stabilisez le téléphone puis capturez.';
  }catch(error){if(request===cameraRequest){stopPaletteCamera();byId('paletteStatus').textContent='Caméra indisponible. Autorisez son accès ou choisissez une image existante.';}}
 };
 byId('paletteCapture').onclick=async()=>{
