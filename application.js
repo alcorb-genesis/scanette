@@ -1,14 +1,15 @@
 /* Navigation only: database RLS and RPCs remain the authority. */
 (()=>{'use strict';
 const shop='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
-const routes=Object.freeze({partners:'store-partners.html?embedded=1',departures:'store-partners.html?embedded=1',team:'team.html?embedded=1',settings:'store-settings.html?embedded=1',sale:'store-sales.html?embedded=1',restock:'store-purchases.html?embedded=1',dispatch:'store-partners.html?embedded=1',tours:'gestion-demo.html?embedded=1&section=dispatch',accounting:'gestion-demo.html?embedded=1&section=accounting',stats:'gestion-demo.html?embedded=1&section=storestats',scan:'index.html?embedded=1',receipts:'gestion.html?embedded=1',catalogue:'bellecave.html?embedded=1',demo:'gestion-demo.html?embedded=1'});
-const labels={partners:'Clients et fournisseurs',departures:'Départs par garage',team:'Équipe du magasin',settings:'Mon magasin',sale:'Comptoir · BL',restock:'Achats et pièces attendues',dispatch:'Départs par garage',tours:'Tournées · essai',accounting:'Comptabilité · démo',stats:'Statistiques · démo',scan:'Pointage',receipts:'Réceptions et stock',catalogue:'Catalogue',demo:'Gestion · démonstration'};
+const routes=Object.freeze({departures:'store-partners.html?embedded=1',team:'team.html?embedded=1',settings:'store-settings.html?embedded=1',scan:'index.html?embedded=1',catalogue:'bellecave.html?embedded=1'});
+const labels={departures:'Départs',team:'Équipe',settings:'Paramétrage',scan:'Scanette',catalogue:'Catalogue'};
 const $=id=>document.getElementById(id);let client,actor=null,access=false,generation=0,current='home',moduleDirty=false;
-function clear(){moduleDirty=false;generation++;actor=null;access=false;current='home';$('module').replaceChildren();$('workspace').hidden=true;$('identity').textContent='';$('sectionNotice').hidden=true;}
+function clear(){moduleDirty=false;generation++;actor=null;access=false;current='home';$('module').replaceChildren();$('workspace').hidden=true;$('identity').textContent='';$('sectionNotice').hidden=true;$('backHome').hidden=true;}
 function section(name){if(!access)return;if(name!=='home'&&!Object.hasOwn(routes,name))name='home';if(current===name&&$('module').firstChild)return;
  if(current!==name&&moduleDirty&&!confirm('Quitter cette section sans enregistrer les modifications ?'))return;moduleDirty=false;
  current=name;$('module').replaceChildren();$('home').hidden=name!=='home';
- $('sectionNotice').hidden=!['demo','tours','accounting','stats'].includes(name);$('sectionNotice').textContent='Démonstration : les ventes, la comptabilité et les profils ci-dessous sont simulés. Ils ne modifient pas les données réelles du magasin.';
+ $('sectionNotice').hidden=true;
+ $('sections').hidden=name!=='home'; $('backHome').hidden=name==='home';
  document.querySelectorAll('#sections [data-section]').forEach(b=>{if(b.dataset.section===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
  if(name!=='home'){const frame=document.createElement('iframe');frame.title=labels[name];frame.src=routes[name];frame.allow='camera; geolocation';$('module').append(frame);}
  history.replaceState(null,'','#'+name);
