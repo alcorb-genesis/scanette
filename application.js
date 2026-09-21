@@ -1,8 +1,8 @@
 /* Navigation only: database RLS and RPCs remain the authority. */
 (()=>{'use strict';
 const shop='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
-const routes=Object.freeze({departures:'store-partners.html?embedded=1',team:'team.html?embedded=1',settings:'store-settings.html?embedded=1',scan:'index.html?embedded=1',catalogue:'bellecave.html?embedded=1'});
-const labels={departures:'Départs',team:'Équipe',settings:'Paramétrage',scan:'Scanette',catalogue:'Catalogue'};
+const routes=Object.freeze({receipts:'logistics-sessions.html?embedded=1&kind=receipt',inventory:'logistics-sessions.html?embedded=1&kind=inventory',departures:'store-partners.html?embedded=1',team:'team.html?embedded=1',settings:'store-settings.html?embedded=1',scan:'index.html?embedded=1',catalogue:'bellecave.html?embedded=1'});
+const labels={receipts:'Réception',inventory:'Inventaire',departures:'Départs',team:'Équipe',settings:'Paramétrage',scan:'Scanette',catalogue:'Catalogue'};
 const $=id=>document.getElementById(id);let client,actor=null,access=false,generation=0,current='home',moduleDirty=false;
 function clear(){moduleDirty=false;generation++;actor=null;access=false;current='home';$('module').replaceChildren();$('workspace').hidden=true;$('identity').textContent='';$('sectionNotice').hidden=true;$('backHome').hidden=true;}
 function section(name){if(!access)return;if(name!=='home'&&!Object.hasOwn(routes,name))name='home';if(current===name&&$('module').firstChild)return;
@@ -17,8 +17,8 @@ function section(name){if(!access)return;if(name!=='home'&&!Object.hasOwn(routes
 async function enter(session){const id=session?.user?.id||null;if(id!==actor){clear();actor=id;}$('login').hidden=!!id;$('logout').hidden=!id;if(!id){$('status').textContent='';return;}
  const ticket=++generation;try{const result=await client.from('scanette_members').select('role').eq('workspace_id',shop).eq('user_id',id).maybeSingle();if(ticket!==generation)return;
  if(result.error)throw Error('Impossible de vérifier les accès. Réessayez en vous reconnectant.');
- if(!result.data||!['reader','operator','admin'].includes(result.data.role))throw Error('Ce compte ne dispose pas encore d’un accès au magasin. Le responsable doit lui attribuer un rôle.');
- access=true;$('status').textContent='';$('workspace').hidden=false;$('identity').textContent=(session.user.email||'Compte personnel')+' · Bellecave · '+({reader:'Lecture',operator:'Opérateur',admin:'Administrateur'}[result.data.role]);
+ if(!result.data||!['reader','operator','admin'].includes(result.data.role))throw Error('Ce compte ne dispose pas encore d’un accès au magasin. L’administrateur de l’application doit lui attribuer un rôle.');
+ access=true;$('status').textContent='';$('workspace').hidden=false;$('identity').textContent=(session.user.email||'Compte personnel')+' · Bellecave · '+({reader:'Lecture',operator:'Opérateur',admin:'Administrateur de l’application'}[result.data.role]);
  section(location.hash.slice(1)||'home');
  }catch(error){if(ticket!==generation)return;clear();actor=id;$('status').textContent=error.message;}}
  document.addEventListener('click',e=>{const button=e.target.closest('[data-section]');if(button)section(button.dataset.section);});

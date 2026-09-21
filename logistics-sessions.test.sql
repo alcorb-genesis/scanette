@@ -1,0 +1,23 @@
+begin;
+select set_config('request.jwt.claim.sub',(select user_id::text from public.scanette_members where workspace_id='8770297c-cadb-4cc6-8b93-55a0f9bd154e' and role='admin' limit 1),true);
+set local role authenticated;
+do $$declare w uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';p uuid:=gen_random_uuid();r uuid:=gen_random_uuid();i uuid:=gen_random_uuid();doc jsonb;got public.logistics_sessions;n integer;begin
+ perform public.gestion_save_partner(w,p,0,'supplier','TEST LOGISTICS ROLLBACK','{}'::jsonb,'[]'::jsonb,'');
+ doc:=jsonb_build_object('event_at','2026-09-21T10:00:00Z','supplier_id',p,'supplier_name','Untrusted name','orders','TEST-001','lines',jsonb_build_array(jsonb_build_object('reference','TEST-A','quantity',2)));
+ got:=public.logistics_save_session(w,r,'receipt',0,doc);
+ if got.version<>1 or got.content->>'supplier_name'<>'TEST LOGISTICS ROLLBACK' or got.created_by<>auth.uid() then raise exception 'Bad receipt';end if;
+ got:=public.logistics_save_session(w,r,'receipt',0,doc);
+ if got.version<>1 then raise exception 'Replay duplicated';end if;
+ begin perform public.logistics_save_session(w,r,'receipt',0,jsonb_set(doc,'{orders}','"OTHER"'));raise exception 'Stale accepted';exception when serialization_failure then null;end;
+ got:=public.logistics_save_session(w,i,'inventory',0,'{"event_at":"2026-09-21T10:00:00Z","employees":["Test A","Test B"],"lines":[{"reference":"A","quantity":null},{"reference":"B","quantity":0}]}'::jsonb);
+ if got.content#>'{lines,0,quantity}'<>'null'::jsonb or got.content#>>'{lines,1,quantity}'<>'0' then raise exception 'Uncounted confused with zero';end if;
+ begin perform public.logistics_save_session(w,gen_random_uuid(),'inventory',0,'{"event_at":"2026-09-21T10:00:00Z","employees":["Test"],"lines":[{"reference":"A","quantity":-1}]}');raise exception 'Negative accepted';exception when raise_exception then if sqlerrm='Negative accepted' then raise;end if;end;
+ begin update public.logistics_sessions set version=100 where id=r;raise exception 'Direct write accepted';exception when insufficient_privilege then null;end;
+ if not exists(select 1 from public.logistics_employee_names(w)) then raise exception 'Names absent';end if;
+ perform set_config('request.jwt.claim.sub',gen_random_uuid()::text,true);
+ select count(*) into n from public.logistics_sessions where workspace_id=w;if n<>0 then raise exception 'RLS leak';end if;
+ if exists(select 1 from public.logistics_employee_names(w)) then raise exception 'Names leak';end if;
+ begin perform public.logistics_save_session(w,r,'receipt',1,doc);raise exception 'Outsider accepted';exception when insufficient_privilege then null;end;
+end;$$;
+rollback;
+select 'PASS: receipt, inventory, retry, concurrency, null quantities, permissions, private names; all test data rolled back' as result;

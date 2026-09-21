@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const routes={'store-partners.html':'departures','team.html':'team','store-settings.html':'settings','index.html':'scan','bellecave.html':'catalogue','gestion.html':'home','gestion-demo.html':'home','store-sales.html':'home','store-purchases.html':'home','scenario.html':'home'};
+const routes={'logistics-sessions.html':new URLSearchParams(location.search).get('kind')==='inventory'?'inventory':'receipts','store-partners.html':'departures','team.html':'team','store-settings.html':'settings','index.html':'scan','bellecave.html':'catalogue','gestion.html':'home','gestion-demo.html':'home','store-sales.html':'home','store-purchases.html':'home','scenario.html':'home'};
 const file=location.pathname.split('/').pop()||'index.html';
 const embedded=window.parent!==window&&new URLSearchParams(location.search).get('embedded')==='1';
 if(embedded){
