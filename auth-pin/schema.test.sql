@@ -1,0 +1,22 @@
+begin;
+do $$declare u uuid;w uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';d text:=encode(extensions.gen_random_bytes(32),'hex');v uuid;r jsonb;begin
+ select user_id into u from public.scanette_members where workspace_id=w and role='admin' limit 1;
+ perform public.logistics_pin_pair(u,w,d);
+ perform public.logistics_pin_enrol(u,w,repeat('a',32),repeat('b',64));
+ if not exists(select 1 from public.logistics_pin_roster(d) where id=u) then raise exception 'Roster missing';end if;
+ if exists(select 1 from public.logistics_pin_roster(repeat('0',64))) then raise exception 'Unpaired roster leak';end if;
+ for i in 1..5 loop r:=public.logistics_pin_attempt(d,u);if r is null then raise exception 'Premature refusal';end if;end loop;
+ v:=(r->>'version')::uuid;
+ if public.logistics_pin_attempt(d,u) is not null then raise exception 'Rate limit bypass';end if;
+ if not public.logistics_pin_finish(d,u,v) then raise exception 'Valid finish denied';end if;
+ if (select attempts from public.logistics_pin_credentials where user_id=u)<>0 then raise exception 'Success did not clear failures';end if;
+ perform public.logistics_pin_enrol(u,w,repeat('c',32),repeat('d',64));
+ if public.logistics_pin_finish(d,u,v) then raise exception 'Changed PIN accepted';end if;
+ r:=public.logistics_pin_attempt(d,u);v:=(r->>'version')::uuid;
+ perform public.logistics_pin_revoke(u,d);
+ if public.logistics_pin_finish(d,u,v) or public.logistics_pin_attempt(d,u) is not null or exists(select 1 from public.logistics_pin_roster(d)) then raise exception 'Revoked device accepted';end if;
+ if has_function_privilege('anon','public.logistics_pin_pepper()','execute') or has_function_privilege('authenticated','public.logistics_pin_pepper()','execute') or has_function_privilege('authenticated','public.logistics_pin_attempt(text,uuid)','execute') or has_table_privilege('authenticated','public.logistics_pin_credentials','select') then raise exception 'Credential exposure';end if;
+ if not has_function_privilege('service_role','public.logistics_pin_attempt(text,uuid)','execute') then raise exception 'Server unavailable';end if;
+end;$$;
+rollback;
+select 'PASS PIN attempts, roster privacy, revision and revocation, server-only privileges; rolled back' as result;
