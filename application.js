@@ -1,8 +1,8 @@
 /* Navigation only: database RLS and RPCs remain the authority. */
 (()=>{'use strict';
 const shop='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
-const routes=Object.freeze({receipts:'logistics-sessions.html?embedded=1&kind=receipt',inventory:'inventory/index.html',departures:'store-partners.html?embedded=1',team:'team.html?embedded=1',settings:'store-settings.html?embedded=1',scan:'index.html?embedded=1',catalogue:'bellecave.html?embedded=1'});
-const labels={receipts:'Réception',inventory:'Inventaire',departures:'Départs',team:'Équipe',settings:'Paramétrage',scan:'Scanette',catalogue:'Catalogue'};
+const routes=Object.freeze({tracking:'delivery-tracking.html',receipts:'logistics-sessions.html?embedded=1&kind=receipt',inventory:'inventory/index.html',departures:'store-partners.html?embedded=1',team:'team.html?embedded=1',settings:'store-settings.html?embedded=1',scan:'index.html?embedded=1',catalogue:'bellecave.html?embedded=1'});
+const labels={tracking:'Où est ma pièce ?',receipts:'Réception',inventory:'Inventaire',departures:'Départs',team:'Équipe',settings:'Paramétrage',scan:'Scanette',catalogue:'Catalogue'};
 const $=id=>document.getElementById(id);let client,actor=null,access=false,generation=0,current='home',moduleDirty=false;
 function clear(){$('workspace').dataset.focus='';moduleDirty=false;generation++;actor=null;access=false;current='home';$('module').replaceChildren();$('workspace').hidden=true;$('identity').textContent='';$('sectionNotice').hidden=true;$('backHome').hidden=true;}
 function section(name){if(!access)return;if(name!=='home'&&!Object.hasOwn(routes,name))name='home';if(current===name&&$('module').firstChild)return;
