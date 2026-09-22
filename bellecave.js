@@ -3,18 +3,19 @@ const client=supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co','s
 const workspaceId='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
 const el=id=>document.getElementById(id);
 let userId=null,role=null,pageIndex=0,total=0,epoch=0,requestId=0,selectedProduct=null;
+let aisleRows=[],selectedAisle=null;
 let cameraScanner=null,cameraStarting=false,cameraGeneration=0;
 function status(text,error=false){el('status').textContent=text;el('status').classList.toggle('error',error);}
 async function enter(session){
- if(!session){stopLookup();userId=null;role=null;epoch++;requestId++;selectedProduct=null;el('results').replaceChildren();el('detail').close();el('catalogue').hidden=true;el('login').hidden=false;el('logout').hidden=true;return;}
+ if(!session){aisleRows=[];el('aisleResults').replaceChildren();stopLookup();userId=null;role=null;epoch++;requestId++;selectedProduct=null;el('results').replaceChildren();el('detail').close();el('catalogue').hidden=true;el('login').hidden=false;el('logout').hidden=true;return;}
  if(userId===session.user.id)return;
- stopLookup();role=null;selectedProduct=null;el('results').replaceChildren();el('detail').close();el('catalogue').hidden=true;
+ stopLookup();aisleRows=[];el('aisleResults').replaceChildren();role=null;selectedProduct=null;el('results').replaceChildren();el('detail').close();el('catalogue').hidden=true;
  userId=session.user.id;const current=++epoch;
  el('login').hidden=true;el('logout').hidden=false;status('Vérification de l’accès Bellecave…');
  const {data,error}=await client.from('scanette_members').select('role').eq('workspace_id',workspaceId).eq('user_id',userId).maybeSingle();
  if(current!==epoch)return;
  if(error||!data){status('Ce compte ne dispose pas encore d’un accès Bellecave. Contactez l’administrateur.',true);return;}
- role=data.role;el('catalogue').hidden=false;pageIndex=0;await search();
+ role=data.role;el('catalogue').hidden=false;pageIndex=0;await Promise.all([search(),loadAisles(current)]);
 }
 async function search(){
  if(!userId||!role)return;
@@ -23,7 +24,8 @@ async function search(){
  // Only letters, digits, spaces and common reference punctuation are used in PostgREST filters.
  const term=el('query').value.trim().replace(/[^\p{L}\p{N}\s./_-]/gu,' ').replace(/[%_*]/g,' ').trim();
  let query=client.from('scanette_products').select('*',{count:'exact'}).eq('workspace_id',workspaceId);
- if(term){query=query.or('reference.ilike.%'+term+'%,order_reference.ilike.%'+term+'%,description.ilike.%'+term+'%,internal_barcode.eq.'+term+',manufacturer_barcode.eq.'+term);}
+ if(selectedAisle){query=query.ilike('location',selectedAisle);}
+ else if(term){query=query.or('reference.ilike.%'+term+'%,order_reference.ilike.%'+term+'%,description.ilike.%'+term+'%,location.ilike.'+term+',internal_barcode.eq.'+term+',manufacturer_barcode.eq.'+term);}
  const {data,error,count}=await query.order('reference').order('id').range(pageIndex*40,pageIndex*40+39);
  if(current!==epoch||request!==requestId)return;
  if(error){status('Recherche indisponible. Réessayez dans un instant.',true);return;}
@@ -55,7 +57,7 @@ el('loginForm').addEventListener('submit',async event=>{
  if(error)status('Connexion impossible. Vérifiez vos identifiants.',true);else await enter(data.session);
 });
 el('logout').addEventListener('click',async()=>{const {error}=await client.auth.signOut();if(error)status('Déconnexion impossible. Réessayez.',true);else{enter(null);status('Déconnecté.');}});
-el('searchForm').addEventListener('submit',event=>{event.preventDefault();pageIndex=0;search();});
+el('searchForm').addEventListener('submit',event=>{event.preventDefault();selectedAisle=null;pageIndex=0;search();});
 el('previous').addEventListener('click',()=>{if(pageIndex>0){pageIndex--;search();}});
 el('next').addEventListener('click',()=>{if((pageIndex+1)*40<total){pageIndex++;search();}});
 el('closeDetail').addEventListener('click',()=>el('detail').close());
@@ -84,7 +86,7 @@ el('scanLookup').addEventListener('click',async()=>{
  const scanner=new Html5Qrcode('camera');cameraScanner=scanner;let found=false;
  try{
   await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:120}},async code=>{
-   if(found||generation!==cameraGeneration||current!==epoch)return;found=true;el('query').value=code;pageIndex=0;
+   if(found||generation!==cameraGeneration||current!==epoch)return;found=true;selectedAisle=null;el('query').value=code;pageIndex=0;
    if(navigator.vibrate)navigator.vibrate(60);
    await stopLookup();await search();
   },()=>{});
@@ -103,3 +105,27 @@ document.addEventListener('keydown',event=>{
  if(event.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)&&!el('catalogue').hidden){event.preventDefault();el('query').focus();}
  if(event.key==='Escape')stopLookup();
 });
+
+async function loadAisles(current){
+ el('aisleStatus').textContent='Chargement des emplacements…';
+ const {data,error}=await client.from('scanette_aisles').select('code,description,notes').eq('workspace_id',workspaceId).order('code').limit(1000);
+ if(current!==epoch)return;
+ if(error){el('aisleStatus').textContent='Relevé des allées indisponible. Les emplacements des fiches restent consultables.';return;}
+ aisleRows=(data||[]).sort((a,b)=>a.code.localeCompare(b.code,'fr',{numeric:true}));paintAisles();
+}
+function paintAisles(){
+ const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const term=normalize(el('aisleQuery').value.trim());
+ const rows=aisleRows.filter(r=>normalize(r.code+' '+r.description+' '+r.notes).includes(term));
+ el('aisleStatus').textContent=rows.length+' emplacement(s) dans le relevé';el('aisleResults').replaceChildren();
+ for(const row of rows){
+  const card=document.createElement('article');card.className='card';
+  const title=document.createElement('strong');title.textContent=row.code;
+  const description=document.createElement('p');description.textContent=row.description;
+  const notes=document.createElement('p');notes.className='muted';notes.textContent=row.notes;
+  const button=document.createElement('button');button.textContent='Voir les pièces localisées ici';
+  button.addEventListener('click',()=>{selectedAisle=row.code;el('query').value=row.code;pageIndex=0;search();el('aisles').open=false;el('query').focus();});
+  card.append(title,description,notes,button);el('aisleResults').append(card);
+ }
+}
+el('aisleQuery').addEventListener('input',paintAisles);
