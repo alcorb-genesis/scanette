@@ -28,7 +28,9 @@ function next(partner,now=new Date()){
 }
 function label(s){if(!s)return 'Horaire non renseigné';if(s.minutes===0)return 'Départ maintenant';
  const day=s.offset>0?' · '+(s.offset===1?'Demain':['','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'][s.day])+' à '+s.time:'';
- return 'Il reste '+s.minutes+' minute'+(s.minutes===1?'':'s')+' avant le départ'+day;
+ const days=Math.floor(s.minutes/1440),hours=Math.floor(s.minutes%1440/60),minutes=s.minutes%60;
+ const duration=[days?days+' j':'',hours?hours+' h':'',minutes?minutes+' min':''].filter(Boolean).join(' ');
+ return 'Il reste '+duration+' avant le départ'+day;
 }
 function active(partners){return partners.filter(p=>!p.details?.merged_into);}
 const api={norm,matches,slots,validate,clock,next,label,active};if(typeof module!=='undefined')module.exports=api;else g.PartnerPlanning=api;})(globalThis);
