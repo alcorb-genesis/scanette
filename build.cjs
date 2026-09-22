@@ -16,3 +16,6 @@ for (const file of ['store-purchases.js', 'store-sales.js', 'sales-core.js', 'de
 // Retired PIN client must not remain in a reused output directory.
 const retiredPin=path.join(output,'pin-ui.js');
 if(fs.existsSync(retiredPin)) fs.unlinkSync(retiredPin);
+
+fs.mkdirSync(path.join(output,'inventory'),{recursive:true});
+for(const file of ['index.html','prepare.html','core.js','storage.js','app.js','prepare.js','style.css','sw.js','html5-qrcode.min.js','LICENSE.html5-qrcode']) fs.copyFileSync(path.join(__dirname,'inventory',file),path.join(output,'inventory',file));

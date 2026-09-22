@@ -5,8 +5,8 @@
 #backHome{margin-bottom:10px}#module iframe{height:calc(100dvh - 155px);min-height:350px}#sections summary{cursor:pointer;padding:10px}#sections details button{margin:6px}@media(max-width:620px){#module iframe{height:calc(100dvh - 150px);min-height:300px}#sections{display:block}}
 
 
-body:has(#workspace[data-focus="scan"]:not([hidden]))>header{display:none}
-#workspace[data-focus="scan"]{position:fixed;inset:0;display:flex;flex-direction:column;background:#0c151d;z-index:20;padding-top:env(safe-area-inset-top)}
-#workspace[data-focus="scan"] #backHome{flex:none;align-self:flex-start;margin:4px 8px;padding:6px 12px;min-height:40px}
-#workspace[data-focus="scan"] #module{flex:1;min-height:0}
-#workspace[data-focus="scan"] #module iframe{height:100%;min-height:0;border:0;border-radius:0}
+body:has(#workspace:is([data-focus="scan"],[data-focus="inventory"]):not([hidden]))>header{display:none}
+#workspace:is([data-focus="scan"],[data-focus="inventory"]){position:fixed;inset:0;display:flex;flex-direction:column;background:#0c151d;z-index:20;padding-top:env(safe-area-inset-top)}
+#workspace:is([data-focus="scan"],[data-focus="inventory"]) #backHome{flex:none;align-self:flex-start;margin:4px 8px;padding:6px 12px;min-height:40px}
+#workspace:is([data-focus="scan"],[data-focus="inventory"]) #module{flex:1;min-height:0}
+#workspace:is([data-focus="scan"],[data-focus="inventory"]) #module iframe{height:100%;min-height:0;border:0;border-radius:0}
