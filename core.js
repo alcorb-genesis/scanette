@@ -20,7 +20,8 @@
           if(it[key]!==undefined){if(typeof it[key]!=='string'||it[key].length>2000)throw Error('Fiche invalide.');items[ref][key]=it[key];}
         }
       }
-      return {name:s.name,items};
+      if(s.id!==undefined&&(typeof s.id!=='string'||!/^[0-9a-f-]{36}$/i.test(s.id)))throw Error('Identité de pointage invalide.');
+      return {...(s.id?{id:s.id}:{}),name:s.name,items};
     });
     out.aliases=Object.create(null);
     for(const [ean,ref] of Object.entries(value.aliases)){
