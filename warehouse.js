@@ -59,9 +59,9 @@ function choose(products){
 }
 window.Warehouse={resolve,commit,choose,reset};
 // Kept separate from the legacy reference catalogue: private shop data is never uploaded there.
-const controls=document.createElement('section');controls.className='warehouse-controls';
-controls.innerHTML='<div class="eyebrow">Bellecave connecté au pointage</div><p>Les codes du magasin retrouvent leur fiche automatiquement. Une connexion est nécessaire pour consulter Bellecave.</p><form id="warehouseCodeForm"><label for="warehouseCode">Code-barres · lecteur externe ou saisie</label><div class="row"><input id="warehouseCode" autocomplete="off" maxlength="256" placeholder="Code-barres, puis Entrée"><button id="warehouseCodeAdd" type="submit">Pointer</button></div></form><button id="paletteOpen" type="button">▥ Scanner une palette · photo bêta</button>';
-byId('scanBtn').insertAdjacentElement('afterend',controls);
+const controls=document.createElement('details');controls.className='warehouse-controls';
+controls.innerHTML='<summary>Lecteur externe · douchette USB / Bluetooth</summary><p>Les codes du magasin retrouvent leur fiche automatiquement. Une connexion est nécessaire pour consulter Bellecave.</p><form id="warehouseCodeForm"><label for="warehouseCode">Code-barres · lecteur externe ou saisie</label><div class="row"><input id="warehouseCode" autocomplete="off" maxlength="256" placeholder="Code-barres, puis Entrée"><button id="warehouseCodeAdd" type="submit">Pointer</button></div></form><button id="paletteOpen" type="button">▥ Photo de palette · bêta</button>';
+byId('manualEntry').insertAdjacentElement('afterend',controls);byId('scanModes').append(byId('paletteOpen'));
 const dialogs=document.createElement('div');dialogs.innerHTML=`
 <dialog id="productChoice" class="warehouse-dialog"><h2>Quel produit souhaitez-vous pointer ?</h2><p>Ce code correspond à plusieurs fiches Bellecave. Vérifiez la désignation.</p><div id="productChoices"></div><button id="cancelProductChoice">Annuler</button></dialog>
 <dialog id="paletteDialog" class="warehouse-dialog"><div class="row"><h2>Palette · lecture multiple</h2><button id="paletteClose" type="button">Fermer</button></div>

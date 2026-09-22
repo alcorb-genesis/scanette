@@ -199,7 +199,7 @@
   .logoutbtn{background:none;border:none;color:var(--muted);font-size:18px;
     cursor:pointer;padding:0 4px;}
 </style>
-<link rel="stylesheet" href="interface.css?v=20260921-camera1">
+<link rel="stylesheet" href="interface.css?v=20260922-scan2">
 <link rel="stylesheet" href="password-visibility.css?v=1"></head>
 <body>
 
@@ -233,7 +233,12 @@
 </header>
 <section class="intro-panel"><nav class="workspace-nav" aria-label="Espaces"><a class="active" href="./">Pointage</a><a href="bellecave.html">Bellecave · Catalogue</a></nav><h2>Chaque pièce compte.</h2><p>Choisissez un fournisseur, scannez vos pièces, puis exportez votre relevé.</p></section>
 
-<button class="scanbtn" id="scanBtn">Démarrer le scan</button>
+<section class="scan-heading"><div><span class="eyebrow">ALCORB · POINTAGE</span><h2>La scanette</h2><p>Une pièce, un scan. Votre relevé se remplit au fil du pointage.</p></div><span class="scan-badge">Sur cet appareil</span></section><div class="supplierbar">
+  <div class="cursec" id="curSection">— aucun fournisseur —</div>
+  <button id="newSectionBtn">➕ Fournisseur</button>
+</div>
+
+<section class="scan-workbench" aria-label="Scanner les produits"><div class="scan-modes" id="scanModes"><button class="scanbtn" id="scanBtn">Démarrer le scan</button></div><p class="scan-hint">Code-barres / QR · une quantité ajoutée à chaque lecture acceptée</p>
 
 <div id="reader"></div>
 <div id="zoomBar" class="zoombar">
@@ -242,23 +247,18 @@
   <button id="zoomPlus">+</button>
 </div>
 
-<button class="ocrbtn" id="ocrBtn">📷 Référence texte seule (sans code-barres)</button>
+<button class="ocrbtn" id="ocrBtn">Lire une référence écrite</button></section>
 
-<div class="supplierbar">
-  <div class="cursec" id="curSection">— aucun fournisseur —</div>
-  <button id="newSectionBtn">➕ Fournisseur</button>
-</div>
-
-<div class="manual">
+<div class="manual" id="manualEntry">
   <input type="text" id="manualRef" placeholder="Saisir une référence à la main…">
-  <button id="manualAdd">+</button>
+  <button id="manualAdd" aria-label="Ajouter la référence saisie">+</button>
 </div>
 
 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
 <div id="storageWarning" role="alert" hidden style="margin:16px;padding:16px;background:#6b2020;color:white"></div>
 <p style="margin:12px 16px;color:var(--muted);font-size:13px">Pointage personnel enregistré sur cet appareil. Les codes sont recherchés dans Bellecave, puis dans le catalogue historique. Ces quantités ne représentent pas le stock disponible du magasin.</p>
-<div class="toolbar"><button id="backupBtn">Sauvegarder le pointage</button><button id="restoreBtn">Restaurer une sauvegarde</button></div>
-<input id="restoreFile" type="file" accept="application/json,.json" hidden>
+<details class="scan-backups"><summary>Sauvegarde et restauration du pointage</summary><div class="toolbar"><button id="backupBtn">Sauvegarder le pointage</button><button id="restoreBtn">Restaurer une sauvegarde</button></div>
+<input id="restoreFile" type="file" accept="application/json,.json" hidden></details><div id="receiptAnchor"></div>
 
 <div id="lastScanBar" class="lastscan">
   <div class="lastscan-info" id="lastScanInfo"></div>
@@ -272,7 +272,7 @@
   <button class="danger" id="clearBtn">🗑 Vider</button>
 </div>
 
-<div class="filterbar">
+<h2 class="scan-list-title">Votre relevé</h2><div class="filterbar">
   <input type="text" id="filterBox" placeholder="🔎 Filtrer les références…">
 </div>
 
@@ -291,15 +291,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<div id="emptyMsg" class="empty">
-  <b>➕ Fournisseur</b> : pose un titre (ex. DELPHI). Tout ce que tu
-  scannes ensuite se range dessous, jusqu'au fournisseur suivant.<br><br>
-  <b>▶ Scan</b> : codes-barres / QR. Nouveau produit → l'app propose la
-  référence (catalogue partagé). Produit connu → +1 direct.<br><br>
-  <b>📷</b> : référence écrite sans code-barres (capture en série).<br><br>
-  Touche le <u>chiffre de quantité</u> d'une ligne pour la saisir directement
-  (pratique pour les pièces par dizaines).
-</div>
+<div id="emptyMsg" class="empty"><span class="empty-scan-icon" aria-hidden="true">▥</span><b>Votre première pièce vous attend</b><p>Choisissez un fournisseur puis lancez le scan, ou saisissez une référence.<br>Vous pourrez ajuster chaque quantité directement dans le relevé.</p></div>
 
 <div class="footer-total">
   <span class="lbl">TOTAL PIÈCES SCANNÉES</span>
