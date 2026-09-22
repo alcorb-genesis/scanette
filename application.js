@@ -4,10 +4,10 @@ const shop='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
 const routes=Object.freeze({receipts:'logistics-sessions.html?embedded=1&kind=receipt',inventory:'logistics-sessions.html?embedded=1&kind=inventory',departures:'store-partners.html?embedded=1',team:'team.html?embedded=1',settings:'store-settings.html?embedded=1',scan:'index.html?embedded=1',catalogue:'bellecave.html?embedded=1'});
 const labels={receipts:'Réception',inventory:'Inventaire',departures:'Départs',team:'Équipe',settings:'Paramétrage',scan:'Scanette',catalogue:'Catalogue'};
 const $=id=>document.getElementById(id);let client,actor=null,access=false,generation=0,current='home',moduleDirty=false;
-function clear(){moduleDirty=false;generation++;actor=null;access=false;current='home';$('module').replaceChildren();$('workspace').hidden=true;$('identity').textContent='';$('sectionNotice').hidden=true;$('backHome').hidden=true;}
+function clear(){$('workspace').dataset.focus='';moduleDirty=false;generation++;actor=null;access=false;current='home';$('module').replaceChildren();$('workspace').hidden=true;$('identity').textContent='';$('sectionNotice').hidden=true;$('backHome').hidden=true;}
 function section(name){if(!access)return;if(name!=='home'&&!Object.hasOwn(routes,name))name='home';if(current===name&&$('module').firstChild)return;
  if(current!==name&&moduleDirty&&!confirm('Quitter cette section sans enregistrer les modifications ?'))return;moduleDirty=false;
- current=name;$('module').replaceChildren();$('home').hidden=name!=='home';
+ current=name;$('workspace').dataset.focus=name==='scan'?'scan':'';$('module').replaceChildren();$('home').hidden=name!=='home';
  $('sectionNotice').hidden=true;
  $('sections').hidden=name!=='home'; $('backHome').hidden=name==='home';
  document.querySelectorAll('#sections [data-section]').forEach(b=>{if(b.dataset.section===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
