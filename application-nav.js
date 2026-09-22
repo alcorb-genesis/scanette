@@ -3,7 +3,7 @@ const routes={'logistics-sessions.html':new URLSearchParams(location.search).get
 const file=location.pathname.split('/').pop()||'index.html';
 const embedded=window.parent!==window&&new URLSearchParams(location.search).get('embedded')==='1';
 if(embedded){
- const style=document.createElement('style');style.textContent='header nav,.intro-panel .workspace-nav,#logoutBtn{display:none!important}';document.head.append(style);
+ const style=document.createElement('style');style.textContent='header nav,.intro-panel .workspace-nav,#logoutBtn{display:none!important}';if(file==='index.html')style.textContent+=' header,.intro-panel{display:none!important}';document.head.append(style);
  document.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a)return;const u=new URL(a.href,location.href),target=u.pathname.split('/').pop()||'index.html';if(u.origin!==location.origin||!routes[target])return;e.preventDefault();window.parent.postMessage({type:'alcorb-section',section:routes[target]},location.origin);});
  return;
 }
