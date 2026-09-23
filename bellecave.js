@@ -24,8 +24,9 @@ async function search(){
  // Only letters, digits, spaces and common reference punctuation are used in PostgREST filters.
  const term=el('query').value.trim().replace(/[^\p{L}\p{N}\s./_-]/gu,' ').replace(/[%_*]/g,' ').trim();
  let query=client.from('scanette_products').select('*',{count:'exact'}).eq('workspace_id',workspaceId);
- if(selectedAisle){query=query.ilike('location',selectedAisle);}
- else if(term){query=query.or('reference.ilike.%'+term+'%,order_reference.ilike.%'+term+'%,description.ilike.%'+term+'%,location.ilike.'+term+',internal_barcode.eq.'+term+',manufacturer_barcode.eq.'+term);}
+ if(selectedAisle){query=query.or(LocationSearch.filter(selectedAisle));}
+
+ else if(term){query=query.or('reference.ilike.%'+term+'%,order_reference.ilike.%'+term+'%,description.ilike.%'+term+'%,'+(LocationSearch.filter(term)||'location.ilike.'+term)+',internal_barcode.eq.'+term+',manufacturer_barcode.eq.'+term);}
  const {data,error,count}=await query.order('reference').order('id').range(pageIndex*40,pageIndex*40+39);
  if(current!==epoch||request!==requestId)return;
  if(error){status('Recherche indisponible. Réessayez dans un instant.',true);return;}
@@ -57,7 +58,7 @@ el('loginForm').addEventListener('submit',async event=>{
  if(error)status('Connexion impossible. Vérifiez vos identifiants.',true);else await enter(data.session);
 });
 el('logout').addEventListener('click',async()=>{const {error}=await client.auth.signOut();if(error)status('Déconnexion impossible. Réessayez.',true);else{enter(null);status('Déconnecté.');}});
-el('searchForm').addEventListener('submit',event=>{event.preventDefault();selectedAisle=null;pageIndex=0;search();});
+el('searchForm').addEventListener('submit',event=>{event.preventDefault();selectedAisle=null;pageIndex=0;if(LocationSearch.code(el('query').value)){el('aisleQuery').value=el('query').value;paintAisles();el('aisles').open=true;}search();});
 el('previous').addEventListener('click',()=>{if(pageIndex>0){pageIndex--;search();}});
 el('next').addEventListener('click',()=>{if((pageIndex+1)*40<total){pageIndex++;search();}});
 el('closeDetail').addEventListener('click',()=>el('detail').close());
@@ -114,9 +115,7 @@ async function loadAisles(current){
  aisleRows=(data||[]).sort((a,b)=>a.code.localeCompare(b.code,'fr',{numeric:true}));paintAisles();
 }
 function paintAisles(){
- const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- const term=normalize(el('aisleQuery').value.trim());
- const rows=aisleRows.filter(r=>normalize(r.code+' '+r.description+' '+r.notes).includes(term));
+ const rows=aisleRows.filter(r=>LocationSearch.matches(r,el('aisleQuery').value));
  el('aisleStatus').textContent=rows.length+' emplacement(s) dans le relevé';el('aisleResults').replaceChildren();
  for(const row of rows){
   const card=document.createElement('article');card.className='card';
