@@ -1,7 +1,8 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id),shop='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
 let db,actor=null,epoch=0,lease=null,watch=null,sequence=0,lastSent=0,queue=Promise.resolve(),rows=[],receivedAt=0,loading=false;
-const markers=[];
+const markers=[],driverNumbers=new Map();
+function driverNumber(r){const key=r.user_id||r.label;if(!driverNumbers.has(key))driverNumbers.set(key,driverNumbers.size+1);return driverNumbers.get(key);}
 const status=t=>{$('sharingStatus').textContent=t;};
 function unavailable(label,message){$('startSharing').disabled=true;$('startSharing').textContent=label;status(message);}
 function enqueue(args){const queuedAt=Date.now();const call=queue.catch(()=>{}).then(async()=>{if(args.operation==='position'&&Date.now()-queuedAt>20000)throw Error('Position expired in queue');const r=await db.rpc('delivery_position_write',{shop,...args});if(r.error)throw r.error;});queue=call;return call;}
@@ -21,11 +22,11 @@ function paint(){
  $('vehicleCount').textContent=fresh.length?fresh.length+' véhicule(s) · positions récentes':'○ Aucune position récente';
  for(const r of fresh){
   const age=Math.max(0,Math.floor(r.age_seconds+elapsed)),b=document.createElement('button'),name=document.createElement('strong'),detail=document.createElement('small');
-  name.textContent=r.label;detail.textContent='À '+new Date(r.updated_at).toLocaleTimeString('fr-FR')+' · précision ± '+Math.round(r.accuracy)+' m';b.append(name,detail);
-  if(window.deliveryMap){const popup=document.createElement('span');popup.textContent=r.label+' · '+detail.textContent;
-   markers.push(L.circle([r.latitude,r.longitude],{radius:Math.max(5,r.accuracy),color:'#198f83',weight:2,fillOpacity:.12}).addTo(deliveryMap));
-   markers.push(L.circleMarker([r.latitude,r.longitude],{radius:10,color:'#fff',weight:3,fillColor:'#087e70',fillOpacity:1}).addTo(deliveryMap).bindPopup(popup));
-   b.onclick=()=>deliveryMap.setView([r.latitude,r.longitude],15);
+  const number=driverNumber(r),color=['#087e70','#2859c5','#823fb0','#a63a30'][(number-1)%4];name.textContent='#'+number+' · '+r.label;detail.textContent='À '+new Date(r.updated_at).toLocaleTimeString('fr-FR')+' · précision ± '+Math.round(r.accuracy)+' m';b.append(name,detail);
+  if(window.deliveryMap){const popup=document.createElement('span');popup.textContent=name.textContent+' · '+detail.textContent;const label=document.createElement('strong');label.textContent=name.textContent;
+   markers.push(L.circle([r.latitude,r.longitude],{radius:Math.max(5,r.accuracy),color,weight:2,fillOpacity:.12}).addTo(deliveryMap));
+   const marker=L.circleMarker([r.latitude,r.longitude],{radius:10,color:'#fff',weight:3,fillColor:color,fillOpacity:1}).addTo(deliveryMap).bindPopup(popup).bindTooltip(label,{permanent:true,direction:number%2?'right':'left',offset:[number%2?12:-12,((number-1)%3-1)*25],className:'driver-label'});markers.push(marker);
+   b.onclick=()=>{deliveryMap.setView([r.latitude,r.longitude],17);marker.bringToFront();marker.openPopup();};
   }else b.disabled=true;
   $('vehicleList').append(b);
  }
@@ -59,7 +60,7 @@ window.addEventListener('pagehide',()=>{if(lease)stop();});
 window.addEventListener('offline',()=>{rows=[];paint();$('viewerStatus').textContent='Hors connexion : aucune position en direct disponible.';});
 window.addEventListener('online',refresh);
 async function enter(session){
- const id=session?.user?.id||null;if(id===actor&&id)return;epoch++;lease=null;clearWatch();actor=null;rows=[];paint();controls();$('startSharing').disabled=true;
+ const id=session?.user?.id||null;if(id===actor&&id)return;epoch++;lease=null;clearWatch();actor=null;rows=[];driverNumbers.clear();paint();controls();$('startSharing').disabled=true;
  if(!id){unavailable('Connexion requise','Connectez-vous à l’application pour partager votre position.');$('viewerStatus').textContent='Le suivi des livreurs est réservé aux personnes connectées au magasin.';return;}
  const requestEpoch=epoch;
  try{const r=await db.from('scanette_members').select('role').eq('workspace_id',shop).eq('user_id',id).maybeSingle();if(requestEpoch!==epoch)return;if(r.error)throw r.error;if(!r.data){unavailable('Accès magasin requis','Votre compte n’a pas accès au suivi de ce magasin.');return;}const ready=await db.rpc('delivery_positions_current',{shop});if(requestEpoch!==epoch)return;if(ready.error){if(ready.error.code==='PGRST202'){unavailable('GPS non activé','Le service GPS n’est pas encore activé pour le magasin. Aucune position ne peut être partagée pour le moment.');$('viewerStatus').textContent='Activation du service GPS nécessaire.';return;}throw ready.error;}actor=id;$('startSharing').textContent='◎ Partager ma position';$('startSharing').disabled=false;status('Partage désactivé. Vous seul choisissez quand l’activer.');refresh();}
