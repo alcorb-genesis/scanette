@@ -11,7 +11,7 @@ function section(name,receiptId=null){if(!access)return;if(name!=='home'&&!Objec
  $('sectionNotice').hidden=true;
  $('sections').hidden=name!=='home'; $('backHome').hidden=name==='home';
  document.querySelectorAll('#sections [data-section]').forEach(b=>{if(b.dataset.section===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
- if(name!=='home'){const frame=document.createElement('iframe');frame.title=labels[name];frame.src=routes[name]+(name==='receipts'&&/^[0-9a-f-]{36}$/i.test(receiptId||'')?'&receipt='+encodeURIComponent(receiptId):'');frame.allow='camera; geolocation';$('module').append(frame);}
+ if(name!=='home'){const frame=document.createElement('iframe');frame.title=labels[name];frame.src=routes[name]+(['receipts','scan'].includes(name)&&/^[0-9a-f-]{36}$/i.test(receiptId||'')?'&receipt='+encodeURIComponent(receiptId):'');frame.allow='camera; geolocation';$('module').append(frame);}
  history.replaceState(null,'','#'+name);
 }
 async function enter(session){const id=session?.user?.id||null;if(id!==actor){clear();actor=id;}$('login').hidden=!!id;$('logout').hidden=!id;if(!id){$('status').textContent='';return;}
@@ -19,7 +19,7 @@ async function enter(session){const id=session?.user?.id||null;if(id!==actor){cl
  if(result.error)throw Error('Impossible de vérifier les accès. Réessayez en vous reconnectant.');
  if(!result.data||!['reader','operator','admin'].includes(result.data.role))throw Error('Ce compte ne dispose pas encore d’un accès au magasin. L’administrateur de l’application doit lui attribuer un rôle.');
  access=true;$('status').textContent='';$('workspace').hidden=false;$('identity').textContent=(session.user.email||'Compte personnel')+' · Bellecave · '+({reader:'Lecture',operator:'Opérateur',admin:'Administrateur de l’application'}[result.data.role]);
- section(location.hash.slice(1)||'home');
+ section(location.hash.slice(1)||'home',new URLSearchParams(location.search).get('receipt'));
  }catch(error){if(ticket!==generation)return;clear();actor=id;$('status').textContent=error.message;}}
  document.addEventListener('click',e=>{const button=e.target.closest('[data-section]');if(button)section(button.dataset.section);});
  window.addEventListener('message',e=>{const frame=$('module').firstChild;if(e.origin!==location.origin||!frame||e.source!==frame.contentWindow )return;if(e.data?.type==='alcorb-dirty'){moduleDirty=e.data.dirty===true;return;}if(e.data?.type==='alcorb-section')section(e.data.section,e.data.receiptId);});

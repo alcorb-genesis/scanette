@@ -4,7 +4,9 @@ const $=id=>document.getElementById(id),msg=s=>$('receiptMessage').textContent=s
 $('receiptChoose').onclick=async()=>{if(busy)return;if(!currentUserId||!storageReady){msg('Connectez-vous et vérifiez la sauvegarde du pointage.');return;}const user=currentUserId,epoch=sessionEpoch;busy=true;try{
  for(const s of sections)if(!s.id)s.id=crypto.randomUUID();save();if(!storageReady)throw Error('Le pointage n’a pas pu être sauvegardé.');
  records=check(await supaClient.from('logistics_sessions').select('*').eq('workspace_id',shop).eq('kind','receipt').order('updated_at',{ascending:false}).limit(100));if(user!==currentUserId||epoch!==sessionEpoch)return;
+ const requested=new URLSearchParams(location.search).get('receipt');if(requested&&!records.some(r=>r.id===requested)&&/^[0-9a-f-]{36}$/i.test(requested)){const found=check(await supaClient.from('logistics_sessions').select('*').eq('workspace_id',shop).eq('kind','receipt').eq('id',requested).maybeSingle());if(user!==currentUserId||epoch!==sessionEpoch)return;if(found)records.unshift(found);}
  $('receiptTarget').replaceChildren(new Option('Choisir la réception',''));for(const r of records)$('receiptTarget').append(new Option([r.content.supplier_name,r.content.orders,new Date(r.content.event_at).toLocaleString('fr-FR')].join(' · '),r.id));
+ if(records.some(r=>r.id===requested))$('receiptTarget').value=requested;
  $('receiptPointage').replaceChildren(new Option('Choisir le pointage',''));for(const s of sections.filter(s=>Object.keys(s.items).length))$('receiptPointage').append(new Option(s.name+' · '+Object.keys(s.items).length+' références',s.id));if(sections.at(-1)?.id)$('receiptPointage').value=sections.at(-1).id;
  $('receiptBatchName').value='';$('receiptChoice').hidden=false;msg(records.length?'Choisissez la réception correspondant à cette palette.':'Créez d’abord la réception avec son fournisseur, son numéro et sa date.');
  }catch(e){msg(e.message);}finally{busy=false;}};
