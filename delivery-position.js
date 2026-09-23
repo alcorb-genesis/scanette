@@ -3,6 +3,7 @@ const $=id=>document.getElementById(id),shop='8770297c-cadb-4cc6-8b93-55a0f9bd15
 let db,actor=null,epoch=0,lease=null,watch=null,sequence=0,lastSent=0,queue=Promise.resolve(),rows=[],receivedAt=0,loading=false;
 const markers=[];
 const status=t=>{$('sharingStatus').textContent=t;};
+function unavailable(label,message){$('startSharing').disabled=true;$('startSharing').textContent=label;status(message);}
 function enqueue(args){const queuedAt=Date.now();const call=queue.catch(()=>{}).then(async()=>{if(args.operation==='position'&&Date.now()-queuedAt>20000)throw Error('Position expired in queue');const r=await db.rpc('delivery_position_write',{shop,...args});if(r.error)throw r.error;});queue=call;return call;}
 function clearWatch(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;}
 function controls(){ $('startSharing').hidden=!!lease;$('stopSharing').hidden=!lease;$('driverName').disabled=!!lease; }
@@ -59,12 +60,12 @@ window.addEventListener('offline',()=>{rows=[];paint();$('viewerStatus').textCon
 window.addEventListener('online',refresh);
 async function enter(session){
  const id=session?.user?.id||null;if(id===actor&&id)return;epoch++;lease=null;clearWatch();actor=null;rows=[];paint();controls();$('startSharing').disabled=true;
- if(!id){status('Connectez-vous à l’application pour partager votre position.');$('viewerStatus').textContent='Le suivi des livreurs est réservé aux personnes connectées au magasin.';return;}
+ if(!id){unavailable('Connexion requise','Connectez-vous à l’application pour partager votre position.');$('viewerStatus').textContent='Le suivi des livreurs est réservé aux personnes connectées au magasin.';return;}
  const requestEpoch=epoch;
- try{const r=await db.from('scanette_members').select('role').eq('workspace_id',shop).eq('user_id',id).maybeSingle();if(requestEpoch!==epoch)return;if(r.error||!r.data)throw Error();const ready=await db.rpc('delivery_positions_current',{shop});if(requestEpoch!==epoch)return;if(ready.error){status('Partage GPS préparé : activation du service serveur en attente.');$('viewerStatus').textContent='Le suivi privé n’est pas encore disponible.';return;}actor=id;$('startSharing').disabled=false;status('Partage désactivé. Vous seul choisissez quand l’activer.');refresh();}
- catch{status('Votre accès au magasin ne permet pas d’activer le partage.');}
+ try{const r=await db.from('scanette_members').select('role').eq('workspace_id',shop).eq('user_id',id).maybeSingle();if(requestEpoch!==epoch)return;if(r.error)throw r.error;if(!r.data){unavailable('Accès magasin requis','Votre compte n’a pas accès au suivi de ce magasin.');return;}const ready=await db.rpc('delivery_positions_current',{shop});if(requestEpoch!==epoch)return;if(ready.error){if(ready.error.code==='PGRST202'){unavailable('GPS non activé','Le service GPS n’est pas encore activé pour le magasin. Aucune position ne peut être partagée pour le moment.');$('viewerStatus').textContent='Activation du service GPS nécessaire.';return;}throw ready.error;}actor=id;$('startSharing').textContent='◎ Partager ma position';$('startSharing').disabled=false;status('Partage désactivé. Vous seul choisissez quand l’activer.');refresh();}
+ catch{if(requestEpoch!==epoch)return;unavailable('Suivi indisponible','Impossible de vérifier le service GPS. Vérifiez votre connexion, puis rechargez cette page.');$('viewerStatus').textContent='Connexion au suivi non confirmée.';}
 }
-try{db=window.parent!==window&&window.parent.AlcorbAuth||supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co','sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ');db.auth.onAuthStateChange((_e,s)=>setTimeout(()=>enter(s),0));db.auth.getSession().then(r=>enter(r.data.session));}
-catch{status('Connexion indisponible. Rechargez la page.');$('viewerStatus').textContent='Suivi indisponible.';}
+try{db=window.parent!==window&&window.parent.AlcorbAuth||supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co','sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ');db.auth.onAuthStateChange((_e,s)=>setTimeout(()=>enter(s),0));db.auth.getSession().then(r=>{if(r.error)throw r.error;return enter(r.data.session);}).catch(()=>unavailable('Connexion indisponible','Impossible de vérifier votre session. Rechargez la page.'));}
+catch{unavailable('Connexion indisponible','Connexion indisponible. Rechargez la page.');$('viewerStatus').textContent='Suivi indisponible.';}
 setInterval(refresh,15000);setInterval(()=>{const fresh=rows.filter(r=>r.age_seconds+(Date.now()-receivedAt)/1000<90);if(fresh.length!==rows.length){rows=fresh;paint();}},1000);
 })();

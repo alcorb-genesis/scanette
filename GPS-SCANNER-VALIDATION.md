@@ -5,6 +5,8 @@
 - Aperçu visuel isolé vérifié à 390 px et sur bureau ; il ne constitue pas un test caméra Motorola.
 - Carte Leaflet / OpenStreetMap vérifiée dans le navigateur, changement de secteur et tuiles réelles.
 - Migration delivery-position.sql essayée dans une transaction annulée, avec coordonnées fictives (0,0). Tests serveur réussis : lecture d’une position récente, refus du rejeu, remplacement de session, ancien arrêt sans effet sur la nouvelle session, impossibilité de réactiver après arrêt, coordonnées effacées à l’arrêt, refus hors magasin, refus d’un non-membre, absence de lecture directe/accès anonyme et expiration après 90 secondes.
-- Migration serveur NON activée : attente de la confirmation demandée à Alexis pour l’accès aux positions privées. Le client teste la disponibilité avant de permettre l’activation.
+- Migration serveur activée le 23 septembre après accord explicite d’Alexis. Les contrôles transactionnels après activation ont confirmé publication/retrait d’une position fictive, impossibilité de réactiver après arrêt, refus hors magasin et refus des non-membres. Aucune coordonnée de test conservée. L’API publique refuse la lecture anonyme (42501).
 - Aucun suivi réel de téléphone ni partage entre deux téléphones validé. Les affectations garage/tournée et les estimations d’arrivée ne sont pas encore connectées au GPS.
 - Le partage s’arrête quand la page est masquée/quittée. En cas de coupure, disparition de la vue sous 90 secondes ; la dernière coordonnée persiste en base privée jusqu’à un arrêt confirmé ou une nouvelle activation. Aucun historique des trajets.
+
+- Correction du bouton désactivé ambigu : états explicites GPS non activé, connexion requise et suivi indisponible. Deux tests de régression supplémentaires réussis (service absent et panne réseau), cinq tests GPS client au total.
