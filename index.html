@@ -199,7 +199,7 @@
   .logoutbtn{background:none;border:none;color:var(--muted);font-size:18px;
     cursor:pointer;padding:0 4px;}
 </style>
-<link rel="stylesheet" href="interface.css?v=20260922-scan2">
+<link rel="stylesheet" href="interface.css?v=20260923-suppliers">
 <link rel="stylesheet" href="password-visibility.css?v=1"></head>
 <body>
 
@@ -473,14 +473,6 @@ function currentSection(){
   }
   return sections[sections.length-1];
 }
-document.getElementById('newSectionBtn').addEventListener('click',()=>{
-  const n=prompt('Nom du fournisseur / de la marque :');
-  const name=normName(n);
-  if(!name) return;
-  sections.push({name:name, items:Object.create(null)});
-  save(); render(); updateCurSection();
-  flash('▶ Section '+name);
-});
 function updateCurSection(){
   const el=document.getElementById('curSection');
   el.textContent = sections.length ? ('▼ '+sections[sections.length-1].name) : '— aucun fournisseur —';
@@ -1275,8 +1267,8 @@ supaClient.auth.onAuthStateChange((event,session)=>{
 })();
 </script>
 </div>
-<script src="camera-controls.js?v=1"></script><script src="warehouse.js?v=20260921-camera1"></script><script src="sweep-tracker.js?v=20260917-sweep1"></script><script src="sweep.js?v=20260921-camera1"></script>
+<script src="camera-controls.js?v=1"></script><script src="warehouse.js?v=20260923-suppliers"></script><script src="sweep-tracker.js?v=20260917-sweep1"></script><script src="sweep.js?v=20260921-camera1"></script>
 
-<script src="logistics-core.js"></script><script src="receipt-link-core.js"></script><script src="receipt-link.js"></script><script src="application-nav.js?v=logistique3"></script><script src="password-visibility.js?v=1"></script></body>
+<script src="logistics-core.js"></script><script src="receipt-link-core.js"></script><script src="receipt-link.js"></script><script src="scan-suppliers.js?v=20260923-1"></script><script src="application-nav.js?v=logistique3"></script><script src="password-visibility.js?v=1"></script></body>
 </html>
 
