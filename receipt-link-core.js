@@ -1,4 +1,6 @@
 (function(root){'use strict';
+function canonical(value){if(Array.isArray(value))return value.map(canonical);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,canonical(value[k])]));return value;}
+function sameLines(a,b){return JSON.stringify(canonical(a))===JSON.stringify(canonical(b));}
 function associate(content,batch){
  if(!batch.id||!Array.isArray(batch.lines)||!batch.lines.length)throw Error('Le pointage est vide.');
  const document=structuredClone(content),old=document.pointages||[];
@@ -12,5 +14,13 @@ function associate(content,batch){
  }
  document.lines=[...merged.values()];if(document.lines.length>5000)throw Error('Maximum 5 000 références par réception.');return document;
 }
-root.ReceiptLinkCore={associate};if(typeof module!=='undefined')module.exports=root.ReceiptLinkCore;
+function retire(sections,submitted,nextId){
+ const index=sections.findIndex(s=>s.id===submitted.id);
+ if(index<0)return sections;
+ if(JSON.stringify(sections[index])!==JSON.stringify(submitted))throw Error('Le pointage a changé pendant l’enregistrement. Les nouvelles saisies sont conservées ; associez-le de nouveau.');
+ const next=sections.filter((s,i)=>i!==index);
+ if(index===sections.length-1)next.push({id:nextId,name:submitted.name,items:{}});
+ return next;
+}
+root.ReceiptLinkCore={associate,retire,sameLines};if(typeof module!=='undefined')module.exports=root.ReceiptLinkCore;
 })(globalThis);
