@@ -1,10 +1,10 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),C=require('./inventory/core.js');
 function setup({data=null,error=null,session=true}={}){
  const nodes={};function node(id=''){return {id,hidden:['work','camera','resume'].includes(id),disabled:['brand','range','zone','begin','beginScan'].includes(id),value:'',textContent:'',children:[],options:[],classList:{toggle(){}},replaceChildren(...x){this.children=[...x];this.options=[...x];},append(...x){this.children.push(...x);this.options.push(...x)},setAttribute(){},addEventListener(){},querySelector(){return null},querySelectorAll(){return []},focus(){},click(){return this.onclick?.()},scrollIntoView(){}};}
- const $=id=>nodes[id]??=node(id);let calls=0;
+ const $=id=>nodes[id]??=node(id);let calls=0,saved=null;
  const db={auth:{getSession:async()=>({data:{session:session?{user:{id:'member'}}:null}})},rpc:async()=>{calls++;return {data,error}}};
- const context={InventoryCore:C,InventoryStorage:{all:async()=>[],save:async(d,r)=>({...d,revision:r+1,updatedAt:new Date().toISOString()})},structuredClone,Date,Map,Set,Promise,crypto:{randomUUID:()=> 'draft'},Option:function(t,v){this.text=t;this.value=v},document:{getElementById:$,createElement:()=>node(),addEventListener(){},head:node()},window:{parent:{AlcorbAuth:db,postMessage(){}},addEventListener(){}},location:{hash:'',origin:'https://example.test'},navigator:{},setInterval(){},setTimeout(){}};
- vm.runInNewContext(fs.readFileSync('inventory/app.js','utf8'),context);return {nodes,$,get calls(){return calls}};
+ const context={InventoryCore:C,InventoryStorage:{all:async()=>[],save:async(d,r)=>(saved=structuredClone(d),{...d,revision:r+1,updatedAt:new Date().toISOString()})},structuredClone,Date,Map,Set,Promise,crypto:{randomUUID:()=> 'draft'},Option:function(t,v){this.text=t;this.value=v},document:{getElementById:$,createElement:()=>node(),addEventListener(){},head:node()},window:{parent:{AlcorbAuth:db,postMessage(){}},addEventListener(){}},location:{hash:'',origin:'https://example.test'},navigator:{},setInterval(){},setTimeout(){}};
+ vm.runInNewContext(fs.readFileSync('inventory/app.js','utf8'),context);return {nodes,$,get saved(){return saved},get calls(){return calls}};
 }
 const tick=()=>new Promise(r=>setImmediate(r));
 const list={title:'Magasin',rows:[{id:'1',reference:'001',brand:'Bosch',range:'Disques',location:'A19a'},{id:'2',reference:'002',brand:'Purflux',range:'Filtres',location:'A2'}]};
@@ -12,3 +12,5 @@ test('Opening inventory from authenticated workspace loads usable brand/range/lo
 test('Scan entry requires a name and opens scanner only after creating its local count',async()=>{const a=setup({data:list});await tick();let scans=0;a.$('scan').onclick=()=>scans++;await a.$('beginScan').onclick();assert.equal(scans,0);a.$('employee').value='Test';await a.$('beginScan').onclick();assert.equal(a.$('work').hidden,false);assert.equal(scans,1);});
 test('Missing session never reads private lists; server errors leave controls disabled with explanation',async()=>{const a=setup({session:false});await tick();assert.equal(a.calls,0);assert.equal(a.$('begin').disabled,true);assert.match(a.$('message').textContent,/espace connecté/);const b=setup({error:{message:'offline'}});await tick();assert.equal(b.$('beginScan').disabled,true);assert.match(b.$('message').textContent,/indisponible/);});
 
+
+test('Second counter is displayed and persisted in the local inventory',async()=>{const a=setup({data:list});await tick();a.$('employee').value='Alexis';a.$('employee2').value='Axel';await a.$('begin').onclick();assert.equal(a.saved.employee2,'Axel');assert.equal(a.saved.employee,'Alexis');assert.match(a.$('title').textContent,/Alexis \/ Axel/);});

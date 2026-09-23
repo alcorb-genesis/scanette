@@ -3,8 +3,8 @@ const box=document.createElement('section');box.className='warehouse-controls';b
 const $=id=>document.getElementById(id),msg=s=>$('receiptMessage').textContent=s,check=r=>{if(r.error)throw Error(r.error.message);return r.data;};
 $('receiptChoose').onclick=async()=>{if(busy)return;if(!currentUserId||!storageReady){msg('Connectez-vous et vérifiez la sauvegarde du pointage.');return;}const user=currentUserId,epoch=sessionEpoch;busy=true;try{
  for(const s of sections)if(!s.id)s.id=crypto.randomUUID();save();if(!storageReady)throw Error('Le pointage n’a pas pu être sauvegardé.');
- records=check(await supaClient.from('logistics_sessions').select('*').eq('workspace_id',shop).eq('kind','receipt').order('updated_at',{ascending:false}).limit(100));if(user!==currentUserId||epoch!==sessionEpoch)return;
- const requested=new URLSearchParams(location.search).get('receipt');if(requested&&!records.some(r=>r.id===requested)&&/^[0-9a-f-]{36}$/i.test(requested)){const found=check(await supaClient.from('logistics_sessions').select('*').eq('workspace_id',shop).eq('kind','receipt').eq('id',requested).maybeSingle());if(user!==currentUserId||epoch!==sessionEpoch)return;if(found)records.unshift(found);}
+ records=check(await supaClient.from('logistics_sessions').select('*').eq('workspace_id',shop).eq('kind','receipt').is('content->>deleted_at',null).order('updated_at',{ascending:false}).limit(100));if(user!==currentUserId||epoch!==sessionEpoch)return;
+ const requested=new URLSearchParams(location.search).get('receipt');if(requested&&!records.some(r=>r.id===requested)&&/^[0-9a-f-]{36}$/i.test(requested)){const found=check(await supaClient.from('logistics_sessions').select('*').eq('workspace_id',shop).eq('kind','receipt').eq('id',requested).maybeSingle());if(user!==currentUserId||epoch!==sessionEpoch)return;if(found&&!found.content.deleted_at)records.unshift(found);}
  $('receiptTarget').replaceChildren(new Option('Choisir la réception',''));for(const r of records)$('receiptTarget').append(new Option([r.content.supplier_name,r.content.orders,new Date(r.content.event_at).toLocaleString('fr-FR')].join(' · '),r.id));
  if(records.some(r=>r.id===requested))$('receiptTarget').value=requested;
  $('receiptPointage').replaceChildren(new Option('Choisir le pointage',''));for(const s of sections.filter(s=>Object.keys(s.items).length))$('receiptPointage').append(new Option(s.name+' · '+Object.keys(s.items).length+' références',s.id));if(sections.at(-1)?.id)$('receiptPointage').value=sections.at(-1).id;
@@ -27,6 +27,7 @@ function finish(submitted,receipt){
 $('receiptSend').onclick=async()=>{if(busy||!currentUserId||!storageReady)return;const receiptId=$('receiptTarget').value,section=sections.find(s=>s.id===$('receiptPointage').value);if(!receiptId||!section){msg('Choisissez le pointage et la réception.');return;}
  const user=currentUserId,epoch=sessionEpoch,submitted=structuredClone(section),batchName=$('receiptBatchName').value.trim()||section.name;busy=true;$('receiptSend').disabled=true;let confirmed=false;
  try{const latest=check(await supaClient.from('logistics_sessions').select('*').eq('workspace_id',shop).eq('kind','receipt').eq('id',receiptId).single());if(user!==currentUserId||epoch!==sessionEpoch)return;
+ if(latest.content.deleted_at)throw Error('Ce dossier est dans la corbeille. Restaurez-le dans Réception avant de lui ajouter un pointage.');
  const rows=LogisticsCore.importSection(submitted);const previous=(latest.content.pointages||[]).find(p=>p.id===submitted.id);
  if(previous&&ReceiptLinkCore.sameLines(previous.lines,rows)&&previous.name===batchName){confirmed=true;finish(submitted,latest);return;}
  const batch={id:submitted.id,name:batchName,at:new Date().toISOString(),by:user,lines:rows};

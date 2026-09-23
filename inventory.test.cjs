@@ -31,3 +31,10 @@ test('CSV export keeps blank distinct from zero and neutralizes formula content'
 test('Catalogue import drops quantities and employee data; rejects duplicate identities',()=>{
  const a=C.catalogue([{...article(),quantity:12,employee:'secret'}])[0];assert.equal(a.quantity,undefined);assert.equal(a.employee,undefined);assert.throws(()=>C.catalogue([article(),article()]));assert.throws(()=>C.catalogue([{reference:'x'}]));
 });
+
+test('CSV includes both counters and remains compatible with single-counter drafts',()=>{
+ const d={id:'binome',employee:'Alexis',employee2:'Axel',lines:[{...article(),quantity:2}]};
+ assert.match(C.csv(d),/"Employé";"Deuxième personne"/);
+ assert.match(C.csv(d),/"Alexis";"Axel"/);
+ delete d.employee2;assert.match(C.csv(d),/"Alexis";""/);
+});

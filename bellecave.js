@@ -33,9 +33,9 @@ async function search(){
  const stocks=data.length?await client.from('gestion_stock').select('product_id,quantity,updated_at').in('product_id',data.map(p=>p.id)):{data:[]};if(current!==epoch||request!==requestId)return;for(const product of data)product.gestionStock=stocks.error?{unavailable:true}:stocks.data.find(s=>s.product_id===product.id)||null;total=count||0;el('results').replaceChildren();
  for(const product of data){
   const card=document.createElement('article');card.className='card';
-  const ref=document.createElement('div');ref.className='ref';ref.textContent=product.reference;
+  const ref=document.createElement('div');ref.className='ref reference-location';const number=document.createElement('span');number.textContent=product.reference;const location=document.createElement('span');location.className='location-badge'+(product.location?'':' missing');location.textContent=product.location?'📍 '+product.location:'Emplacement à renseigner';ref.append(number,location);
   const description=document.createElement('p');description.textContent=product.description;
-  const info=document.createElement('p');info.className='muted';info.textContent='Emplacement : '+(product.location||'non renseigné')+' · Stock : '+(product.gestionStock?.unavailable?'suivi indisponible':product.gestionStock?.quantity==null?'initial inconnu':product.gestionStock.quantity+' (suivi Gestion)');
+  const info=document.createElement('p');info.className='muted';info.textContent='Stock : '+(product.gestionStock?.unavailable?'suivi indisponible':product.gestionStock?.quantity==null?'initial inconnu':product.gestionStock.quantity+' (suivi Gestion)');
   const button=document.createElement('button');button.textContent='Voir la fiche';button.addEventListener('click',()=>detail(product));
   card.append(ref,description,info,button);el('results').append(card);
  }
