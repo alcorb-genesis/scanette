@@ -44,7 +44,7 @@ function paint(){
 }
 async function refresh(){
  if(!actor||loading||document.hidden||!viewVisible)return;loading=true;const requestEpoch=epoch;
- try{const r=await db.rpc('delivery_positions_current',{shop});if(requestEpoch!==epoch)return;if(r.error)throw r.error;rows=r.data||[];receivedAt=Date.now();paint();$('viewerStatus').textContent=rows.length?'Positions partagées volontairement · actualisation toutes les 15 secondes.':'Aucun livreur ne partage actuellement de position récente.';}
+ try{const r=await db.rpc('delivery_positions_current',{shop});if(requestEpoch!==epoch)return;if(r.error)throw r.error;rows=r.data||[];receivedAt=Date.now();paint();$('viewerStatus').textContent=rows.length?'Positions partagées volontairement · actualisation toutes les 5 secondes.':'Aucun livreur ne partage actuellement de position récente.';}
  catch{if(requestEpoch===epoch){rows=[];paint();$('viewerStatus').textContent='Suivi indisponible. Vérifiez la connexion et votre accès au magasin.';}}
  finally{loading=false;}
 }
@@ -58,7 +58,7 @@ $('startSharing').onclick=async()=>{
   watch=navigator.geolocation.watchPosition(p=>{
    if(lease!==token||requestEpoch!==epoch)return;
    if(Date.now()-p.timestamp>20000){status('Signal GPS trop ancien. En attente d’une position récente…');return;}
-   if(lastSent&&Date.now()-lastSent<10000)return;lastSent=Date.now();
+   if(lastSent&&Date.now()-lastSent<5000)return;lastSent=Date.now();
    enqueue({token,operation:'position',lat:p.coords.latitude,lon:p.coords.longitude,precision_m:p.coords.accuracy,seq:++sequence}).then(()=>{
     if(lease===token){status('● Position partagée · '+new Date().toLocaleTimeString('fr-FR')+' · précision ± '+Math.round(p.coords.accuracy)+' m');refresh();}
    }).catch(e=>{if(lease===token){if(['PT409','40001'].includes(e.code)||e.code==='42501')stop('Partage interrompu : session remplacée ou accès retiré.');else status('Envoi impossible. GPS actif, nouvelle tentative au prochain signal. Les collègues ne reçoivent pas cette position.');}});
@@ -81,5 +81,5 @@ async function enter(session){
 }
 try{db=window.parent!==window&&window.parent.AlcorbAuth||supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co','sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ');db.auth.onAuthStateChange((_e,s)=>setTimeout(()=>enter(s),0));db.auth.getSession().then(r=>{if(r.error)throw r.error;return enter(r.data.session);}).catch(()=>unavailable('Connexion indisponible','Impossible de vérifier votre session. Rechargez la page.'));}
 catch{unavailable('Connexion indisponible','Connexion indisponible. Rechargez la page.');$('viewerStatus').textContent='Suivi indisponible.';}
-setInterval(refresh,15000);setInterval(()=>{const fresh=rows.filter(r=>r.age_seconds+(Date.now()-receivedAt)/1000<90);if(fresh.length!==rows.length){rows=fresh;paint();}},1000);
+setInterval(refresh,5000);setInterval(()=>{const fresh=rows.filter(r=>r.age_seconds+(Date.now()-receivedAt)/1000<90);if(fresh.length!==rows.length){rows=fresh;paint();}},1000);
 })();
