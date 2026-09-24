@@ -56,18 +56,19 @@ $('startSharing').onclick=async()=>{
  try{await enqueue({token,operation:'begin',driver});if(lease!==token||requestEpoch!==epoch)return;
   status('Autorisez la localisation. En attente du premier signal GPS…');
   watch=navigator.geolocation.watchPosition(p=>{
-   if(lease!==token||requestEpoch!==epoch||document.hidden)return;
+   if(lease!==token||requestEpoch!==epoch)return;
    if(Date.now()-p.timestamp>20000){status('Signal GPS trop ancien. En attente d’une position récente…');return;}
    if(lastSent&&Date.now()-lastSent<10000)return;lastSent=Date.now();
    enqueue({token,operation:'position',lat:p.coords.latitude,lon:p.coords.longitude,precision_m:p.coords.accuracy,seq:++sequence}).then(()=>{
     if(lease===token){status('● Position partagée · '+new Date().toLocaleTimeString('fr-FR')+' · précision ± '+Math.round(p.coords.accuracy)+' m');refresh();}
    }).catch(e=>{if(lease===token){if(['PT409','40001'].includes(e.code)||e.code==='42501')stop('Partage interrompu : session remplacée ou accès retiré.');else status('Envoi impossible. GPS actif, nouvelle tentative au prochain signal. Les collègues ne reçoivent pas cette position.');}});
-  },e=>{if(lease!==token)return;if(e.code===1)stop('Localisation refusée. Aucun partage actif.');else status('Signal GPS indisponible. Restez sur cette page ; nouvelle tentative automatique.');},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  },e=>{if(lease!==token)return;if(e.code===1)stop('Localisation refusée. Aucun partage actif.');else status('Signal GPS indisponible. Nouvelle tentative au prochain signal fourni par le navigateur.');},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
  }catch{if(lease===token)await stop('Activation impossible. Réessayez après avoir vérifié votre connexion.');}
 };
 $('stopSharing').onclick=()=>stop();window.stopDeliverySharing=()=>stop();
 window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==window.parent||e.data?.type!=='alcorb-tracking-view')return;viewVisible=e.data.visible===true;if(viewVisible){window.deliveryMap?.invalidateSize();refresh();}});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&lease)stop('Partage arrêté quand la page a été masquée. Réactivez-le pour continuer.');else if(!document.hidden)refresh();});
+// Keep the watch and lease when hidden; the browser may still suspend GPS delivery.
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 window.addEventListener('pagehide',()=>{if(lease)stop();});
 window.addEventListener('offline',()=>{rows=[];paint();$('viewerStatus').textContent='Hors connexion : aucune position en direct disponible.';});
 window.addEventListener('online',refresh);
