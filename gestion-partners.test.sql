@@ -4,7 +4,7 @@ set local role authenticated;
 do $$declare p public.gestion_partners; blocked boolean:=false; pid uuid:=gen_random_uuid();begin
  p:=public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',pid,0,'client','TEST ROLLBACK','{}','[]','test-rollback');
  if p.version<>1 or p.updated_by<>auth.uid() then raise exception 'Bad revision or actor';end if;
- begin perform public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',pid,0,'client','Stale','{}','[]','');exception when serialization_failure then blocked:=true;end;
+ begin perform public.gestion_save_partner('8770297c-cadb-4cc6-8b93-55a0f9bd154e',pid,0,'client','Stale','{}','[]','');exception when sqlstate 'PT409' then blocked:=true;end;
  if not blocked then raise exception 'Concurrent overwrite';end if;
  blocked:=false;
  begin update public.gestion_partners set name='Direct';exception when insufficient_privilege then blocked:=true;end;

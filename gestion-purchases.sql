@@ -51,7 +51,7 @@ begin
  end if;
  select * into current from public.gestion_stock s where s.product_id=gestion_adjust_stock.product_id for update;
  if not found or current.quantity is null then raise exception 'Stock unknown';end if;
- if expected_updated_at is distinct from current.updated_at then raise exception 'Stock changed' using errcode='40001';end if;
+ if expected_updated_at is distinct from current.updated_at then raise exception 'Stock changed' using errcode='PT409';end if;
  insert into public.gestion_operations(id,workspace_id,actor_id,kind,payload) values(operation_id,shop,actor,'adjustment',payload);
  insert into public.gestion_movements values(operation_id,product_id,delta);
  update public.gestion_stock s set quantity=quantity+delta,updated_at=clock_timestamp() where s.product_id=gestion_adjust_stock.product_id;

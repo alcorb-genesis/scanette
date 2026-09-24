@@ -35,7 +35,7 @@ begin
  perform pg_advisory_xact_lock(hashtextextended(draft_id::text,2));
  select * into old from public.gestion_sale_drafts where id=draft_id for update;
  if found and (old.actor_id<>actor or old.workspace_id<>shop_id or old.closed) then raise exception 'Draft unavailable';end if;
- if coalesce(old.version,0)<>expected_version then raise exception 'Draft changed' using errcode='40001';end if;
+ if coalesce(old.version,0)<>expected_version then raise exception 'Draft changed' using errcode='PT409';end if;
  insert into public.gestion_sale_drafts(id,workspace_id,actor_id,payload,version) values(draft_id,shop_id,actor,content,expected_version+1)
  on conflict(id) do update set payload=excluded.payload,version=excluded.version,updated_at=now() returning * into saved;
  return saved;
@@ -48,13 +48,13 @@ begin
  if not found or actor is null or d.actor_id<>actor or not exists(select 1 from public.scanette_members where workspace_id=d.workspace_id and user_id=actor and role in ('operator','admin')) then raise exception 'Access denied' using errcode='42501';end if;
  select * into result from public.gestion_sales where id=draft_id;
  if found then return result;end if;
- if d.closed or expected_version is distinct from d.version then raise exception 'Draft changed' using errcode='40001';end if;
+ if d.closed or expected_version is distinct from d.version then raise exception 'Draft changed' using errcode='PT409';end if;
  if jsonb_typeof(d.payload->'items') is distinct from 'array' then raise exception 'Lines required';end if;
  if jsonb_array_length(d.payload->'items') not between 1 and 100 then raise exception '1 to 100 lines required';end if;
  if length(coalesce(d.payload->>'note',''))>1000 then raise exception 'Note too long';end if;
  select * into c from public.gestion_partners where id=(d.payload->>'client_id')::uuid and workspace_id=d.workspace_id and kind='client' for share;
  if not found then raise exception 'Client unavailable';end if;
- if coalesce((d.payload->>'client_version')::integer,0)<>c.version then raise exception 'Client changed: reload' using errcode='40001';end if;
+ if coalesce((d.payload->>'client_version')::integer,0)<>c.version then raise exception 'Client changed: reload' using errcode='PT409';end if;
  if d.payload->>'departure_index' is not null then
   idx:=(d.payload->>'departure_index')::integer;
   if idx<0 or idx>=jsonb_array_length(c.departures) then raise exception 'Departure unavailable';end if;
@@ -102,7 +102,7 @@ begin
   if prior.sale_id<>sale_id or prior.actor_id<>actor or prior.action<>action or prior.reason<>reason then raise exception 'Event identity already used';end if;
   return s;
  end if;
- if expected_version is distinct from s.version then raise exception 'Sale changed' using errcode='40001';end if;
+ if expected_version is distinct from s.version then raise exception 'Sale changed' using errcode='PT409';end if;
  if not ((action='prepared' and s.status='validated') or (action='dispatched' and s.status='prepared') or (action='cancelled' and s.status in ('validated','prepared') and length(btrim(reason))>0)) then raise exception 'Invalid transition';end if;
  if action='cancelled' then
   insert into public.gestion_operations(id,workspace_id,actor_id,kind,payload) values(event_id,s.workspace_id,actor,'sale_cancel',jsonb_build_object('sale_id',sale_id,'reason',reason));

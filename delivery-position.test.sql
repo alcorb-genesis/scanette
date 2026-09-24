@@ -1,0 +1,28 @@
+begin;
+set local statement_timeout='10s';
+do $$begin perform set_config('request.jwt.claim.sub',(select user_id::text from public.scanette_members where workspace_id='8770297c-cadb-4cc6-8b93-55a0f9bd154e' and role='admin' limit 1),true);end $$;
+set local role authenticated;
+do $$declare shop uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e'; a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); blocked boolean;
+begin
+ perform public.delivery_position_write(shop,a,'begin','TEST ROLLBACK');
+ perform public.delivery_position_write(shop,a,'position','',0,0,5,1);
+ blocked:=false;begin perform public.delivery_position_write(shop,a,'position','',1,1,5,1);exception when sqlstate 'PT409' then blocked:=true;end;
+ if not blocked then raise exception 'Duplicate sequence accepted';end if;
+ perform public.delivery_position_write(shop,b,'begin','TEST REPLACEMENT');
+ blocked:=false;begin perform public.delivery_position_write(shop,a,'position','',1,1,5,2);exception when sqlstate 'PT409' then blocked:=true;end;
+ if not blocked then raise exception 'Old lease accepted';end if;
+ perform public.delivery_position_write(shop,a,'stop');
+ perform public.delivery_position_write(shop,b,'position','',0,0,5,1);
+ if not exists(select 1 from public.delivery_positions_current(shop) where user_id=auth.uid() and label='TEST REPLACEMENT') then raise exception 'Old stop affected new lease';end if;
+ perform public.delivery_position_write(shop,b,'stop');
+ if exists(select 1 from public.delivery_positions_current(shop) where user_id=auth.uid()) then raise exception 'Stopped position still visible';end if;
+ blocked:=false;begin perform public.delivery_position_write(shop,b,'position','',1,1,5,2);exception when sqlstate 'PT409' then blocked:=true;end;
+ if not blocked then raise exception 'Stopped lease accepted';end if;
+ perform set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+ blocked:=false;begin perform public.delivery_positions_current(shop);exception when insufficient_privilege then blocked:=true;end;
+ if not blocked then raise exception 'Outsider read';end if;
+ blocked:=false;begin perform public.delivery_position_write(shop,b,'begin','Intruder');exception when insufficient_privilege then blocked:=true;end;
+ if not blocked then raise exception 'Outsider write';end if;
+end $$;
+rollback;
+select 'PASS GPS: non-retryable conflicts, lease isolation, permissions; all writes rolled back' as result;

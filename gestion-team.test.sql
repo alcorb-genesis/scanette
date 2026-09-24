@@ -6,7 +6,7 @@ do $$declare r public.gestion_team; old_count integer; blocked boolean:=false;be
  select count(*) into old_count from public.scanette_members;
  r:=public.gestion_save_team_member('8770297c-cadb-4cc6-8b93-55a0f9bd154e',gen_random_uuid(),0,'TEST ROLLBACK',array['sales','picking'],'','');
  if r.user_id is not null or (select count(*) from public.scanette_members)<>old_count then raise exception 'Profile unexpectedly grants access';end if;
- begin perform public.gestion_save_team_member(r.workspace_id,r.id,0,'Stale',array['sales'],'','');exception when serialization_failure then blocked:=true;end;
+ begin perform public.gestion_save_team_member(r.workspace_id,r.id,0,'Stale',array['sales'],'','');exception when sqlstate 'PT409' then blocked:=true;end;
  if not blocked then raise exception 'Stale update permitted';end if;
  blocked:=false;
  begin update public.gestion_team set user_id=auth.uid() where id=r.id;exception when insufficient_privilege then blocked:=true;end;

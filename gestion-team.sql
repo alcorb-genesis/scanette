@@ -27,7 +27,7 @@ begin
  perform 1 from public.scanette_workspaces w where w.id=shop_id for update;
  if exists(select 1 from public.gestion_team t where t.id=member_id and t.workspace_id<>shop_id) then raise exception 'Access denied' using errcode='42501';end if;
  select t.version into previous from public.gestion_team t where t.id=member_id and t.workspace_id=shop_id;
- if coalesce(previous,0)<>expected_version then raise exception 'Team record changed' using errcode='40001';end if;
+ if coalesce(previous,0)<>expected_version then raise exception 'Team record changed' using errcode='PT409';end if;
  insert into public.gestion_team(id,workspace_id,display_name,functions,contact_email,notes,version,updated_by)
  values(member_id,shop_id,btrim(member_name),member_functions,coalesce(btrim(member_email),''),coalesce(member_notes,''),expected_version+1,actor)
  on conflict(id) do update set display_name=excluded.display_name,functions=excluded.functions,contact_email=excluded.contact_email,notes=excluded.notes,version=excluded.version,updated_by=excluded.updated_by,updated_at=now()

@@ -28,7 +28,7 @@ do $$declare c public.gestion_partners; supplier public.gestion_partners; po pub
  aid:=gen_random_uuid();perform public.gestion_adjust_stock(aid,pid,-1,old_time,'TEST REGULATION');perform public.gestion_adjust_stock(aid,pid,-1,old_time,'TEST REGULATION');
  select quantity into qty from public.gestion_stock where product_id=pid;
  if qty<>-1 then raise exception 'Adjustment duplicate';end if;
- begin perform public.gestion_adjust_stock(gen_random_uuid(),pid,1,old_time,'STALE');exception when serialization_failure then blocked:=true;end;
+ begin perform public.gestion_adjust_stock(gen_random_uuid(),pid,1,old_time,'STALE');exception when sqlstate 'PT409' then blocked:=true;end;
  if not blocked then raise exception 'Stale adjustment allowed';end if;
  perform set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
  if exists(select 1 from public.gestion_purchase_orders) or exists(select 1 from public.gestion_replenishment_needs('8770297c-cadb-4cc6-8b93-55a0f9bd154e')) then raise exception 'Outsider read';end if;

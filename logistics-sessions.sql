@@ -34,7 +34,7 @@ declare actor uuid:=auth.uid();old public.logistics_sessions;saved public.logist
  select * into old from public.logistics_sessions where id=session_id for update;
  if found and (old.workspace_id<>shop or old.kind<>session_kind) then raise exception 'Document unavailable';end if;
  if old.id is not null and old.updated_by=actor and old.content=document and old.version=expected_version+1 then return old;end if;
- if coalesce(old.version,0)<>expected_version then raise exception 'Document changed' using errcode='40001';end if;
+ if coalesce(old.version,0)<>expected_version then raise exception 'Document changed' using errcode='PT409';end if;
  insert into public.logistics_sessions(id,workspace_id,kind,content,version,created_by,updated_by) values(session_id,shop,session_kind,document,expected_version+1,actor,actor)
  on conflict(id) do update set content=excluded.content,version=excluded.version,updated_by=actor,updated_at=clock_timestamp() returning * into saved;
  return saved;

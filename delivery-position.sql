@@ -26,7 +26,7 @@ declare actor uuid:=auth.uid();begin
   if lat is null or lon is null or precision_m is null or not(lat between -90 and 90) or not(lon between -180 and 180) or not(precision_m between 0 and 100000) or seq is null or seq<1 then raise exception 'Invalid position';end if;
   update public.delivery_positions set latitude=lat,longitude=lon,accuracy=precision_m,sequence=seq,updated_at=clock_timestamp()
    where workspace_id=shop and user_id=actor and lease=token and active and sequence<seq;
-  if not found then raise exception 'Sharing stopped or replaced' using errcode='40001';end if;
+  if not found then raise exception 'Sharing stopped or replaced' using errcode='PT409';end if;
  end if;
 end $$;
 create function public.delivery_positions_current(shop uuid)

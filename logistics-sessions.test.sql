@@ -8,7 +8,7 @@ do $$declare w uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';p uuid:=gen_random_u
  if got.version<>1 or got.content->>'supplier_name'<>'TEST LOGISTICS ROLLBACK' or got.created_by<>auth.uid() then raise exception 'Bad receipt';end if;
  got:=public.logistics_save_session(w,r,'receipt',0,doc);
  if got.version<>1 then raise exception 'Replay duplicated';end if;
- begin perform public.logistics_save_session(w,r,'receipt',0,jsonb_set(doc,'{orders}','"OTHER"'));raise exception 'Stale accepted';exception when serialization_failure then null;end;
+ begin perform public.logistics_save_session(w,r,'receipt',0,jsonb_set(doc,'{orders}','"OTHER"'));raise exception 'Stale accepted';exception when sqlstate 'PT409' then null;end;
  got:=public.logistics_save_session(w,i,'inventory',0,'{"event_at":"2026-09-21T10:00:00Z","employees":["Test A","Test B"],"lines":[{"reference":"A","quantity":null},{"reference":"B","quantity":0}]}'::jsonb);
  if got.content#>'{lines,0,quantity}'<>'null'::jsonb or got.content#>>'{lines,1,quantity}'<>'0' then raise exception 'Uncounted confused with zero';end if;
  begin perform public.logistics_save_session(w,gen_random_uuid(),'inventory',0,'{"event_at":"2026-09-21T10:00:00Z","employees":["Test"],"lines":[{"reference":"A","quantity":-1}]}');raise exception 'Negative accepted';exception when raise_exception then if sqlerrm='Negative accepted' then raise;end if;end;

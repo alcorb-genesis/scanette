@@ -28,7 +28,7 @@ begin
  -- Serialize initial creation as well as later edits.
  perform 1 from public.scanette_workspaces w where w.id=shop_id for update;
  select s.version into previous from public.gestion_store_settings s where s.workspace_id=shop_id;
- if coalesce(previous,0)<>expected_version then raise exception 'Settings changed: reload before saving' using errcode='40001'; end if;
+ if coalesce(previous,0)<>expected_version then raise exception 'Settings changed: reload before saving' using errcode='PT409'; end if;
  insert into public.gestion_store_settings(workspace_id,display_name,legal_name,address,postal_code,city,country,phone,email,siret,version,updated_by)
  values(shop_id,btrim(details->>'display_name'),coalesce(details->>'legal_name',''),coalesce(details->>'address',''),coalesce(details->>'postal_code',''),coalesce(details->>'city',''),coalesce(details->>'country','France'),coalesce(details->>'phone',''),coalesce(details->>'email',''),coalesce(details->>'siret',''),expected_version+1,actor)
  on conflict(workspace_id) do update set display_name=excluded.display_name,legal_name=excluded.legal_name,address=excluded.address,postal_code=excluded.postal_code,city=excluded.city,country=excluded.country,phone=excluded.phone,email=excluded.email,siret=excluded.siret,version=excluded.version,updated_by=excluded.updated_by,updated_at=now()

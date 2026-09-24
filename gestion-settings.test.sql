@@ -6,7 +6,7 @@ do $$declare initial integer; row_data public.gestion_store_settings; blocked bo
  select coalesce(max(version),0) into initial from public.gestion_store_settings where workspace_id='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
  row_data:=public.gestion_save_store_settings('8770297c-cadb-4cc6-8b93-55a0f9bd154e',initial,'{"display_name":"TEST ROLLBACK","city":"Bayonne"}');
  if row_data.version<>initial+1 or row_data.updated_by<>auth.uid() then raise exception 'Incorrect revision or actor';end if;
- begin perform public.gestion_save_store_settings('8770297c-cadb-4cc6-8b93-55a0f9bd154e',initial,'{"display_name":"Stale"}');exception when serialization_failure then blocked:=true;end;
+ begin perform public.gestion_save_store_settings('8770297c-cadb-4cc6-8b93-55a0f9bd154e',initial,'{"display_name":"Stale"}');exception when sqlstate 'PT409' then blocked:=true;end;
  if not blocked then raise exception 'Concurrent overwrite permitted';end if;
  blocked:=false;
  begin update public.gestion_store_settings set city='Direct write';exception when insufficient_privilege then blocked:=true;end;

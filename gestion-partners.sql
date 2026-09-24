@@ -35,7 +35,7 @@ begin
  perform 1 from public.scanette_workspaces where id=shop_id for update;
  if exists(select 1 from public.gestion_partners where id=partner_id and workspace_id<>shop_id) then raise exception 'Access denied' using errcode='42501';end if;
  select version into previous from public.gestion_partners where id=partner_id and workspace_id=shop_id;
- if coalesce(previous,0)<>expected_version then raise exception 'Partner changed' using errcode='40001';end if;
+ if coalesce(previous,0)<>expected_version then raise exception 'Partner changed' using errcode='PT409';end if;
  insert into public.gestion_partners(id,workspace_id,kind,name,details,departures,source_key,version,updated_by)
  values(partner_id,shop_id,partner_kind,btrim(partner_name),partner_details,partner_departures,coalesce(partner_source,''),expected_version+1,actor)
  on conflict(id) do update set kind=excluded.kind,name=excluded.name,details=excluded.details,departures=excluded.departures,source_key=excluded.source_key,version=excluded.version,updated_by=excluded.updated_by,updated_at=now() returning * into saved;
