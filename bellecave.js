@@ -27,6 +27,9 @@ async function search(){
  if(selectedAisle){query=query.or(LocationSearch.filter(selectedAisle));}
 
  else if(term){query=query.or('reference.ilike.%'+term+'%,order_reference.ilike.%'+term+'%,description.ilike.%'+term+'%,'+(LocationSearch.filter(term)||'location.ilike.'+term)+',internal_barcode.eq.'+term+',manufacturer_barcode.eq.'+term);}
+ const vehicle=CatalogueEvidence.clean(el('vehicleQuery').value),family=CatalogueEvidence.clean(el('familyQuery').value);
+ if(vehicle)query=query.ilike('catalogue_enrichment->>vehicle_search','%'+vehicle+'%');
+ if(family)query=query.or('description.ilike.%'+family+'%,catalogue_enrichment->>family_search.ilike.%'+family+'%');
  const {data,error,count}=await query.order('reference').order('id').range(pageIndex*40,pageIndex*40+39);
  if(current!==epoch||request!==requestId)return;
  if(error){status('Recherche indisponible. Réessayez dans un instant.',true);return;}
@@ -37,7 +40,8 @@ async function search(){
   const description=document.createElement('p');description.textContent=product.description;
   const info=document.createElement('p');info.className='muted';info.textContent='Stock : '+(product.gestionStock?.unavailable?'suivi indisponible':product.gestionStock?.quantity==null?'initial inconnu':product.gestionStock.quantity+' (suivi Gestion)');
   const button=document.createElement('button');button.textContent='Voir la fiche';button.addEventListener('click',()=>detail(product));
-  card.append(ref,description,info,button);el('results').append(card);
+  const application=document.createElement('p');application.className='muted';const documented=CatalogueEvidence.vehicles(product.catalogue_enrichment);application.textContent=documented.length?'Véhicules cités par le fabricant : '+documented.map(v=>v.make+' '+v.model).join(', ')+' · détails à vérifier dans la fiche':'';
+  card.append(ref,description,application,info,button);el('results').append(card);
  }
  el('summary').textContent=total.toLocaleString('fr-FR')+' fiche(s) trouvée(s). En cas de code-barres partagé, vérifiez la désignation.';
  el('page').textContent='Page '+(pageIndex+1)+' / '+Math.max(1,Math.ceil(total/40));
@@ -45,6 +49,7 @@ async function search(){
  status(total?'':'Aucune fiche correspondante.');
 }
 function detail(product){
+ showEvidence(product.catalogue_enrichment);
  selectedProduct=product;el('detailRef').textContent=product.reference;el('description').textContent=product.description;
  el('identifiers').textContent='Référence commande : '+(product.order_reference||'—')+'\nCode interne : '+(product.internal_barcode||'—')+'\nCode fabricant : '+(product.manufacturer_barcode||'—');
  el('quantity').textContent='Stock suivi : '+(product.gestionStock?.unavailable?'indisponible':product.gestionStock?.quantity==null?'initial inconnu':product.gestionStock.quantity);
@@ -128,3 +133,19 @@ function paintAisles(){
  }
 }
 el('aisleQuery').addEventListener('input',paintAisles);
+
+function showEvidence(evidence){
+ const box=el('evidence');box.replaceChildren();
+ if(!evidence||!Object.keys(evidence).length)return;
+ const title=document.createElement('h3');title.textContent='Informations fabricant';box.append(title);
+ const brand=document.createElement('p');brand.textContent=[evidence.brand,evidence.family].filter(Boolean).join(' · ');box.append(brand);
+ function link(url,label){const href=CatalogueEvidence.sourceUrl(url);if(!href)return;const a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.textContent=label;box.append(a);}
+ if(evidence.barcode){const p=document.createElement('p');p.textContent='Code fabricant documenté : '+evidence.barcode.value;box.append(p);link(evidence.barcode.source_url,'Consulter la source du code-barres');}
+ const vehicles=CatalogueEvidence.vehicles(evidence);
+ if(vehicles.length){const h=document.createElement('h4');h.textContent='Affectations citées par le fabricant';box.append(h);
+  for(const v of vehicles){const row=document.createElement('p');row.textContent=v.make+' '+v.model+(v.engine?' · '+v.engine:'')+(v.years?' · '+v.years:'');box.append(row);}
+  const note=document.createElement('p');note.className='muted';note.textContent=evidence.vehicle_note||'Les variantes non précisées par la source doivent être vérifiées avant la vente.';box.append(note);
+  for(const url of [...new Set(vehicles.map(v=>v.source_url))])link(url,'Consulter les affectations fabricant');
+ }
+}
+el('resetFilters').addEventListener('click',()=>{el('query').value='';el('vehicleQuery').value='';el('familyQuery').value='';selectedAisle=null;pageIndex=0;search();});

@@ -199,7 +199,7 @@
   .logoutbtn{background:none;border:none;color:var(--muted);font-size:18px;
     cursor:pointer;padding:0 4px;}
 </style>
-<link rel="stylesheet" href="interface.css?v=20260923-suppliers">
+<link rel="stylesheet" href="interface.css?v=compact-20260925-20260923-suppliers">
 <link rel="stylesheet" href="password-visibility.css?v=1"></head>
 <body>
 
@@ -803,9 +803,11 @@ scanBtn.addEventListener('click',()=>scanning?stopScan():startScan());
 function scanConfig(){
   const cfg={
     fps:12,
-    qrbox:(w,h)=>({width:Math.floor(Math.min(w*.9,500)),height:Math.floor(Math.min(h*.65,250))}),
+    aspectRatio:16/9,
+    qrbox:(w,h)=>({width:Math.floor(Math.min(w*.9,360)),height:Math.floor(Math.min(h*.55,120))}),
     videoConstraints:{
       facingMode:'environment',
+      aspectRatio:{ideal:16/9},
       width:{ideal:1920}, height:{ideal:1080}  // haute résolution demandée
     },
     experimentalFeatures:{useBarCodeDetectorIfSupported:true}

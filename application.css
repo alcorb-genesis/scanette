@@ -12,5 +12,3 @@ body:has(#workspace:is([data-focus="scan"],[data-focus="inventory"]):not([hidden
 #workspace:is([data-focus="scan"],[data-focus="inventory"]) #module iframe{height:100%;min-height:0;border:0;border-radius:0}
 
 .task-drawing{width:64px;height:64px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;color:#49d4bc;transition:transform .2s}.tiles button:hover .task-drawing,.tiles button:focus-visible .task-drawing{transform:translateY(-4px)}@media(prefers-reduced-motion:reduce){.task-drawing{transition:none}}
-
-#gpsBanner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:6px 0;border:1px solid #63d9c3;border-radius:10px;background:#153d39}#gpsBanner button{min-height:36px;padding:6px 10px}#gpsBanner span{margin-right:auto}

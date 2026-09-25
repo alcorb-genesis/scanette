@@ -16,15 +16,6 @@ test('Inventory uses its local count screen with full-height camera space',async
 
 test('Receipt footer opens scanner with that dossier as association target',async()=>{const a=setup();await tick();a.auth(session('member'));a.requests.shift()({data:{role:'operator'}});await tick();a.click('receipts');const frame=a.nodes.module.firstChild,id='11111111-1111-4111-8111-111111111111';a.events.message({origin:'https://example.test',source:frame.contentWindow,data:{type:'alcorb-section',section:'scan',receiptId:id}});assert.equal(a.nodes.module.firstChild.src,'index.html?embedded=1&receipt='+id);});
 
-test('Tracking frame survives navigation without reload; messages are scoped and logout stops sharing first',async()=>{
- const a=setup();await tick();a.auth(session('member'));a.requests.shift()({data:{role:'operator'}});await tick();a.click('tracking');const tracking=a.nodes.module.firstChild;let stopped=0;tracking.contentWindow.stopDeliverySharing=async()=>{stopped++;};
- a.events.message({origin:'https://evil.test',source:tracking.contentWindow,data:{type:'alcorb-gps-state',active:true,name:'Wrong'}});assert.equal(a.nodes.gpsBanner.hidden,true);
- a.events.message({origin:'https://example.test',source:tracking.contentWindow,data:{type:'alcorb-gps-state',active:true,name:'Cédric'}});assert.equal(a.nodes.gpsName.textContent,'Cédric');assert.equal(a.nodes.gpsBanner.hidden,false);
- a.click('departures');assert.equal(a.nodes.module.children[0],tracking);assert.equal(tracking.hidden,true);assert.equal(stopped,0);const departures=a.nodes.module.children[1];
- a.events.message({origin:'https://example.test',source:tracking.contentWindow,data:{type:'alcorb-section',section:'home'}});assert.equal(a.nodes.module.children[1],departures);
- a.events.message({origin:'https://example.test',source:departures.contentWindow,data:{type:'alcorb-section',section:'tracking'}});assert.equal(a.nodes.module.children.length,1);assert.equal(a.nodes.module.firstChild,tracking);assert.equal(tracking.hidden,false);
- a.click('home');assert.equal(a.nodes.module.firstChild,tracking);assert.equal(tracking.hidden,true);await a.nodes.gpsStop.onclick();assert.equal(stopped,1);
- await a.nodes.logout.onclick();assert.ok(stopped>=2);assert.equal(a.nodes.module.children.length,0);assert.equal(a.nodes.gpsBanner.hidden,true);
+test('Retired GPS route returns home and never requests geolocation',async()=>{
+ const a=setup();await tick();a.auth(session('member'));a.requests.shift()({data:{role:'operator'}});await tick();a.click('tracking');assert.equal(a.nodes.module.children.length,0);assert.equal(a.nodes.home.hidden,false);a.click('scan');assert.equal(a.nodes.module.firstChild.allow,'camera');
 });
-
-test('Unavailable GPS stop cannot block logout indefinitely',async()=>{const a=setup();await tick();a.auth(session('member'));a.requests.shift()({data:{role:'operator'}});await tick();a.click('tracking');a.nodes.module.firstChild.contentWindow.stopDeliverySharing=()=>new Promise(()=>{});await a.nodes.logout.onclick();assert.equal(a.nodes.workspace.hidden,true);assert.equal(a.nodes.module.children.length,0);});

@@ -12,7 +12,10 @@ assert.equal(R.filter(all,{query:'APO',kind:'supplier',area:'',curated:true}).fi
 assert.equal(all.filter(e=>e.siret==='45277264300071').length,1);
 const oils=R.filter(all,{kind:'supplier',area:'',family:'Huiles et lubrifiants',country:'France'});assert.ok(oils.length>=5);assert.ok(oils.every(e=>e.country==='France'&&e.families.includes('Huiles et lubrifiants')));
 assert.equal(R.filter(all,{kind:'supplier',area:'',country:'Japon'}).length,1);
-assert.ok(official.entries.every(e=>e.curated&&e.entityType&&e.families.length&&R.web(e.source)));assert.ok(!official.entries.some(e=>e.website.includes('://napa.fr')));
+assert.ok(official.entries.every(e=>e.curated&&R.web(e.source)));
+assert.ok(official.entries.filter(e=>e.kind==='supplier').every(e=>e.entityType&&Array.isArray(e.families)&&e.families.length));
+assert.ok(official.entries.filter(e=>e.kind==='garage').every(e=>e.siret&&e.name&&e.address&&e.city));
+assert.ok(!official.entries.some(e=>String(e.website||'').includes('://napa.fr')));
 const curatedMerge=R.combine([{siret:'12345678901234',name:'Legal name',city:'Bayonne',department:'64',phone:'123',kind:'supplier'}],[],[{id:'official-test',siret:'12345678901234',name:'Brand',city:'Bayonne',kind:'supplier',source:'https://example.com',phone:null,curated:true}]);assert.equal(curatedMerge.length,1);assert.equal(curatedMerge[0].sources.length,2);assert.equal(curatedMerge[0].phone,'123');assert.ok(curatedMerge[0].search.includes('legal name'));
 const saved=new Map(),storage={getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v)};
 function app(){const body={innerHTML:''},root={querySelector:()=>body,querySelectorAll:()=>[],dataset:{},style:{setProperty(){}},addEventListener(){}};const context={document:{getElementById:()=>root},window:{addEventListener(){}},console,localStorage:storage,ReferenceCore:R};vm.createContext(context);const source=fs.readFileSync('gestion-demo.js','utf8').replace(' restore(window.openai?.widgetState);',' globalThis.api={attachPartner,switchStore,handle,save,render,views,getState:()=>s,getClients:()=>C}; restore(window.openai?.widgetState);');vm.runInContext(source,context);return {...context.api,body};}

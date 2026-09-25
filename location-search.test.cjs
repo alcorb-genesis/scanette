@@ -19,7 +19,7 @@ test('catalogue construit un filtre par sections tout en conservant la recherche
  const make=()=>({value:'',hidden:false,children:[],events:{},classList:{toggle(){}},addEventListener(k,fn){this.events[k]=fn},append(...x){this.children.push(...x)},replaceChildren(...x){this.children=x},close(){},focus(){}});
  const get=id=>{if(!nodes.has(id))nodes.set(id,make());return nodes.get(id)};
  const db={auth:{onAuthStateChange(){},getSession:async()=>({data:{session:{user:{id:'test'}}}})},from(table){const q={filters:[],select(){return q},eq(){return q},order(){return q},range(){return q},limit(){return q},ilike(k,v){q.filters.push([k,v]);return q},or(v){q.filters.push(v);return q},maybeSingle:async()=>({data:{role:'reader'}}),then(resolve){calls.push({table,filters:q.filters});return Promise.resolve({data:[],count:0}).then(resolve)}};return q}};
- vm.runInNewContext(fs.readFileSync('bellecave.js','utf8'),{supabase:{createClient:()=>db},LocationSearch:L,document:{getElementById:get,createElement:make,addEventListener(){}},setTimeout,navigator:{},Intl});
+ vm.runInNewContext(fs.readFileSync('bellecave.js','utf8'),{supabase:{createClient:()=>db},LocationSearch:L,CatalogueEvidence:require('./catalogue-evidence.js'),document:{getElementById:get,createElement:make,addEventListener(){}},setTimeout,navigator:{},Intl});
  await new Promise(r=>setImmediate(r));get('query').value='Allée A19';get('searchForm').events.submit({preventDefault(){}});await new Promise(r=>setImmediate(r));
  const query=calls.filter(c=>c.table==='scanette_products').at(-1).filters.join(',');
  assert.match(query,/location.ilike.A19F/);assert.match(query,/reference.ilike.%Allée A19%/);assert.equal(get('aisles').open,true);
