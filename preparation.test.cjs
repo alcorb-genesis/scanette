@@ -1,0 +1,9 @@
+const t=require('node:test'),a=require('node:assert/strict'),C=require('./preparation-core.js');
+function bl(){return {format:1,id:'bl-test',number:'TEST',employee:'Test',customer:'Garage test',mode:'delivery',events:[],lines:[{productId:'joint',reference:'895440',expected:4,count:0},{productId:'tube',reference:'CBH0064',expected:1,count:0}]};}
+const scan=(d,id)=>C.scan(d,[{id}],'000000','2026-10-02T10:00:00Z');
+t('BL requires four units and one unit, no premature completion',()=>{let d=bl();a.throws(()=>C.complete(d,'now'));for(let i=0;i<4;i++)d=scan(d,'joint');a.throws(()=>C.complete(d,'now'));d=scan(d,'tube');a.equal(C.complete(d,'now').completedAt,'now');a.equal(bl().lines[0].count,0);});
+t('wrong, ambiguous, unknown and excess products never count',()=>{let d=bl();a.throws(()=>scan(d,'wrong'));a.throws(()=>C.scan(d,[],'code','now'));a.throws(()=>C.scan(d,[{id:'joint'},{id:'other'}],'code','now'));d=scan(d,'tube');a.throws(()=>scan(d,'tube'));a.equal(d.lines[1].count,1);});
+t('undo is auditable and cannot undo same event twice',()=>{let d=scan(scan(bl(),'joint'),'tube');d=C.undo(d,'now');a.equal(d.lines[1].count,0);d=C.undo(d,'now');a.equal(d.lines[0].count,0);a.throws(()=>C.undo(d,'now'));a.equal(d.events.length,4);});
+t('finished documents cannot be changed by scan or undo',()=>{let d=bl();for(let i=0;i<4;i++)d=scan(d,'joint');d=C.complete(scan(d,'tube'),'now');a.throws(()=>scan(d,'joint'));a.throws(()=>C.undo(d,'now'));});
+t('duplicates and invalid quantities fail closed',()=>{for(const n of [0,-1,1.5,NaN,10001]){const d=bl();d.lines[0].expected=n;a.throws(()=>C.validate(d));}const d=bl();d.lines.push({...d.lines[0]});a.throws(()=>C.validate(d));});
+t('storage is scoped to member and write failure propagates without mutating document',()=>{a.notEqual(C.key('shop','one'),C.key('shop','two'));const d=bl();a.throws(()=>C.save({setItem(){throw Error('Quota');}},C.key('shop','one'),[d]));a.equal(d.lines[0].count,0);});
