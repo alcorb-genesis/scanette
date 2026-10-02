@@ -11,7 +11,14 @@ function rows(data,box){const all=words(data).filter(w=>w.bbox.y0>=box.top&&w.bb
  if(result.some(l=>!/^[A-Z0-9][A-Z0-9./-]*$/.test(l.reference)||!/[0-9]/.test(l.reference)))throw Error('Une référence est illisible. Reprenez la photo du tableau.');
  return result;
 }
-function header(data){const t=norm(data.text).replace(/\s+/g,' '),number=t.match(/BON DE LIVRAISON\s+(\d{3,15})/)?.[1]||'',date=t.match(/DATE DOCUMENT\s*:?\s*(\d{2})\/(\d{2})\/(\d{4})/);const page=t.match(/PAGE\s*:?\s*(\d+)\s*SUR\s*(\d+|I|L)/);return {number,date:date?date[3]+'-'+date[2]+'-'+date[1]:'',pickup:/PRIS MAGAS/.test(t),multiplePages:page&&Number(page[2])>1,pageVerified:!!page&&page[1]==='1'&&['1','I','L'].includes(page[2])};}
+function header(data){const t=norm(data.text).replace(/\s+/g,' '),number=t.match(/BON DE LIVRAISON\s+(\d{3,15})/)?.[1]||'',date=t.match(/DATE DOCUMENT\s*:?\s*(\d{2})\/(\d{2})\/(\d{4})/);const page=t.match(/PAGE\s*:?\s*(\d+)\s*SUR\s*(\d+|I|L)/);return {...customerHeader(data),number,date:date?date[3]+'-'+date[2]+'-'+date[1]:'',pickup:/PRIS MAGAS/.test(t),multiplePages:page&&Number(page[2])>1,pageVerified:!!page&&page[1]==='1'&&['1','I','L'].includes(page[2])};}
+function customerHeader(data){
+ const all=words(data),labels=all.filter(w=>norm(w.text)==='CODE').map(c=>({c,l:all.find(w=>norm(w.text)==='CLIENT'&&Math.abs(mid(w)-mid(c))<Math.max(12,c.bbox.y1-c.bbox.y0)&&w.bbox.x0>c.bbox.x0&&w.bbox.x0-c.bbox.x1<80)})).filter(x=>x.l);
+ let customerCode='';if(labels.length===1){const {c,l}=labels[0],h=Math.max(10,c.bbox.y1-c.bbox.y0);const values=all.filter(w=>/^\d{1,12}$/.test(w.text)&&w.confidence>=75&&w.bbox.y0>c.bbox.y1&&w.bbox.y0<c.bbox.y1+4*h&&w.bbox.x0>=c.bbox.x0-h&&w.bbox.x1<=l.bbox.x1+2*h);if(values.length===1)customerCode=values[0].text;}
+ const lines=(data.blocks||[]).flatMap(b=>(b.paragraphs||[]).flatMap(p=>p.lines||[])),title=lines.find(l=>/BON DE LIVRAISON/.test(norm(l.text))),names=title?lines.filter(l=>l.bbox&&l.bbox.y1<title.bbox.y0&&l.bbox.x0>title.bbox.x0&&/\bGARAGE\b/.test(norm(l.text))):[];
+ return {customerCode,customer:names.length===1?names[0].text.trim():''};
+}
+function partner(header,partners){const matches=partners.filter(p=>header.customerCode?String(p.details?.code||'').trim()===header.customerCode:header.customer&&norm(p.name)===norm(header.customer));return matches.length===1?matches[0]:null;}
 function merge(first,second){if(first.length!==second.length)throw Error('Les deux lectures ne retrouvent pas le même nombre de lignes. Reprenez une photo plus nette.');return second.map((l,i)=>({...l,uncertain:l.uncertain||first[i].reference!==l.reference||first[i].expected!==l.expected}));}
-const api={words,layout,rows,header,merge};if(typeof module!=='undefined')module.exports=api;else g.PreparationOCR=api;
+const api={words,layout,rows,header,merge,partner};if(typeof module!=='undefined')module.exports=api;else g.PreparationOCR=api;
 })(globalThis);
