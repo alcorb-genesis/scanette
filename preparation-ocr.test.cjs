@@ -1,0 +1,10 @@
+const test=require('node:test'),a=require('node:assert/strict'),O=require('./preparation-ocr-core');
+const w=(text,x,y,confidence=95)=>({text,confidence,bbox:{x0:x,x1:x+25,y0:y,y1:y+10}});
+const data=words=>({blocks:[{paragraphs:[{lines:[{words}]}]}]});
+const box={left:30,refEnd:120,qtyStart:300,qtyEnd:350,top:100,bottom:500,h:12};
+test('reads only delivered quantity column, never price or VAT',()=>{const rows=O.rows(data([w('ABC0123',40,110),w('Filtre',130,110),w('4',310,110),w('125',390,110),w('20',430,110)]),box);a.equal(rows[0].reference,'ABC0123');a.equal(rows[0].expected,4);});
+test('missing or fractional quantity never defaults to one',()=>{for(const q of ['', '1,5', '-1', 'O']){const rows=O.rows(data([w('ABC0123',40,110),w(q,310,110)]),box);a.equal(rows[0].expected,null);a.equal(rows[0].uncertain,true);}});
+test('unknown reference does not discard an entire row',()=>{a.throws(()=>O.rows(data([w('3',310,110)]),box),/référence/);});
+test('two pass disagreement is exposed, not silently approved',()=>{const l={reference:'ABC0123',expected:4,uncertain:false};a.equal(O.merge([l],[{...l,reference:'ABC0128'}])[0].uncertain,true);a.throws(()=>O.merge([l],[]));});
+test('multi page BL and unreadable layout fail closed',()=>{a.equal(O.header({text:'BON DE LIVRAISON 123456 Page : 1 sur 2'}).multiplePages,true);a.throws(()=>O.layout(data([])));});
+test('document header preserves reference zeros and identifies pickup',()=>{const h=O.header({text:'BON DE LIVRAISON 001234 Date Document: 02/10/2026 Page 1 sur 1 Type livr: pris magasin'});a.equal(h.number,'001234');a.equal(h.date,'2026-10-02');a.equal(h.pickup,true);a.equal(h.pageVerified,true);});
