@@ -16,6 +16,8 @@ test('Inventory uses its local count screen with full-height camera space',async
 
 test('Receipt footer opens scanner with that dossier as association target',async()=>{const a=setup();await tick();a.auth(session('member'));a.requests.shift()({data:{role:'operator'}});await tick();a.click('receipts');const frame=a.nodes.module.firstChild,id='11111111-1111-4111-8111-111111111111';a.events.message({origin:'https://example.test',source:frame.contentWindow,data:{type:'alcorb-section',section:'scan',receiptId:id}});assert.equal(a.nodes.module.firstChild.src,'index.html?embedded=1&receipt='+id);});
 
+test('Returns remains an authenticated logistics route',async()=>{const a=setup();await tick();a.auth(session('member'));a.requests.shift()({data:{role:'operator'}});await tick();a.click('returns');assert.equal(a.nodes.module.firstChild.src,'returns.html?embedded=1');});
+
 test('Retired GPS route returns home and never requests geolocation',async()=>{
  const a=setup();await tick();a.auth(session('member'));a.requests.shift()({data:{role:'operator'}});await tick();a.click('tracking');assert.equal(a.nodes.module.children.length,0);assert.equal(a.nodes.home.hidden,false);a.click('scan');assert.equal(a.nodes.module.firstChild.allow,'camera');
 });

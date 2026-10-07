@@ -1,0 +1,7 @@
+const test=require('node:test'),assert=require('node:assert/strict'),C=require('./returns-core.js');
+const line={id:'1',reference:'ABC-01',description:'Pièce',quantity:2,received_quantity:null,condition:'',reason:''};
+const doc={type:'return',status:'requested',client_name:'Garage test',supplier_name:'',lines:[line]};
+test('return case keeps a reference even when it is absent from the catalogue',()=>{assert.equal(C.validateDocument(structuredClone(doc)).lines[0].reference,'ABC-01');});
+test('quantities reject negatives, fractions, excess received and duplicate lines',()=>{for(const quantity of [0,-1,1.5,100001])assert.throws(()=>C.quantity(quantity));assert.throws(()=>C.validateDocument({...doc,lines:[{...line,received_quantity:3}]}));assert.throws(()=>C.validateDocument({...doc,lines:[line,{...line}]}));});
+test('case states follow a one-way auditable workflow',()=>{assert.equal(C.canMove('requested','collected'),true);assert.equal(C.canMove('requested','credited'),false);assert.equal(C.canMove('credited','requested'),false);});
+test('search and alerts do not lose unknown or manual references',()=>{const cases=[{updated_at:'2026-10-01',document:doc},{updated_at:'2026-10-02',document:{...doc,status:'received',lines:[{...line,reference:'MAN-42'}]}}];assert.equal(C.badge(cases),1);assert.equal(C.search(cases,'man').length,1);});
