@@ -38,7 +38,7 @@ declare actor uuid:=auth.uid(); previous public.returns_cases%rowtype; saved pub
 begin
  if actor is null or not exists(select 1 from public.scanette_members m where m.workspace_id=shop_id and m.user_id=actor and m.role in ('operator','admin')) then raise exception 'Access denied' using errcode='42501'; end if;
  if case_id is null or expected_version is null or expected_version<0 or jsonb_typeof(case_document) is distinct from 'object' or octet_length(case_document::text)>150000 or length(coalesce(event_note,''))>1000 then raise exception 'Invalid request'; end if;
- if coalesce(case_document->>'type','') not in ('return','warranty','mixed') or coalesce(case_document->>'status','') not in ('requested','collected','received','supplier_ready','sent','credit_pending','credited','cancelled') or length(btrim(coalesce(case_document->>'client_name',''))) not between 1 and 180 or length(coalesce(case_document->>'supplier_name',''))>180 or jsonb_typeof(case_document->'lines') is distinct from 'array' or jsonb_array_length(case_document->'lines') not between 1 and 200 then raise exception 'Invalid return case'; end if;
+ if coalesce(case_document->>'type','') not in ('return','warranty','deposit','mixed') or coalesce(case_document->>'status','') not in ('requested','collected','received','supplier_ready','sent','credit_pending','credited','cancelled') or length(btrim(coalesce(case_document->>'client_name',''))) not between 1 and 180 or length(coalesce(case_document->>'supplier_name',''))>180 or jsonb_typeof(case_document->'lines') is distinct from 'array' or jsonb_array_length(case_document->'lines') not between 1 and 200 then raise exception 'Invalid return case'; end if;
  if coalesce(case_document->>'client_id','')<>'' then client_id:=(case_document->>'client_id')::uuid; if not exists(select 1 from public.gestion_partners p where p.id=client_id and p.workspace_id=shop_id and p.kind='client') then raise exception 'Client outside workspace'; end if; end if;
  if coalesce(case_document->>'supplier_id','')<>'' then supplier_id:=(case_document->>'supplier_id')::uuid; if not exists(select 1 from public.gestion_partners p where p.id=supplier_id and p.workspace_id=shop_id and p.kind='supplier') then raise exception 'Supplier outside workspace'; end if; end if;
  if (select count(distinct value->>'id') from jsonb_array_elements(case_document->'lines'))<>jsonb_array_length(case_document->'lines') then raise exception 'Duplicate line'; end if;
@@ -69,5 +69,7 @@ revoke all on function public.returns_save_case(uuid,uuid,integer,jsonb,text) fr
 grant execute on function public.returns_save_case(uuid,uuid,integer,jsonb,text) to authenticated;
 
 -- Live refreshes are advisory only: every write is still version checked by the RPC.
-alter publication supabase_realtime add table public.returns_cases;
+do $$ begin
+ if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='returns_cases') then alter publication supabase_realtime add table public.returns_cases; end if;
+end $$;
 commit;
