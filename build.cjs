@@ -13,9 +13,8 @@ const redirect = '<!doctype html><html lang="fr"><meta charset="utf-8"><meta htt
 for (const file of retired) fs.writeFileSync(path.join(output,file),redirect);
 for (const file of ['delivery-tracking.js','delivery-tracking.css','delivery-position.js','store-purchases.js', 'store-sales.js', 'sales-core.js', 'delivery-tours-core.js', 'delivery-tours-ui.js', 'delivery-tours.css', 'delivery-print.js', 'delivery-print.css', 'scenario.css', 'scenario.js', 'scenario-core.js', 'gestion.css', 'gestion.js', 'gestion-core.js', 'gestion-bridge.js', 'gestion-demo.js']) { const target=path.join(output,file); if(fs.existsSync(target)) fs.unlinkSync(target); }
 
-// Retired PIN client must not remain in a reused output directory.
-const retiredPin=path.join(output,'pin-ui.js');
-if(fs.existsSync(retiredPin)) fs.unlinkSync(retiredPin);
+// PIN is loaded only by the shell after the Supabase client exists.
+fs.copyFileSync(path.join(__dirname,'auth-pin','pin-ui.js'),path.join(output,'pin-ui.js'));
 
 fs.mkdirSync(path.join(output,'inventory'),{recursive:true});
 for(const file of ['index.html','prepare.html','core.js','storage.js','app.js','prepare.js','style.css','sw.js','html5-qrcode.min.js','LICENSE.html5-qrcode']) fs.copyFileSync(path.join(__dirname,'inventory',file),path.join(output,'inventory',file));
