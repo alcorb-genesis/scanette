@@ -55,11 +55,23 @@
   .supplierbar button{padding:13px 14px;font-size:14px;font-weight:800;border:none;
     border-radius:12px;background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap;}
 
-  .manual{display:flex;gap:8px;margin:0 16px 12px;}
-  .manual input{flex:1;padding:14px;font-size:16px;border-radius:12px;
-    border:1px solid var(--line);background:var(--panel);color:var(--text);}
-  .manual button{padding:0 18px;font-size:22px;font-weight:800;border:none;
+  .manual{display:flex;flex-direction:column;gap:6px;margin:0 16px 12px;}
+  .manual label{font-size:15px;font-weight:800;}
+  .manual .entry-row{display:flex;gap:8px;}
+  .manual input{flex:1;min-width:0;padding:14px;font-size:18px;border-radius:12px;
+    border:2px solid var(--accent2);background:var(--panel);color:var(--text);font-family:monospace;}
+  .manual input:focus{outline:3px solid var(--accent2);outline-offset:2px;}
+  .manual button{padding:0 18px;font-size:16px;font-weight:800;border:none;
     border-radius:12px;background:var(--accent2);color:#06231f;cursor:pointer;}
+  .manual .entry-help{margin:0;font-size:12px;color:var(--muted);}
+  .scan-notice{margin:0 16px 12px;padding:14px;border-radius:12px;font-size:15px;font-weight:700;
+    overflow-wrap:anywhere;}
+  .scan-notice.error{background:#5c1f1f;border:2px solid #ff8a7a;color:#fff;}
+  .modal .scan-notice{margin:0 0 12px;}
+  .scan-notice.info{background:var(--panel2);border:1px solid var(--line);color:var(--text);}
+  .modal .freebtn{display:none;width:100%;padding:13px;font-size:15px;font-weight:700;
+    border-radius:12px;background:var(--panel2);color:var(--text);
+    border:1px solid var(--line);cursor:pointer;margin-top:8px;overflow-wrap:anywhere;}
 
   .toolbar{display:flex;gap:8px;margin:0 16px 12px;}
   .toolbar button{flex:1;padding:13px 6px;font-size:13px;font-weight:700;border:none;
@@ -164,7 +176,7 @@
   @media print{
     body{background:#fff;color:#000;padding:0;}
     header,.scanbtn,.ocrbtn,#reader,.manual,.toolbar,.feedback,.footer-total,
-    .qbtn,.del,.renamebtn,.modal,.filterbar,.supplierbar,.secdel,.movebar,.selchk,.zoombar,.lastscan{display:none!important;}
+    .qbtn,.del,.renamebtn,.modal,.filterbar,.supplierbar,.secdel,.movebar,.selchk,.zoombar,.lastscan,.scan-notice{display:none!important;}
     table{width:100%;margin:0;}
     th,td{border-bottom:1px solid #999;color:#000;}
     tr.sec td{background:#eee;color:#000;border-bottom:2px solid #000;}
@@ -249,11 +261,16 @@
 
 <button class="ocrbtn" id="ocrBtn">Lire une référence écrite</button></section>
 
-<div class="manual" id="manualEntry">
-  <input type="text" id="manualRef" placeholder="Saisir une référence à la main…">
-  <button id="manualAdd" aria-label="Ajouter la référence saisie">+</button>
-</div>
+<form class="manual" id="manualEntry" autocomplete="off">
+  <label for="scanEntry">Code-barres ou référence</label>
+  <div class="entry-row">
+    <input type="text" id="scanEntry" maxlength="256" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="scanEntryHelp">
+    <button id="manualAdd" type="submit">Contrôler</button>
+  </div>
+  <p class="entry-help" id="scanEntryHelp">Douchette USB / Bluetooth, clavier ou caméra : même contrôle dans le catalogue. Chaque validation (Entrée) compte une pièce.</p>
+</form>
 
+<div class="scan-notice" id="scanNotice" role="alert" hidden></div>
 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
 <div id="storageWarning" role="alert" hidden style="margin:16px;padding:16px;background:#6b2020;color:white"></div>
 <p style="margin:12px 16px;color:var(--muted);font-size:13px">Pointage personnel enregistré sur cet appareil. Les codes sont recherchés dans Bellecave, puis dans le catalogue historique. Ces quantités ne représentent pas le stock disponible du magasin.</p>
@@ -301,8 +318,9 @@
 <!-- modal choix de référence -->
 <div class="modal" id="refModal">
   <h2 id="refModalTitle">Choisis la référence</h2>
-  <div class="sub">Touche la bonne référence parmi celles détectées, ou tape-la.</div>
+  <div class="sub" id="refSub">Touche la bonne référence parmi celles détectées, ou tape-la.</div>
   <div class="target" id="refTarget"></div>
+  <div class="scan-notice error" id="refAlert" role="alert" hidden></div>
   <button id="webSearchBtn" class="websearch">🔍 Chercher ce code en ligne</button>
   <video id="ocrVideo" autoplay playsinline muted></video>
   <button id="liveCaptureBtn" class="capbtn">📸 CAPTURER</button>
@@ -316,9 +334,10 @@
   </div>
   <div id="refCandidates"></div>
   <div class="ocr-status" id="refStatus"></div>
+  <button id="refFree" class="freebtn" type="button"></button>
   <div class="closebar">
     <button id="refRetake">📷 Photo de l'étiquette</button>
-    <button id="refClose">Plus tard</button>
+    <button id="refClose">Fermer</button>
   </div>
 </div>
 <canvas id="ocrCanvas"></canvas>
@@ -326,6 +345,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
 <script src="core.js?v=20260917-sweep1"></script>
+<script src="scan-input-core.js?v=20261008-1"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
@@ -482,8 +502,8 @@ function updateCurSection(){
 let lastAction=null; // {si, ref, n, ean} : dernier ajout, pour affichage + annulation
 let lastScanEanDisplay=null; // ean du dernier code scanné (renseigné par onBarcode/assignRef)
 
-function bumpRef(ref, n){
-  if(!storageReady){alert('Enregistrement indisponible. Sauvegardez le pointage avant de continuer.');return;}
+function bumpRef(ref, n, note){
+  if(!storageReady){scanError('Enregistrement indisponible : rien n’a été ajouté. Sauvegardez le pointage avant de continuer.');return;}
   ref=normRef(ref); n=Math.max(1,parseInt(n)||1);
   if(!ref) return;
   const sec=currentSection();
@@ -492,7 +512,8 @@ function bumpRef(ref, n){
   lastAction={si:sections.length-1, ref:ref, n:n, ean:lastScanEanDisplay};
   lastScanEanDisplay=null;
   save(); render(); updateCurSection(); updateLastScanBar();
-  flash('✓ '+ref+'  ×'+sec.items[ref].qty+(n>1?('  (+'+n+')'):''));
+  clearScanNotice();
+  flash('✓ '+ref+'  ×'+sec.items[ref].qty+(n>1?('  (+'+n+')'):'')+(note?' · '+note:''));
   beep();
 }
 
@@ -527,23 +548,79 @@ document.getElementById('lastScanUndo').addEventListener('click',()=>{
   document.getElementById('lastScanBar').classList.remove('show');
 });
 
-/* ---------- Arrivée d'un scan code-barres ---------- */
-async function onBarcode(ean){
-  ean=String(ean||'').trim();
-  if(!ean || !storageReady)return;
+/* ---------- Décision unique : caméra, douchette et saisie ----------
+   Les trois sources passent par submitScan() puis onBarcode(), l'une après
+   l'autre. Rien n'est enregistré pour une valeur inconnue ou ambiguë sans
+   choix explicite de l'opérateur. */
+const cameraGate=ScanInputCore.createCameraGate();
+let choosing=false, unknownDone=null, cameraResuming=false;
+const scanQueue=ScanInputCore.createQueue(event=>event.epoch===sessionEpoch?onBarcode(event.value,event.source):null);
+function decisionOpen(){return choosing||unknownDone!==null||liveMode;}
+function beginDecision(){cameraGate.hold(Date.now());}
+function endDecision(){if(!cameraResuming)cameraGate.release(Date.now());}
+
+function submitScan(raw,source){
+  const entry=ScanInputCore.clean(raw);
+  if(!entry.ok){if(entry.error)scanError(entry.error);return false;}
+  if(!currentUserId||!storageReady){scanError('Enregistrement indisponible : « '+entry.value+' » n’a pas été ajouté.');return false;}
+  if(decisionOpen()){scanError('Une décision est en attente : « '+entry.value+' » n’a pas été pris en compte. Répondez d’abord, puis scannez de nouveau cette pièce.');return false;}
+  if(!scanQueue.push({value:entry.value,source,epoch:sessionEpoch})){scanError('Trop de scans en attente : « '+entry.value+' » n’a pas été pris en compte.');return false;}
+  return true;
+}
+
+async function onBarcode(ean,source='camera'){
+  const entry=ScanInputCore.clean(ean);
+  if(!entry.ok || !storageReady)return;
+  ean=entry.value;
   const epoch=sessionEpoch;
   try{
-    const matches=await Warehouse.resolve(ean);
+    const products=await Warehouse.resolve(ean);
     if(epoch!==sessionEpoch)return;
-    if(matches.length){
-      const product=matches.length===1?matches[0]:await Warehouse.choose(matches);
-      if(product && epoch===sessionEpoch)Warehouse.commit([{product,code:ean,qty:1}]);
-      return;
+    const section=sections[sections.length-1], key=normRef(ean);
+    const freeLine=!!section && Object.hasOwn(section.items,key) && !section.items[key].productId;
+    const decision=ScanInputCore.decide({products,alias:Object.hasOwn(aliases,ean)?aliases[ean]:null,freeLine});
+    if(decision.kind==='product'){
+      Warehouse.commit([{product:decision.product,code:ean,qty:1}]);clearScanNotice();
+    }else if(decision.kind==='choose'){
+      let product=null;
+      choosing=true;beginDecision();
+      try{product=await Warehouse.choose(decision.products);}
+      finally{choosing=false;endDecision();}
+      if(epoch!==sessionEpoch)return;
+      if(product){Warehouse.commit([{product,code:ean,qty:1}]);clearScanNotice();}
+      else scanInfo('Aucune pièce ajoutée pour « '+ean+' » : choix annulé.');
+    }else if(decision.kind==='alias'){
+      lastScanEanDisplay=ean;bumpRef(decision.reference,1);
+    }else if(decision.kind==='free'){
+      bumpRef(ean,1,'référence libre déjà présente dans ce pointage');
+    }else{
+      await askUnknown(ean,source);
     }
-    const known=aliases[ean];
-    if(known){lastScanEanDisplay=ean;bumpRef(known,1);}
-    else{pendingEan=ean;captureFrameAndAsk(ean);}
-  }catch(error){if(epoch===sessionEpoch)alert('Pièce non ajoutée : '+error.message);}
+  }catch(error){if(epoch===sessionEpoch)scanError('Pièce non ajoutée (« '+ean+' ») : '+error.message);}
+  finally{if(source==='field' && epoch===sessionEpoch)focusEntry();}
+}
+
+/* Valeur inconnue : la décision appartient à l'opérateur. La promesse n'est
+   tenue qu'à la fermeture du dialogue, pour que le scan suivant attende. */
+function askUnknown(value,source){
+  return new Promise(resolve=>{
+    unknownDone=resolve;pendingEan=value;beginDecision();
+    if(source==='camera')captureFrameAndAsk(value);
+    else{
+      pauseScanForModal();openUnknownModal(value);
+      document.getElementById('refStatus').textContent='Rien n’est ajouté pour le moment.';
+    }
+    buzz();
+  });
+}
+function settleUnknown(){
+  const done=unknownDone;if(!done)return;
+  unknownDone=null;endDecision();done();
+}
+function resetScanFlow(){
+  scanQueue.clear();cameraGate.reset();pendingEan=null;choosing=false;
+  if(unknownDone){document.getElementById('refModal').classList.remove('open');settleUnknown();}
+  clearScanNotice();
 }
 
 /* ---------- Association EAN -> réf ---------- */
@@ -781,7 +858,33 @@ function esc(s){return String(s).replace(/[&<>"']/g,
 let fbTimer;
 function flash(m){const f=document.getElementById('feedback');f.textContent=m;
   clearTimeout(fbTimer);fbTimer=setTimeout(()=>f.textContent='',1800);}
+const scanNotice=document.getElementById('scanNotice');
+function showNotice(message,kind){
+  // Un ancien « ✓ » ne doit jamais rester affiché sous un refus.
+  clearTimeout(fbTimer);document.getElementById('feedback').textContent='';
+  scanNotice.textContent=message;scanNotice.className='scan-notice '+kind;scanNotice.hidden=false;
+}
+/* Erreur visible et non bloquante : elle reste affichée jusqu'au prochain ajout réussi. */
+function scanError(message){
+  showNotice('⚠ '+message,'error');
+  if(unknownDone||liveMode){const alertBox=document.getElementById('refAlert');alertBox.textContent='⚠ '+message;alertBox.hidden=false;}
+  if(choosing){const status=document.getElementById('productChoiceStatus');if(status)status.textContent='⚠ '+message;}
+  buzz();
+}
+function scanInfo(message){showNotice(message,'info');}
+function clearScanNotice(){scanNotice.hidden=true;scanNotice.textContent='';}
 let actx;
+function buzz(){
+  try{if(navigator.vibrate)navigator.vibrate([150,80,150]);}catch(e){}
+  try{
+    actx=actx||new(window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain();
+    o.connect(g);g.connect(actx.destination);o.frequency.value=200;o.type='sawtooth';
+    g.gain.setValueAtTime(.2,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.4);
+    o.start();o.stop(actx.currentTime+.4);
+  }catch(e){}
+}
 function beep(){try{
   actx=actx||new(window.AudioContext||window.webkitAudioContext)();
   const o=actx.createOscillator(),g=actx.createGain();
@@ -793,10 +896,8 @@ function beep(){try{
 }catch(e){}}
 
 /* ---------- Scanner code-barres (optimisé iPhone) ---------- */
-let html5Qr=null,scanning=false,lastCode='',lastTime=0;
-let scanLocked=false, wasScanningBeforeModal=false;
-let candidateCode='',candidateCount=0;
-const SCAN_COOLDOWN=2200;
+let html5Qr=null,scanning=false;
+let wasScanningBeforeModal=false;
 const scanBtn=document.getElementById('scanBtn'),readerDiv=document.getElementById('reader');
 scanBtn.addEventListener('click',()=>scanning?stopScan():startScan());
 
@@ -828,15 +929,18 @@ function scanConfig(){
   return cfg;
 }
 
-function startScan(){
-  if(!storageReady){alert('Enregistrement indisponible.');return;}
+function startScan(resume=false){
+  if(!storageReady){cameraResuming=false;scanError('Enregistrement indisponible : la caméra n’a pas été ouverte.');return;}
   readerDiv.style.display='block';
   scanBtn.textContent='Arrêter le scan';scanBtn.classList.add('stop');scanning=true;
-  lastCode='';lastTime=0;scanLocked=false;candidateCode='';candidateCount=0;
+  // Un démarrage volontaire repart de zéro ; une reprise après décision garde
+  // en mémoire l'étiquette déjà traitée, encore devant l'objectif.
+  if(!resume)cameraGate.reset();
   html5Qr=new Html5Qrcode("reader");
   html5Qr.start({facingMode:'environment'}, scanConfig(), onScan, ()=>{})
-   .then(()=>{ applyZoomIfPossible(); })
-   .catch(()=>{flash('⚠ Caméra refusée');
+   .then(()=>{ applyZoomIfPossible(); if(resume){cameraResuming=false;cameraGate.release(Date.now());} })
+   .catch(()=>{scanError('Caméra refusée ou indisponible. Vérifiez son autorisation, ou utilisez le champ « Code-barres ou référence ».');
+     cameraResuming=false;cameraGate.reset();
      scanBtn.textContent='Démarrer le scan';scanBtn.classList.remove('stop');
      scanning=false;readerDiv.style.display='none';});
 }
@@ -868,17 +972,12 @@ function setZoom(z){
 document.getElementById('zoomPlus').addEventListener('click',()=>setZoom(currentZoom+1));
 document.getElementById('zoomMinus').addEventListener('click',()=>setZoom(currentZoom-1));
 
+/* Caméra : une étiquette immobile compte une fois ; un autre code est accepté
+   aussitôt ; le même code recompte après être sorti du champ. Aucun délai
+   global ne bloque une autre pièce. */
 function onScan(decoded){
-  const now=Date.now();
-  if(scanLocked) return;
-  if(decoded===lastCode && now-lastTime<SCAN_COOLDOWN) return;
-  if(decoded===candidateCode){ candidateCount++; }
-  else { candidateCode=decoded; candidateCount=1; return; }
-  if(candidateCount<2) return;
-  lastCode=decoded; lastTime=now;
-  candidateCode=''; candidateCount=0;
-  scanLocked=true;
-  Promise.resolve(onBarcode(decoded)).finally(()=>setTimeout(()=>{scanLocked=false;},SCAN_COOLDOWN));
+  if(decisionOpen()) return;
+  if(cameraGate.sight(decoded,Date.now())) submitScan(decoded,'camera');
 }
 
 function stopScan(){
@@ -890,6 +989,7 @@ function stopScan(){
 function pauseScanForModal(){
   wasScanningBeforeModal=scanning;
   if(scanning&&html5Qr){
+    cameraGate.hold(Date.now());
     html5Qr.stop().then(()=>html5Qr.clear()).catch(()=>{});
     scanning=false;readerDiv.style.display='none';
     document.getElementById('zoomBar').classList.remove('show');
@@ -897,7 +997,7 @@ function pauseScanForModal(){
   }
 }
 function resumeScanAfterModal(){
-  if(wasScanningBeforeModal){wasScanningBeforeModal=false;startScan();}
+  if(wasScanningBeforeModal){wasScanningBeforeModal=false;cameraResuming=true;startScan(true);}
 }
 
 /* ---------- Capture auto au scan d'un code inconnu ---------- */
@@ -921,8 +1021,7 @@ function captureFrameAndAsk(ean){
     }
   }catch(e){}
   pauseScanForModal();
-  openRefModal('Nouveau produit : '+ean,
-    'Code-barres '+ean+' inconnu du catalogue. Quelle est sa référence ?');
+  openUnknownModal(ean);
   if(captured){ runOcrOnCanvas(); }
   else{
     document.getElementById('refStatus').textContent=
@@ -934,28 +1033,51 @@ function captureFrameAndAsk(ean){
 const refModal=document.getElementById('refModal');
 const ocrFile=document.getElementById('ocrFile');
 
+function openUnknownModal(value){
+  openRefModal('Inconnu : '+value,
+    '« '+value+' » ne correspond à aucune fiche du catalogue. Rien n’est ajouté tant que vous n’avez pas choisi.');
+}
 function openRefModal(title,target){
   document.getElementById('refModalTitle').textContent=title||'Choisis la référence';
   document.getElementById('refTarget').textContent=target||'';
   document.getElementById('refCandidates').innerHTML='';
   document.getElementById('refStatus').textContent='';
+  document.getElementById('refAlert').hidden=true;document.getElementById('refAlert').textContent='';
   document.getElementById('refManualInput').value='';
   document.getElementById('refQtyInput').value=1;
   document.getElementById('webSearchBtn').style.display=pendingEan?'block':'none';
+  document.getElementById('refSub').textContent=pendingEan
+    ?'Associez ce code à sa référence (saisie ou proposition) : il sera reconnu aux prochains scans. Sinon, choisissez plus bas.'
+    :'Touche la bonne référence parmi celles détectées, ou tape-la.';
+  const free=document.getElementById('refFree');
+  free.style.display=pendingEan?'block':'none';
+  free.textContent=pendingEan?'Ajouter « '+normRef(pendingEan)+' » comme référence libre (hors catalogue)':'';
+  document.getElementById('refClose').textContent=pendingEan?'Ne rien ajouter':'Fermer';
   refModal.classList.add('open');
 }
 function closeRefModal(){
   stopLiveStream();
   refModal.classList.remove('open');
   resumeScanAfterModal();
+  settleUnknown();
 }
+document.getElementById('refFree').addEventListener('click',()=>{
+  const value=pendingEan;if(!value)return;
+  const qty=parseInt(document.getElementById('refQtyInput').value)||1;
+  // Aucune association code → référence n'est créée : la ligne reste libre.
+  pendingEan=null;lastScanEanDisplay=null;
+  bumpRef(value,qty,'référence libre, hors catalogue');
+  closeRefModal();
+});
 document.getElementById('webSearchBtn').addEventListener('click',()=>{
   if(pendingEan){
     window.open('https://www.google.com/search?q='+encodeURIComponent(pendingEan),'_blank');
   }
 });
 document.getElementById('refClose').addEventListener('click',()=>{
+  const value=pendingEan;
   pendingEan=null; closeRefModal();
+  if(value)scanInfo('Aucune pièce ajoutée pour « '+value+' ».');
 });
 document.getElementById('refRetake').addEventListener('click',()=>{
   ocrFile.value=''; ocrFile.click();
@@ -1096,15 +1218,49 @@ function refScore(t){
   return s;
 }
 
-/* ---------- Saisie manuelle ---------- */
-document.getElementById('manualAdd').addEventListener('click',manualAdd);
-document.getElementById('manualRef').addEventListener('keypress',e=>{
-  if(e.key==='Enter')manualAdd();});
-function manualAdd(){
-  const inp=document.getElementById('manualRef');
-  const v=normRef(inp.value);
-  if(v){pendingEan=null;bumpRef(v,1);inp.value='';}
+/* ---------- Champ unique : douchette USB / Bluetooth et saisie ----------
+   Chaque validation est un événement complet et compte : deux boîtes
+   identiques scannées à la suite sont légitimes. Le champ est vidé dès la
+   validation, pour que le scan suivant ne se colle jamais au précédent. */
+const scanEntry=document.getElementById('scanEntry');
+function focusEntry(){
+  if(decisionOpen())return;
+  try{scanEntry.focus?.({preventScroll:true});}catch(e){}
 }
+document.getElementById('manualEntry').addEventListener('submit',event=>{
+  event.preventDefault();
+  const value=scanEntry.value;scanEntry.value='';
+  submitScan(value,'field');
+  focusEntry();
+});
+/* Continuité : une douchette tape là où se trouve le focus. Hors dialogue, le
+   premier caractère reçu hors champ est repris tel quel dans le champ, qui
+   reçoit ensuite la suite du code et Entrée ; pendant une décision, un scan
+   n'est ni avalé ni pris pour une réponse : il est refusé avec un signal. */
+let strayKeyAt=0;
+function onScanKey(event){
+  if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||!event.key||!currentUserId)return;
+  const active=document.activeElement,tag=active?.tagName;
+  const typing=tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||active?.isContentEditable===true;
+  if(decisionOpen()){
+    if(typing)return;
+    if(event.key.length===1){strayKeyAt=Date.now();return;}
+    if(event.key==='Enter' && Date.now()-strayKeyAt<500){
+      event.preventDefault();strayKeyAt=0;
+      scanError('Une décision est en attente : ce scan n’a pas été pris en compte. Répondez d’abord, puis scannez de nouveau cette pièce.');
+    }
+    return;
+  }
+  if(typing||event.isComposing||event.key.length!==1||event.key===' ')return;
+  if(document.querySelector('dialog[open]'))return;
+  // Le navigateur ne garantit pas que la frappe en cours suive le focus : elle
+  // est donc retenue, puis écrite elle-même dans le champ, sans aucune perte.
+  event.preventDefault();
+  focusEntry();
+  scanEntry.value+=event.key;
+  try{scanEntry.setSelectionRange?.(scanEntry.value.length,scanEntry.value.length);}catch(e){}
+}
+document.addEventListener('keydown',onScanKey,true);
 
 /* ---------- Utils image ---------- */
 async function fileToImage(file){
@@ -1194,7 +1350,12 @@ function showApp(session){
     window.Warehouse?.reset();
     sessionEpoch++;syncJob=null;currentUserId=session.user.id;
     scanHistory=[];sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
+    resetScanFlow();
     try{loadAccount(currentUserId);}catch(error){storageError(error);}
+    // Ouverte depuis l'application, la page reçoit le clavier : le premier scan
+    // d'une douchette n'est pas perdu dans la fenêtre parente. Aucun champ n'est
+    // sélectionné, donc aucun clavier tactile ne s'ouvre.
+    try{if(window.parent!==window)window.focus();}catch(e){}
   }
   authToken=session.access_token;
   loginScreen.style.display='none';appRoot.style.display='block';startApp();
@@ -1246,6 +1407,7 @@ function clearAccount(){
   sessionEpoch++;syncJob=null;currentUserId=null;authToken=null;storageReady=false;
   scanHistory=[];sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
   if(scanning)stopScan();stopLiveStream();refModal.classList.remove('open');
+  resetScanFlow();
   render();updateLastScanBar();
 }
 // Defer work outside the auth callback, avoiding Supabase's auth lock.
@@ -1269,7 +1431,7 @@ supaClient.auth.onAuthStateChange((event,session)=>{
 })();
 </script>
 </div>
-<script src="camera-controls.js?v=1"></script><script src="warehouse.js?v=20260923-suppliers"></script><script src="sweep-tracker.js?v=20260917-sweep1"></script><script src="sweep.js?v=20260921-camera1"></script>
+<script src="camera-controls.js?v=1"></script><script src="warehouse.js?v=20261008-entry"></script><script src="sweep-tracker.js?v=20260917-sweep1"></script><script src="sweep.js?v=20260921-camera1"></script>
 
 <script src="logistics-core.js"></script><script src="receipt-link-core.js?v=20260923-reset"></script><script src="receipt-link.js?v=20260923-trash"></script><script src="scan-suppliers.js?v=20260923-1"></script><script src="application-nav.js?v=logistique3"></script><script src="password-visibility.js?v=1"></script></body>
 </html>

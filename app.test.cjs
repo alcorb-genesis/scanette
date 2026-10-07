@@ -1,18 +1,19 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 function harness(){
- const nodes=new Map(), data=new Map(), calls=[];
- const element=()=>({style:{},classList:{add(){},remove(){},toggle(){},contains(){return false}},value:'',textContent:'',innerHTML:'',hidden:true,dataset:{},addEventListener(){},pause(){},appendChild(){},append(){},replaceChildren(){},insertAdjacentElement(){},setAttribute(){},showModal(){this.open=true},close(){this.open=false},querySelector(){return element()},querySelectorAll(){return []},click(){}});
+ const nodes=new Map(), data=new Map(), calls=[], alerts=[];
+ const element=()=>({style:{},classList:{add(){},remove(){},toggle(){},contains(){return false}},value:'',textContent:'',innerHTML:'',hidden:true,dataset:{},listeners:{},addEventListener(type,fn){this.listeners[type]=fn},focus(){this.focused=(this.focused||0)+1},pause(){},appendChild(){},append(){},replaceChildren(){},insertAdjacentElement(){},setAttribute(){},showModal(){this.open=true},close(){this.open=false},querySelector(){return element()},querySelectorAll(){return []},click(){}});
  const doc={body:element(),head:element(),createElementNS:element,getElementById:id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id)},createElement:element,addEventListener(){},visibilityState:'visible'};
  let session={user:{id:'alice'},access_token:'fresh'};
  const context={document:doc,localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)},console,
- setTimeout:()=>0,clearTimeout(){},setInterval(){},alert(){},confirm:()=>false,URL,Blob,
+ setTimeout:()=>0,clearTimeout(){},setInterval(){},alert(message){alerts.push(message)},confirm:()=>false,URL,Blob,
  navigator:{},supabase:{createClient:()=>({auth:{getSession:async()=>({data:{session}}),onAuthStateChange(){},signOut:async()=>{},signInWithPassword:async()=>({data:{session}})}})},
  fetch:async(url,opts)=>{calls.push({url,opts});return {ok:true,json:async()=>[]}},addEventListener(){}};
  context.window=context;vm.createContext(context);
  vm.runInContext(fs.readFileSync('core.js','utf8'),context);
+ vm.runInContext(fs.readFileSync('scan-input-core.js','utf8'),context);
  const html=fs.readFileSync('index.html','utf8');
  for(const m of html.matchAll(/<script>([\s\S]*?)<\/script>/g))vm.runInContext(m[1],context);
- return {context,data,calls,setSession:s=>session=s,run:code=>vm.runInContext(code,context)};
+ return {context,data,calls,alerts,nodes,setSession:s=>session=s,run:code=>vm.runInContext(code,context)};
 }
 test('production app loads, uses refreshed auth and persists a scan only to its account',async()=>{
  const h=harness();await new Promise(resolve=>setImmediate(resolve));

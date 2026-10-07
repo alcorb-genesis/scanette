@@ -8,9 +8,9 @@ function stopPaletteCamera(){releasePaletteControls?.();releasePaletteControls=n
 const byId=id=>document.getElementById(id);
 async function resolve(code){
  if(!currentUserId)throw Error('Reconnectez-vous.');
- if(code.length>256)throw Error('Code trop long.');
- const quoted='"'+code.replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"';
- const filter=encodeURIComponent('(internal_barcode.eq.'+quoted+',manufacturer_barcode.eq.'+quoted+')');
+ if(code.length>ScanInputCore.MAX_LENGTH)throw Error('Code trop long.');
+ // Exact match on either barcode or on the reference; never a partial match.
+ const filter=encodeURIComponent(ScanInputCore.catalogueFilter(code));
  const response=await authenticatedFetch('/rest/v1/scanette_products?workspace_id=eq.'+workspace+'&select=id,reference,description,internal_barcode,manufacturer_barcode&or='+filter,{},sessionEpoch);
  const products=await response.json();
  if(!Array.isArray(products))throw Error('Réponse catalogue invalide.');
@@ -36,7 +36,7 @@ function commit(entries,options={}){
  ScanetteCore.write(localStorage,currentUserId,next);
  scanHistory=next.recentScans;sections=next.sections;aliases=next.aliases;pushQueue=next.pushQueue;lastAction=last;
  render();updateCurSection();updateLastScanBar();beep();
- flash(entries.length===1?'✓ '+(entries[0].product?.reference||entries[0].reference)+' ajouté':'✓ Lot ajouté au pointage');
+ flash(entries.length===1?'✓ '+(entries[0].product?.reference||entries[0].reference)+'  ×'+target.items[last.ref].qty+(entries[0].qty>1?'  (+'+entries[0].qty+')':''):'✓ Lot ajouté au pointage');
 }
 function reset(){
  generation++;releaseDecoder();stopPaletteCamera();chooseCancel?.();chooseCancel=null;
@@ -49,21 +49,23 @@ function reset(){
 }
 function choose(products){
  return new Promise(resolveChoice=>{
-  const dialog=byId('productChoice'),list=byId('productChoices');list.replaceChildren();
+  const dialog=byId('productChoice'),list=byId('productChoices');list.replaceChildren();byId('productChoiceStatus').textContent='';
   const done=product=>{chooseCancel=null;dialog.close();resolveChoice(product);};
   chooseCancel=()=>done(null);
   for(const product of products){const button=document.createElement('button');button.type='button';button.textContent=product.reference+' — '+product.description+' · '+(product.internal_barcode||product.manufacturer_barcode);button.onclick=()=>done(product);list.append(button);}
   byId('cancelProductChoice').onclick=()=>done(null);
   dialog.oncancel=event=>{event.preventDefault();done(null);};dialog.showModal();
+  // No choice is focused by default: a reader's Enter key must not pick the first record.
+  byId('productChoiceTitle').focus?.();
  });
 }
 window.Warehouse={resolve,commit,choose,reset};
 // Kept separate from the legacy reference catalogue: private shop data is never uploaded there.
-const controls=document.createElement('details');controls.className='warehouse-controls';
-controls.innerHTML='<summary>Lecteur externe · douchette USB / Bluetooth</summary><p>Branchez votre douchette USB ou connectez-la en Bluetooth en mode clavier. Cliquez dans le champ ci-dessous, puis scannez : le lecteur transmet le code et valide avec Entrée. Vous pouvez aussi saisir le code à la main.</p><form id="warehouseCodeForm"><label for="warehouseCode">Code-barres · lecteur externe ou saisie</label><div class="row"><input id="warehouseCode" autocomplete="off" maxlength="256" placeholder="Code-barres, puis Entrée"><button id="warehouseCodeAdd" type="submit">Pointer</button></div></form><button id="paletteOpen" type="button">▥ Photo de palette · bêta</button>';
-byId('manualEntry').insertAdjacentElement('afterend',controls);byId('scanModes').append(byId('paletteOpen'));
+// External readers and typed entries use the single « Code-barres ou référence » field of the page.
+const paletteOpen=document.createElement('button');paletteOpen.id='paletteOpen';paletteOpen.type='button';paletteOpen.textContent='▥ Photo de palette · bêta';
+byId('scanModes').append(paletteOpen);
 const dialogs=document.createElement('div');dialogs.innerHTML=`
-<dialog id="productChoice" class="warehouse-dialog"><h2>Quel produit souhaitez-vous pointer ?</h2><p>Ce code correspond à plusieurs fiches Bellecave. Vérifiez la désignation.</p><div id="productChoices"></div><button id="cancelProductChoice">Annuler</button></dialog>
+<dialog id="productChoice" class="warehouse-dialog"><h2 id="productChoiceTitle" tabindex="-1">Quel produit souhaitez-vous pointer ?</h2><p>Ce code ou cette référence correspond à plusieurs fiches Bellecave. Vérifiez la désignation. Rien n’est ajouté sans votre choix.</p><p id="productChoiceStatus" role="alert"></p><div id="productChoices"></div><button id="cancelProductChoice">Annuler · ne rien ajouter</button></dialog>
 <dialog id="paletteDialog" class="warehouse-dialog"><div class="row"><h2>Palette · lecture multiple</h2><button id="paletteClose" type="button">Fermer</button></div>
 <p>Photographiez plusieurs étiquettes nettes, sans viser un seul code. L’image reste sur cet appareil.</p>
 <button id="paletteCamera" type="button">Ouvrir la caméra légère</button><video id="paletteVideo" playsinline muted hidden style="width:100%;max-height:45vh"></video><div id="paletteCameraControls" class="camera-controls" hidden></div><button id="paletteCapture" type="button" hidden>Capturer et analyser</button><p>Mode conseillé sur téléphone : image limitée pour économiser la mémoire.</p><label class="photo-button" for="paletteFile">Ou choisir une image existante</label><input id="paletteFile" type="file" accept="image/*">
@@ -73,8 +75,7 @@ const dialogs=document.createElement('div');dialogs.innerHTML=`
 <div id="paletteRows"></div><label class="batch-confirm"><input type="checkbox" id="paletteVerified">J’ai vérifié les références, les quantités et les pièces déjà pointées.</label>
 <button id="paletteCommit" type="button" disabled>Ajouter le lot au pointage</button></dialog>`;
 document.body.append(dialogs);
-byId('warehouseCodeForm').addEventListener('submit',async event=>{event.preventDefault();const input=byId('warehouseCode'),code=input.value.trim();if(!code)return;byId('warehouseCodeAdd').disabled=true;try{await onBarcode(code);input.value='';}finally{byId('warehouseCodeAdd').disabled=false;}});
-byId('paletteOpen').onclick=()=>{if(scanning)stopScan();stopLiveStream();byId('paletteDialog').showModal();};
+paletteOpen.onclick=()=>{if(scanning)stopScan();stopLiveStream();byId('paletteDialog').showModal();};
 function cancelAnalysis(){generation++;releaseDecoder();stopPaletteCamera();if(busy){rows=[];detections=[];byId('paletteRows').replaceChildren();byId('paletteStatus').textContent='Analyse annulée. Choisissez une nouvelle photo.';}busy=false;byId('paletteFile').disabled=false;byId('paletteCamera').disabled=false;update();}
 byId('paletteClose').onclick=()=>{cancelAnalysis();byId('paletteDialog').close();byId('paletteCanvas').width=1;byId('paletteCanvas').height=1;rows=[];detections=[];byId('paletteRows').replaceChildren();update();};
 byId('paletteDialog').oncancel=()=>byId('paletteClose').onclick();
