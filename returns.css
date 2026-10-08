@@ -5,10 +5,13 @@ aside{background:var(--ui-surface-2);border-left:4px solid var(--ui-accent);padd
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:start}
 label{display:grid;gap:5px;font-weight:650;flex:1;min-width:150px;margin:0}
 /* Case states keep their own colour, always next to the written state. */
-.case{background:var(--ui-surface);border:1px solid var(--ui-line);border-left:6px solid #7c8b98;border-radius:var(--ui-radius);padding:14px;margin:12px 0}
+.case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:16px 0}
+.case{display:flex;flex-direction:column;align-items:stretch;gap:10px;background:var(--ui-surface);border:1px solid var(--ui-line);border-left:6px solid #7c8b98;border-radius:var(--ui-radius);padding:16px;min-height:218px;box-shadow:var(--ui-shadow)}
 .case.requested{border-left-color:#e3a33a}.case.collected{border-left-color:#4ea3e8}.case.received,.case.supplier_ready{border-left-color:#9a85dd}.case.sent,.case.credit_pending{border-left-color:#cf7fa5}.case.credited{border-left-color:var(--ui-accent)}
-.case summary{cursor:pointer;font-weight:750;min-height:32px}
+.case-head{display:flex;justify-content:space-between;gap:8px}.case-state{display:inline-flex;align-items:center;width:max-content;border:1px solid var(--ui-line-strong);border-radius:999px;padding:4px 8px;font-size:.78rem;font-weight:800}.case h2{margin:0;font-size:1.06rem}.case-info{margin:0;overflow-wrap:anywhere}.case .secondary{margin-top:auto;width:100%}
 .meta{color:var(--ui-muted)}
+.case .meta{margin:0;font-size:.88rem;line-height:1.45}
+.empty-list{padding:22px;background:var(--ui-surface);border:1px dashed var(--ui-line-strong);border-radius:var(--ui-radius);color:var(--ui-muted)}
 .badge{background:var(--ui-warning-bg);color:var(--ui-warning);border:1px solid #8a6a3f;padding:5px 9px;border-radius:99px;font-weight:800}
 .line{display:grid;grid-template-columns:1.2fr 2fr 110px 110px;gap:10px;background:var(--ui-surface-2);border-radius:var(--ui-radius-sm);margin:8px 0;padding:10px}
 .line label{min-width:0;font-size:.9rem}.line button{align-self:end}
