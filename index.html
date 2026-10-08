@@ -66,7 +66,7 @@
   .manual .entry-help{margin:0;font-size:12px;color:var(--muted);}
   .scan-notice{margin:0 16px 12px;padding:14px;border-radius:12px;font-size:15px;font-weight:700;
     overflow-wrap:anywhere;}
-  .scan-notice.error{background:#5c1f1f;border:2px solid #ff8a7a;color:#fff;}
+  .scan-notice.error{background:var(--ui-danger-bg,#5c1f1f);border:2px solid var(--ui-danger-line,#ff8a7a);color:#fff;}
   .modal .scan-notice{margin:0 0 12px;}
   .scan-notice.info{background:var(--panel2);border:1px solid var(--line);color:var(--text);}
   .modal .freebtn{display:none;width:100%;padding:13px;font-size:15px;font-weight:700;
@@ -211,7 +211,8 @@
   .logoutbtn{background:none;border:none;color:var(--muted);font-size:18px;
     cursor:pointer;padding:0 4px;}
 </style>
-<link rel="stylesheet" href="interface.css?v=compact-20260925-20260923-suppliers">
+<link rel="stylesheet" href="ui-base.css?v=20261008">
+<link rel="stylesheet" href="interface.css?v=20261008-ui">
 <link rel="stylesheet" href="password-visibility.css?v=1"></head>
 <body>
 
@@ -250,7 +251,7 @@
   <button id="newSectionBtn">➕ Fournisseur</button>
 </div>
 
-<section class="scan-workbench" aria-label="Scanner les produits"><div class="scan-modes" id="scanModes"><button class="scanbtn" id="scanBtn">Démarrer le scan</button></div><p class="scan-hint">Code-barres / QR · une quantité ajoutée à chaque lecture acceptée</p>
+<section class="scan-workbench" aria-label="Scanner les produits"><div class="scan-modes" id="scanModes"><button class="scanbtn" id="scanBtn" data-layer data-layer-open-class="stop" data-layer-close="scanBtn">Démarrer le scan</button></div><p class="scan-hint">Code-barres / QR · une quantité ajoutée à chaque lecture acceptée</p>
 
 <div id="reader"></div>
 <div id="zoomBar" class="zoombar">
@@ -316,7 +317,7 @@
 </div>
 
 <!-- modal choix de référence -->
-<div class="modal" id="refModal">
+<div class="modal" id="refModal" data-layer data-layer-open-class="open" data-layer-close="refClose">
   <h2 id="refModalTitle">Choisis la référence</h2>
   <div class="sub" id="refSub">Touche la bonne référence parmi celles détectées, ou tape-la.</div>
   <div class="target" id="refTarget"></div>
@@ -1433,6 +1434,6 @@ supaClient.auth.onAuthStateChange((event,session)=>{
 </div>
 <script src="camera-controls.js?v=1"></script><script src="warehouse.js?v=20261008-entry"></script><script src="sweep-tracker.js?v=20260917-sweep1"></script><script src="sweep.js?v=20260921-camera1"></script>
 
-<script src="logistics-core.js"></script><script src="receipt-link-core.js?v=20260923-reset"></script><script src="receipt-link.js?v=20260923-trash"></script><script src="scan-suppliers.js?v=20260923-1"></script><script src="application-nav.js?v=logistique3"></script><script src="password-visibility.js?v=1"></script></body>
+<script src="logistics-core.js"></script><script src="receipt-link-core.js?v=20260923-reset"></script><script src="receipt-link.js?v=20260923-trash"></script><script src="scan-suppliers.js?v=20260923-1"></script><script src="application-nav.js?v=logistique3"></script><script src="nav-layers.js?v=20261008"></script><script src="password-visibility.js?v=1"></script></body>
 </html>
 

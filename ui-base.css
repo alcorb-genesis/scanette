@@ -1,0 +1,75 @@
+/* Alcorb logistique — shared tokens and light components.
+   Tokens are global. Element styles only apply inside .ui and use :where(),
+   so they carry no extra specificity: a page stylesheet loaded after this one
+   keeps the last word for its own layout. */
+:root{
+ --ui-bg:#0b151d;--ui-surface:#122330;--ui-surface-2:#1a2f3c;--ui-field:#0d1c27;
+ --ui-line:#33505f;--ui-line-strong:#4f6d7b;--ui-text:#e9f3f6;--ui-muted:#b1c6cf;
+ --ui-accent:#6fe0c6;--ui-accent-ink:#06302a;--ui-focus:#8cf0db;
+ --ui-danger:#ffa597;--ui-danger-bg:#4a1f22;--ui-danger-line:#c9675d;
+ --ui-success:#7be3c8;--ui-success-bg:#133a32;
+ --ui-warning:#f5cf86;--ui-warning-bg:#3a3020;
+ --ui-radius-sm:8px;--ui-radius:12px;--ui-radius-lg:16px;
+ --ui-gap:12px;--ui-pad:16px;--ui-control:48px;
+ --ui-font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+:where(.ui){color-scheme:dark;background:var(--ui-bg);color:var(--ui-text);font:16px/1.5 var(--ui-font)}
+:where(.ui) *,:where(.ui) *::before,:where(.ui) *::after{box-sizing:border-box}
+:where(.ui) [hidden]{display:none!important}
+:where(.ui) :where(body){margin:0}
+:where(.ui) :where(main){max-width:1100px;margin:0 auto;padding:20px}
+:where(.ui) :where(a){color:var(--ui-accent)}
+
+/* Page title: optional eyebrow, title, one line of context. */
+:where(.ui) :where(h1){font-size:clamp(24px,5vw,32px);line-height:1.2;margin:8px 0 12px}
+:where(.ui) :where(h2){font-size:20px;line-height:1.3;margin:20px 0 10px}
+:where(.ui) :where(h3){font-size:17px;margin:16px 0 8px}
+:where(.ui) :where(main>header){margin:0 0 16px}
+:where(.ui) :where(main>header>p:first-child,main>header>small:first-child,.eyebrow){display:block;margin:0;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ui-accent)}
+:where(.ui) :where(main>header>p:not(:first-child)){color:var(--ui-muted);margin:0}
+
+/* Controls: neutral by default, .primary for the main action of a screen. */
+:where(.ui) :where(button,input,select,textarea){font:inherit;color:inherit}
+:where(.ui) :where(button){min-height:var(--ui-control);padding:10px 16px;border:1px solid var(--ui-line-strong);border-radius:var(--ui-radius);background:var(--ui-surface-2);color:var(--ui-text);font-weight:600;cursor:pointer;touch-action:manipulation}
+:where(.ui) :where(button:hover:not(:disabled)){border-color:var(--ui-accent)}
+:where(.ui) :where(button.primary,.button.primary){background:var(--ui-accent);border-color:var(--ui-accent);color:var(--ui-accent-ink);font-weight:750}
+:where(.ui) :where(button.secondary){background:transparent;color:var(--ui-text)}
+:where(.ui) :where(button.danger){background:var(--ui-danger-bg);border-color:var(--ui-danger-line);color:#ffd9d3}
+:where(.ui) :where(button:disabled,input:disabled,select:disabled,textarea:disabled,fieldset:disabled button){opacity:.5;cursor:not-allowed}
+:where(.ui) :where(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),select,textarea){min-height:var(--ui-control);width:100%;min-width:0;padding:10px 12px;border:1px solid var(--ui-line-strong);border-radius:var(--ui-radius);background:var(--ui-field);color:var(--ui-text)}
+:where(.ui) :where(textarea){min-height:96px}
+:where(.ui) :where(input[type=file]){max-width:100%}
+:where(.ui) :where(input[type=checkbox],input[type=radio]){width:22px;height:22px;accent-color:var(--ui-accent)}
+:where(.ui) :where(label){display:block;margin:12px 0}
+:where(.ui) :where(label>input,label>select,label>textarea){display:block;margin-top:6px}
+:where(.ui) :where(fieldset){border:0;padding:0;margin:0}
+:where(.ui) :where(:focus-visible){outline:3px solid var(--ui-focus);outline-offset:3px}
+
+/* Frames and layout helpers. */
+:where(.ui) :where(.card){padding:var(--ui-pad);margin:var(--ui-gap) 0;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-radius-lg)}
+:where(.ui) :where(.row){display:flex;flex-wrap:wrap;gap:var(--ui-gap);align-items:center}
+:where(.ui) :where(.muted,small){color:var(--ui-muted)}
+
+/* Feedback: same colours everywhere, never colour alone (the text says what happened). */
+:where(.ui) :where(.error){color:var(--ui-danger)}
+:where(.ui) :where(.success){color:var(--ui-success)}
+:where(.ui) :where(.warning,.notice){color:var(--ui-warning)}
+:where(.ui) :where(.alert-error,.alert-success,.alert-info){display:block;padding:12px 14px;border-radius:var(--ui-radius);font-weight:650}
+:where(.ui) :where(.alert-error){background:var(--ui-danger-bg);border:1px solid var(--ui-danger-line);color:#fff}
+:where(.ui) :where(.alert-success){background:var(--ui-success-bg);border:1px solid var(--ui-accent);color:var(--ui-text)}
+:where(.ui) :where(.alert-info){background:var(--ui-surface-2);border:1px solid var(--ui-line);color:var(--ui-text)}
+
+/* Scan zones: full width on a phone, bounded on a desktop, never cropped. */
+:where(.ui) :where(#reader){width:100%;max-width:480px;margin:12px auto;border:2px solid var(--ui-accent);border-radius:var(--ui-radius-lg);overflow:hidden;background:#000}
+:where(.ui) :where(#reader video){display:block;width:100%!important;height:auto!important;object-fit:contain}
+
+/* Dialogs. */
+:where(.ui) :where(dialog){width:min(600px,94vw);max-height:92dvh;overflow:auto;padding:20px;border:1px solid var(--ui-line-strong);border-radius:var(--ui-radius-lg);background:var(--ui-surface);color:var(--ui-text)}
+:where(.ui) :where(dialog::backdrop){background:#000c}
+
+/* Back-button hint shown by the application at its first screen. */
+.ui-back-hint{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;width:max-content;max-width:calc(100vw - 32px);text-align:center;padding:12px 16px;border-radius:var(--ui-radius);background:var(--ui-surface-2);border:1px solid var(--ui-accent);color:var(--ui-text);font:600 15px/1.4 var(--ui-font);box-shadow:0 10px 30px #0008}
+
+@media(max-width:520px){:where(.ui) :where(main){padding:12px}:where(.ui) :where(.card){padding:12px}}
+@media(prefers-reduced-motion:reduce){:where(.ui) *{transition:none!important;animation:none!important}}
+@media print{:where(.ui){background:#fff;color:#000}}
