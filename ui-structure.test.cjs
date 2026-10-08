@@ -6,7 +6,7 @@ test('logistics pages share the base stylesheet, loaded before their own',()=>{
   for(const own of html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g))if(!own[1].includes('ui-base')&&!own[1].includes('password-visibility'))assert.ok(html.indexOf(own[1])>base,page+' '+own[1]);}
  for(const page of ['logistics-sessions.html','store-partners.html','team.html','store-settings.html'])assert.equal(read(page).includes('application.css'),false,page+' no longer borrows the shell stylesheet');
 });
-test('return portal is no longer published; returns stay in the authenticated workspace',()=>{const build=read('build.cjs');assert.match(build,/returns-portal.html/);assert.match(build,/fs.unlinkSync/);const shell=read('application.html');assert.match(shell,/id="openReturns"/);assert.doesNotMatch(shell,/returns-portal.html/);});
+test('the garage portal keeps its own isolated stylesheet and scripts',()=>{const html=read('returns-portal.html');assert.equal(/ui-base|nav-layers|nav-history/.test(html),false);});
 test('each declared layer names an existing close button in the same page',()=>{
  for(const page of ['index.html','bellecave.html','preparation.html','returns.html','inventory/index.html']){const html=read(page);
   for(const m of html.matchAll(/data-layer-close="([^"]+)"/g))assert.match(html,new RegExp('id="'+m[1]+'"'),page+' → '+m[1]);
