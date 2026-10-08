@@ -1,18 +1,16 @@
 /* Bellecave lookup and explicitly reviewed photo batches. Images stay on device. */
 (function(){
 'use strict';
-const workspace='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
 let generation=0,chooseCancel=null,rows=[],detections=[],committed=false,busy=false;
 let paletteStream=null,cameraRequest=0,releasePaletteControls=null;
 function stopPaletteCamera(){releasePaletteControls?.();releasePaletteControls=null;cameraRequest++;if(paletteStream){paletteStream.getTracks().forEach(track=>track.stop());paletteStream=null;}const video=byId('paletteVideo');if(video){video.pause();video.srcObject=null;video.hidden=true;}if(byId('paletteCapture'))byId('paletteCapture').hidden=true;}
 const byId=id=>document.getElementById(id);
 async function resolve(code){
- if(!currentUserId)throw Error('Reconnectez-vous.');
+ if(!currentUserId)throw Error('Pointage indisponible.');
  if(code.length>ScanInputCore.MAX_LENGTH)throw Error('Code trop long.');
  // Exact match on either barcode or on the reference; never a partial match.
- const filter=encodeURIComponent(ScanInputCore.catalogueFilter(code));
- const response=await authenticatedFetch('/rest/v1/scanette_products?workspace_id=eq.'+workspace+'&select=id,reference,description,internal_barcode,manufacturer_barcode&or='+filter,{},sessionEpoch);
- const products=await response.json();
+ // The shared function serves the configured shop only.
+ const products=await SharedAccess.call('shared_product_lookup',{code});
  if(!Array.isArray(products))throw Error('Réponse catalogue invalide.');
  return products;
 }

@@ -1,5 +1,7 @@
 # Accès privé et entrée commune
 
+> Remplacé le 8 octobre 2026 par l’accès logistique partagé par mot de passe unique : voir SHARED-ACCESS.md. Ce texte décrit l’ancien fonctionnement.
+
 L’entrée application.html vérifie la session Supabase puis l’appartenance à Bellecave dans scanette_members. Aucun formulaire public d’inscription ni d’attribution de droits n’est ajouté. Les comptes existants conservent leurs permissions. Les comptes employés seront créés/affectés après réception de leur liste.
 
 Les droits actuels sont reader (lecture), operator (opérations), admin (administration). Le métier (vendeur, comptabilité, logistique, commercial) doit être distingué de ces permissions. La prochaine attribution devra préciser pour chaque employé : e-mail individuel, nom affiché, métier, magasin et permissions autorisées. Ne jamais utiliser les profils locaux de démonstration pour accorder des droits serveur.

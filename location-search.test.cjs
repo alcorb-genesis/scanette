@@ -14,15 +14,18 @@ test('annuaire multi-mots et menus ajoutent les allées parentes',()=>{
  assert.ok(L.matches({code:'A19A'},'allée A19'));assert.ok(!L.matches({code:'A10A'},'A1'));
  assert.deepEqual(L.choices([{code:'A19a'},{code:'A19B'},{code:'A2'}]),['A2','A19','A19A','A19B']);
 });
-test('catalogue construit un filtre par sections tout en conservant la recherche référence',async()=>{
+test('catalogue passe la recherche et l’allée à la fonction partagée, sans magasin ni filtre de table',async()=>{
  const vm=require('node:vm'),fs=require('node:fs'),nodes=new Map(),calls=[];
  const make=()=>({value:'',hidden:false,children:[],events:{},classList:{toggle(){}},addEventListener(k,fn){this.events[k]=fn},append(...x){this.children.push(...x)},replaceChildren(...x){this.children=x},close(){},focus(){}});
  const get=id=>{if(!nodes.has(id))nodes.set(id,make());return nodes.get(id)};
- const db={auth:{onAuthStateChange(){},getSession:async()=>({data:{session:{user:{id:'test'}}}})},from(table){const q={filters:[],select(){return q},eq(){return q},order(){return q},range(){return q},limit(){return q},ilike(k,v){q.filters.push([k,v]);return q},or(v){q.filters.push(v);return q},maybeSingle:async()=>({data:{role:'reader'}}),then(resolve){calls.push({table,filters:q.filters});return Promise.resolve({data:[],count:0}).then(resolve)}};return q}};
- vm.runInNewContext(fs.readFileSync('bellecave.js','utf8'),{supabase:{createClient:()=>db},LocationSearch:L,CatalogueEvidence:require('./catalogue-evidence.js'),document:{getElementById:get,createElement:make,addEventListener(){}},setTimeout,navigator:{},Intl});
- await new Promise(r=>setImmediate(r));get('query').value='Allée A19';get('searchForm').events.submit({preventDefault(){}});await new Promise(r=>setImmediate(r));
- const query=calls.filter(c=>c.table==='scanette_products').at(-1).filters.join(',');
- assert.match(query,/location.ilike.A19F/);assert.match(query,/reference.ilike.%Allée A19%/);assert.equal(get('aisles').open,true);
+ const SharedAccess={call:async(name,args)=>{calls.push({name,args});return name==='shared_aisles'?[{code:'A19F',description:'',notes:''}]:[];}};
+ vm.runInNewContext(fs.readFileSync('bellecave.js','utf8'),{SharedAccess,LocationSearch:L,CatalogueEvidence:require('./catalogue-evidence.js'),document:{getElementById:get,createElement:make,addEventListener(){}},setTimeout,navigator:{},Intl});
+ await new Promise(r=>setImmediate(r));assert.equal(get('catalogue').hidden,false,'open without login');
+ get('query').value='Allée A19';get('searchForm').events.submit({preventDefault(){}});await new Promise(r=>setImmediate(r));
+ const last=()=>calls.filter(c=>c.name==='shared_products_search').at(-1).args;
+ // The server reads « Allée A19 » as a section code (A19, A19A…A19Z) as well as a reference/description term.
+ assert.equal(last().search_term,'Allée A19');assert.equal(last().aisle,'');assert.equal(get('aisles').open,true);
  get('query').value='A123';get('searchForm').events.submit({preventDefault(){}});await new Promise(r=>setImmediate(r));
- assert.match(calls.filter(c=>c.table==='scanette_products').at(-1).filters.join(','),/reference.ilike.%A123%/);
+ assert.equal(last().search_term,'A123');
+ for(const c of calls)assert.equal(/workspace|shop/.test(JSON.stringify(c.args||{})),false);
 });

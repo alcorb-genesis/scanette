@@ -1,7 +1,6 @@
 /* Retours et garanties: layout and case states only. Controls, colours and feedback come from ui-base.css. */
-aside{background:var(--ui-surface-2);border-left:4px solid var(--ui-accent);padding:14px;border-radius:var(--ui-radius-sm);margin:14px 0;color:var(--ui-muted)}
 .toolbar,.row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.toolbar{justify-content:space-between;background:var(--ui-surface);border:1px solid var(--ui-line);padding:14px;border-radius:var(--ui-radius)}
+.toolbar{align-items:end;padding:0;margin:14px 0 10px}.toolbar .search{flex:3;min-width:220px}.toolbar #new{flex:none}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:start}
 label{display:grid;gap:5px;font-weight:650;flex:1;min-width:150px;margin:0}
 /* Case states keep their own colour, always next to the written state. */
@@ -13,12 +12,31 @@ label{display:grid;gap:5px;font-weight:650;flex:1;min-width:150px;margin:0}
 .case .meta{margin:0;font-size:.88rem;line-height:1.45}
 .empty-list{padding:22px;background:var(--ui-surface);border:1px dashed var(--ui-line-strong);border-radius:var(--ui-radius);color:var(--ui-muted)}
 .badge{background:var(--ui-warning-bg);color:var(--ui-warning);border:1px solid #8a6a3f;padding:5px 9px;border-radius:99px;font-weight:800}
-.line{display:grid;grid-template-columns:1.2fr 2fr 110px 110px;gap:10px;background:var(--ui-surface-2);border-radius:var(--ui-radius-sm);margin:8px 0;padding:10px}
+.line{display:grid;align-items:end;grid-template-columns:1fr 2fr 110px 110px auto;gap:10px;background:var(--ui-surface-2);border-radius:var(--ui-radius-sm);margin:8px 0;padding:10px}
 .line label{min-width:0;font-size:.9rem}.line button{align-self:end}
 .add{margin:18px 0;padding:14px;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-radius)}
 #history{margin-top:18px}
 #events p{border-left:3px solid var(--ui-line-strong);padding-left:10px}
-@media(max-width:620px){.line{grid-template-columns:1fr 1fr}.line strong,.line p{grid-column:span 2}.toolbar{align-items:stretch}.toolbar label{width:100%}}
+@media(max-width:620px){.line{grid-template-columns:1fr 1fr}.line strong,.line .line-name{grid-column:span 2}.steps{flex-wrap:nowrap;overflow-x:auto}.toolbar{align-items:stretch}.toolbar label{width:100%}}
 /* Requests from the public garage portal. */
 .case-place{margin:0;color:var(--ui-warning);font-weight:650;overflow-wrap:anywhere}
 .portal-info{padding:12px 14px;border-radius:var(--ui-radius);background:var(--ui-warning-bg);border:1px solid #8a6a3f;color:var(--ui-text);overflow-wrap:anywhere}
+/* Sober header: title, search and filters, then the steps. */
+.returns-head h1{margin:2px 0 0}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--ui-line)}
+.step{min-height:40px;padding:6px 14px;border-radius:999px;background:transparent;white-space:nowrap}
+.step[aria-pressed="true"]{background:var(--ui-accent);border-color:var(--ui-accent);color:var(--ui-accent-ink);font-weight:750}
+/* Round services: always listed, each one can be folded. */
+.tour{margin:8px 0;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-radius)}
+.tour>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:var(--ui-control);padding:8px 14px;cursor:pointer;font-weight:750}
+.tour-count{color:var(--ui-muted);font-weight:600;font-size:.9rem}
+.tour:not([open]) .tour-name::before{content:"▸ "}.tour[open] .tour-name::before{content:"▾ "}
+.tour>summary::-webkit-details-marker{display:none}.tour>summary{list-style:none}
+.tour .case-grid{margin:0;padding:4px 12px 12px}.tour .empty-list{margin:0 12px 12px;padding:12px;font-size:.92rem}.tour .empty-list:empty{display:none}.tour>.meta{margin:0 14px 12px;font-size:.9rem}
+.tour.unassigned{border-style:dashed}
+.case h3{margin:0;font-size:1.06rem}.case-services{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+.chip{display:inline-flex;align-items:center;gap:6px;width:auto;min-width:0;flex:none;padding:3px 10px;border:1px solid var(--ui-line-strong);border-radius:999px;font-size:.85rem;font-weight:650}
+.services{margin:14px 0;padding:12px 14px;border:1px solid var(--ui-line);border-radius:var(--ui-radius)}.services legend{font-weight:750;padding:0 6px}.services .meta{margin:0 0 10px;font-size:.9rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips .chip{min-height:40px;padding:4px 12px;font-size:.95rem;cursor:pointer}
+.line-name small{font-weight:500}
+.footnote{color:var(--ui-muted);font-size:.88rem;margin:14px 0}

@@ -213,23 +213,11 @@
 </style>
 <link rel="stylesheet" href="ui-base.css?v=20261008">
 <link rel="stylesheet" href="interface.css?v=20261008-ui">
-<link rel="stylesheet" href="password-visibility.css?v=1"></head>
+</head>
 <body>
 
-<!-- ===== ECRAN DE CONNEXION ===== -->
-<div id="loginScreen" class="loginscreen">
-  <div class="loginbox">
-    <div class="logintitle">REPCLICK</div>
-    <div class="loginsub">Du rayon au pointage, sans détour.<br>Votre espace de réception et d’inventaire.</div>
-    <input type="email" id="loginEmail" placeholder="Adresse e-mail" autocomplete="username">
-    <input type="password" id="loginPass" placeholder="Mot de passe" autocomplete="current-password">
-    <button id="loginBtn">Se connecter</button>
-    <div class="loginerr" id="loginErr"></div>
-  </div>
-</div>
-
-<!-- ===== APPLICATION (masquée tant que non connecté) ===== -->
-<div id="appRoot" style="display:none">
+<!-- ===== APPLICATION (accès logistique partagé, sans compte) ===== -->
+<div id="appRoot">
 
 <div class="print-head">
   <h2>Feuille d'inventaire</h2>
@@ -241,7 +229,6 @@
   <div class="hright">
     <span class="count" id="lineCount">0 référence</span>
     <span class="syncdot" id="syncDot" title="État du catalogue partagé"></span>
-    <button class="logoutbtn" id="logoutBtn" title="Se déconnecter">⏻</button>
   </div>
 </header>
 <section class="intro-panel"><nav class="workspace-nav" aria-label="Espaces"><a class="active" href="./">Pointage</a><a href="bellecave.html">Bellecave · Catalogue</a></nav><h2>Chaque pièce compte.</h2><p>Choisissez un fournisseur, scannez vos pièces, puis exportez votre relevé.</p></section>
@@ -345,6 +332,7 @@
 <input type="file" id="ocrFile" accept="image/*" capture="environment" style="display:none">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+<script src="shared-access.js?v=20261008-password"></script>
 <script src="core.js?v=20260917-sweep1"></script>
 <script src="scan-input-core.js?v=20261008-1"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -377,6 +365,9 @@ function save(){
   }catch(error){storageError(error);throw error;}
 }
 function loadAccount(userId){
+  // Pointage tied to a former staff account on this device: offered once, original kept.
+  SharedAccess.adoptLocal(localStorage,'scanette_account_v1:',ScanetteCore.storageKey(userId),
+    ()=>confirm('Cet appareil contient un pointage enregistré avec un ancien compte. Le reprendre dans l’accès logistique partagé ?'));
   const data=ScanetteCore.read(localStorage,userId);
   sections=data.sections;aliases=data.aliases;pushQueue=data.pushQueue;scanHistory=data.recentScans||[];
   storageReady=true;
@@ -385,7 +376,7 @@ function loadAccount(userId){
   if(localStorage.getItem(ScanetteCore.storageKey(userId))===null &&
      localStorage.getItem('scanette_sections_v4')!==null &&
      localStorage.getItem('scanette_legacy_owner_v1')===null &&
-     confirm('Cet appareil contient un ancien pointage non associé à un compte. Est-ce votre pointage, à récupérer dans ce compte ?')){
+     confirm('Cet appareil contient un ancien pointage non enregistré. Le reprendre dans ce pointage ?')){
     const legacy=ScanetteCore.validate({version:1,
       sections:JSON.parse(localStorage.getItem('scanette_sections_v4')||'[]'),
       aliases:JSON.parse(localStorage.getItem('scanette_aliases_v3')||'{}'),
@@ -418,33 +409,15 @@ document.getElementById('restoreFile').addEventListener('change',async event=>{
 });
 window.addEventListener('storage',event=>{
   if(currentUserId && event.key===ScanetteCore.storageKey(currentUserId)){
-    storageError(Error('Ce compte a été modifié dans un autre onglet. Sauvegardez puis rechargez cette page.'));
+    storageError(Error('Ce pointage a été modifié dans un autre onglet. Sauvegardez puis rechargez cette page.'));
   }
 });
 
-/* ---------- Configuration Supabase ---------- */
-/* ⚠️ REMETS TES VRAIES VALEURS ICI ⚠️ */
-const SUPA_URL='https://pryocchvwmnuoidtitow.supabase.co';
-const SUPA_KEY='sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ';
-
-/* ---------- Authentification ---------- */
-const supaClient = (window.supabase || supabase).createClient(SUPA_URL, SUPA_KEY);
-let authToken = null;   // jeton de session, renseigné après connexion
-
-/* En-têtes : le jeton de session remplace la clé seule.
-   Cela permet de durcir les RLS (rôle authenticated). */
+/* ---------- Catalogue partagé code-barres → référence ----------
+   Accès sans compte : lecture et ajout passent par shared_aliases_page / shared_aliases_save,
+   qui ne servent que le magasin fixé côté serveur. */
 const syncDot=document.getElementById('syncDot');
 let syncJob=null;
-async function authenticatedFetch(path,options,epoch){
-  const {data,error}=await supaClient.auth.getSession();
-  if(error || !data.session || epoch!==sessionEpoch)throw Error('Reconnectez-vous.');
-  const response=await fetch(SUPA_URL+path,{...options,headers:{
-    apikey:SUPA_KEY,Authorization:'Bearer '+data.session.access_token,
-    'Content-Type':'application/json',...(options?.headers||{})}});
-  if(epoch!==sessionEpoch)throw Error('Session modifiée.');
-  if(!response.ok)throw Error('Catalogue indisponible ('+response.status+').');
-  return response;
-}
 async function synchronize(){
   if(!currentUserId || !storageReady)return false;
   if(syncJob)return syncJob;
@@ -454,13 +427,12 @@ async function synchronize(){
       syncDot.className='syncdot';
       while(pushQueue.length){
         const batch=pushQueue.slice(0,200).map(row=>({...row}));
-        await authenticatedFetch('/rest/v1/catalogue',{method:'POST',headers:{Prefer:'resolution=merge-duplicates'},body:JSON.stringify(batch)},epoch);
+        await SharedAccess.call('shared_aliases_save',{rows:batch});
         if(epoch!==sessionEpoch)return false;
         pushQueue=ScanetteCore.acknowledge(pushQueue,batch);save();
       }
       const rows=await ScanetteCore.pullAll(async(offset,size)=>{
-        const r=await authenticatedFetch('/rest/v1/catalogue?select=ean,ref&order=ean.asc&offset='+offset+'&limit='+size,{},epoch);
-        return r.json();
+        return SharedAccess.call('shared_aliases_page',{page_offset:offset,page_size:size});
       },()=>epoch===sessionEpoch);
       if(epoch!==sessionEpoch)return false;
       const pending=new Set(pushQueue.map(x=>x.ean));
@@ -1338,102 +1310,22 @@ document.getElementById('clearBtn').addEventListener('click',()=>{
 document.getElementById('filterBox').addEventListener('input',render);
 
 /* =========================================================
-   AUTHENTIFICATION — l'app ne démarre qu'une fois connecté
+   DÉMARRAGE — accès logistique partagé, sans compte ni PIN.
+   Toute personne qui ouvre cette page agit pour le magasin (voir SHARED-ACCESS.md).
    ========================================================= */
-const loginScreen=document.getElementById('loginScreen');
-const appRoot=document.getElementById('appRoot');
-const loginBtn=document.getElementById('loginBtn');
-const loginErr=document.getElementById('loginErr');
-
-function showApp(session){
-  if(currentUserId!==session.user.id){
-    window.Sweep?.reset();
-    window.Warehouse?.reset();
-    sessionEpoch++;syncJob=null;currentUserId=session.user.id;
-    scanHistory=[];sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
-    resetScanFlow();
-    try{loadAccount(currentUserId);}catch(error){storageError(error);}
-    // Ouverte depuis l'application, la page reçoit le clavier : le premier scan
-    // d'une douchette n'est pas perdu dans la fenêtre parente. Aucun champ n'est
-    // sélectionné, donc aucun clavier tactile ne s'ouvre.
-    try{if(window.parent!==window)window.focus();}catch(e){}
-  }
-  authToken=session.access_token;
-  loginScreen.style.display='none';appRoot.style.display='block';startApp();
-}
-function showLogin(msg){
-  appRoot.style.display='none';
-  loginScreen.style.display='flex';
-  loginErr.textContent=msg||'';
-}
-
-async function doLogin(){
-  const email=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPass').value;
-  if(!email||!pass){ loginErr.textContent='Renseigne ton e-mail et ton mot de passe.'; return; }
-  loginBtn.disabled=true;
-  loginBtn.textContent='Connexion…';
-  loginErr.textContent='';
-  try{
-    const {data,error}=await supaClient.auth.signInWithPassword({email:email,password:pass});
-    if(error) throw error;
-    authToken=data.session.access_token;
-    document.getElementById('loginPass').value='';
-    showApp(data.session);
-  }catch(e){
-    loginErr.textContent='Identifiants incorrects.';
-  }
-  loginBtn.disabled=false;
-  loginBtn.textContent='Se connecter';
-}
-loginBtn.addEventListener('click', doLogin);
-document.getElementById('loginPass').addEventListener('keypress',e=>{
-  if(e.key==='Enter') doLogin();
-});
-document.getElementById('loginEmail').addEventListener('keypress',e=>{
-  if(e.key==='Enter') document.getElementById('loginPass').focus();
-});
-
-/* Déconnexion */
-document.getElementById('logoutBtn').addEventListener('click', async ()=>{
-  if(!confirm('Se déconnecter ?')) return;
-  try{ await supaClient.auth.signOut(); }catch(e){}
-  clearAccount();
-  showLogin('');
-});
-
-function clearAccount(){
-  window.Sweep?.reset();
-  window.Warehouse?.reset();
-  sessionEpoch++;syncJob=null;currentUserId=null;authToken=null;storageReady=false;
-  scanHistory=[];sections=[];aliases=Object.create(null);pushQueue=[];selected={};lastAction=null;
-  if(scanning)stopScan();stopLiveStream();refModal.classList.remove('open');
-  resetScanFlow();
-  render();updateLastScanBar();
-}
-// Defer work outside the auth callback, avoiding Supabase's auth lock.
-supaClient.auth.onAuthStateChange((event,session)=>{
-  setTimeout(()=>{
-    if(session)showApp(session);
-    else{clearAccount();showLogin(event==='SIGNED_OUT'?'Session fermée.':'');}
-  },0);
-});
-/* Session existante : si déjà connecté, on entre directement */
-(async function checkSession(){
-  try{
-    const {data}=await supaClient.auth.getSession();
-    if(data && data.session){
-      authToken=data.session.access_token;
-      showApp(data.session);
-      return;
-    }
-  }catch(e){}
-  showLogin('');
+(function openShared(){
+  sessionEpoch++;currentUserId=SharedAccess.ACTOR;
+  try{loadAccount(currentUserId);}catch(error){storageError(error);}
+  // Ouverte depuis l'application, la page reçoit le clavier : le premier scan
+  // d'une douchette n'est pas perdu dans la fenêtre parente. Aucun champ n'est
+  // sélectionné, donc aucun clavier tactile ne s'ouvre.
+  try{if(window.parent!==window)window.focus();}catch(e){}
+  startApp();
 })();
 </script>
 </div>
 <script src="camera-controls.js?v=1"></script><script src="warehouse.js?v=20261008-entry"></script><script src="sweep-tracker.js?v=20260917-sweep1"></script><script src="sweep.js?v=20260921-camera1"></script>
 
-<script src="logistics-core.js"></script><script src="receipt-link-core.js?v=20260923-reset"></script><script src="receipt-link.js?v=20260923-trash"></script><script src="scan-suppliers.js?v=20260923-1"></script><script src="application-nav.js?v=logistique3"></script><script src="nav-layers.js?v=20261008"></script><script src="password-visibility.js?v=1"></script></body>
+<script src="logistics-core.js"></script><script src="receipt-link-core.js?v=20260923-reset"></script><script src="receipt-link.js?v=20260923-trash"></script><script src="scan-suppliers.js?v=20260923-1"></script><script src="application-nav.js?v=logistique3"></script><script src="nav-layers.js?v=20261008"></script></body>
 </html>
 

@@ -2,17 +2,18 @@ const {harness}=require('./app.test.cjs');
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 const tick=async(n=6)=>{for(let i=0;i<n;i++)await new Promise(r=>setImmediate(r));};
 const product=(id,reference='REF'+id)=>({id,reference,description:'Description '+id,internal_barcode:'INT'+id,manufacturer_barcode:'EAN'+id});
-/* Fake catalogue: exact match on either barcode or on the reference, as the PostgREST filter asks. */
+/* Fake catalogue: exact match on either barcode or on the reference (as typed or upper case),
+   as the shared_product_lookup function does on the server. */
 async function setup(catalogue=[]){
  const h=harness();h.run(fs.readFileSync('warehouse.js','utf8'));await tick();await h.run('synchronize()');
  h.lookups=[];
- h.context.fetch=async url=>{
-  if(!url.includes('scanette_products'))return {ok:true,json:async()=>[]};
-  const filter=decodeURIComponent(url.split('&or=')[1]),values=[...filter.matchAll(/(\w+)\.eq\."((?:[^"\\]|\\.)*)"/g)].map(m=>[m[1],m[2]]);
+ h.context.fetch=async(url,opts)=>{
+  if(!url.endsWith('/rpc/shared_product_lookup'))return {ok:true,json:async()=>[]};
+  const code=JSON.parse(opts.body).code,values=[['internal_barcode',code],['manufacturer_barcode',code],['reference',code],['reference',code.toUpperCase()]];
   h.lookups.push(values);
   return {ok:true,json:async()=>catalogue.filter(p=>values.some(([field,value])=>p[field]===value))};
  };
- h.state=()=>JSON.parse(h.data.get('scanette_account_v1:alice'));
+ h.state=()=>JSON.parse(h.data.get('scanette_account_v1:shared'));
  h.items=()=>h.state().sections.at(-1)?.items||{};
  h.el=id=>h.context.document.getElementById(id);
  h.field=async value=>{h.el('scanEntry').value=value;h.el('manualEntry').listeners.submit({preventDefault(){}});await h.run('scanQueue.whenIdle()');await tick();};
@@ -103,7 +104,7 @@ test('« référence libre » is an explicit choice: exact value shown, no share
  h.el('refFree').listeners.click();await h.run('scanQueue.whenIdle()');await tick();
  assert.deepEqual(h.items(),{ABC12:{qty:1,prix:null}});assert.deepEqual(h.state().aliases,{});assert.deepEqual(h.state().pushQueue,[]);
  await h.field('abc 12');assert.equal(h.items().ABC12.qty,2);assert.equal(h.run('decisionOpen()'),false);
- assert.equal(h.calls.filter(c=>c.url.includes('/rest/v1/catalogue')&&c.opts?.method==='POST').length,0);
+ assert.equal(h.calls.filter(c=>c.url.endsWith('/rpc/shared_aliases_save')).length,0);
 });
 test('associating an unknown code to a reference keeps the historical behaviour',async()=>{
  const h=await setup([]);
@@ -115,7 +116,7 @@ test('associating an unknown code to a reference keeps the historical behaviour'
 test('a catalogue failure shows a persistent, non-blocking error and adds nothing',async()=>{
  const h=await setup([product('p1')]);const real=h.context.fetch;h.context.fetch=async()=>({ok:false,status:503});
  await h.field('EANp1');assert.equal(h.run('sections.length'),0);assert.equal(h.el('scanNotice').hidden,false);
- assert.match(h.el('scanNotice').textContent,/Pièce non ajoutée \(« EANp1 »\).*503/);assert.equal(h.el('scanNotice').className,'scan-notice error');
+ assert.match(h.el('scanNotice').textContent,/Pièce non ajoutée \(« EANp1 »\).*connexion/);assert.equal(h.el('scanNotice').className,'scan-notice error');
  assert.equal(h.alerts.length,0);assert.equal(h.run('decisionOpen()'),false);assert.equal(h.run('pendingEan'),null);
  h.context.fetch=real;await h.field('EANp1');assert.equal(h.items()['BELLECAVE:p1'].qty,1);assert.equal(h.el('scanNotice').hidden,true);
 });
@@ -127,13 +128,9 @@ test('camera: a still label counts once, another code at once, the same code aga
  await read('EANp1',11000);await read('EANp1',11090);assert.equal(h.items()['BELLECAVE:p1'].qty,2);
  h.context.Date.now=Date.now;
 });
-test('changing account drops waiting scans and closes a pending decision',async()=>{
- const h=await setup([product('p1')]);
- h.el('scanEntry').value='7777';h.el('manualEntry').listeners.submit({preventDefault(){}});await tick();assert.equal(h.run('decisionOpen()'),true);
- h.run("showApp({user:{id:'bob'},access_token:'bob-token'})");await h.run('scanQueue.whenIdle()');await tick();
- assert.equal(h.run('decisionOpen()'),false);assert.equal(h.run('pendingEan'),null);assert.equal(h.run('sections.length'),0);
- assert.equal(JSON.parse(h.data.get('scanette_account_v1:alice')).sections.length,0);
- h.run('clearAccount()');h.el('scanEntry').value='EANp1';h.el('manualEntry').listeners.submit({preventDefault(){}});await tick();
+test('without durable local storage, a scan is refused with a visible notice',async()=>{
+ const h=await setup([product('p1')]);h.run('storageReady=false');
+ h.el('scanEntry').value='EANp1';h.el('manualEntry').listeners.submit({preventDefault(){}});await tick();
  assert.equal(h.run('sections.length'),0);assert.match(h.el('scanNotice').textContent,/Enregistrement indisponible/);
 });
 test('reader with no field focused: the first character is kept, then the rest and Enter validate the whole code',async()=>{

@@ -1,5 +1,7 @@
 # Connexion logistique par nom et PIN — contrat de sécurité
 
+> Retiré le 8 octobre 2026 (accès logistique partagé sans compte, voir ../SHARED-ACCESS.md). `logistics-shared-access.sql` révoque les fonctions `logistics_pin_*` sans supprimer leurs tables. L’écran (pin-ui.js), le service (service.mjs, index.ts) et leurs tests sont supprimés ; l’Edge Function `logistics-pin` reste à supprimer dans Supabase. Les migrations SQL de ce dossier sont gardées pour l’historique.
+
 Demande confirmée : choisir son nom, puis saisir son PIN personnel.
 
 La connexion e-mail/mot de passe existante reste le moyen d'activation et de récupération, pas le parcours quotidien.

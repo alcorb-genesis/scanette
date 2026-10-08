@@ -2,6 +2,8 @@
 
 Application statique de pointage et catalogue magasin. Aucun serveur applicatif n'est nécessaire ; l'authentification et les données partagées utilisent Supabase.
 
+Depuis le 8 octobre 2026, l'accès logistique est partagé, sans compte ni PIN, derrière un mot de passe unique vérifié par le serveur : voir SHARED-ACCESS.md (risque, périmètre, mise en place du mot de passe). Les mentions de compte ci-dessous décrivent l'ancien fonctionnement.
+
 ## Alcorb Gestion — réception partagée, 20 septembre 2026
 
 `gestion.html` est le module réel de réception et de suivi de stock. `gestion-demo.html` reste une démonstration indépendante avec données fictives : elle ne produit aucune vente réelle et n'alimente pas le stock partagé.
