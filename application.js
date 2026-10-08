@@ -20,7 +20,9 @@ const nav=typeof AlcorbNavHistory!=='undefined'&&typeof history.pushState==='fun
 }):null;
 function addReturnsTile(){const host=document.querySelector?.('#home .tiles');if(!host||host.querySelector?.('[data-section="returns"]'))return;const button=document.createElement('button');button.dataset.section='returns';button.innerHTML='<svg class="task-drawing" viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="10" width="40" height="44" rx="4"/><path d="M20 22h24M20 30h12M22 42l7 7 15-16"/></svg><strong>Retours et garanties</strong><span>À enlever, contrôler, renvoyer et suivre l’avoir</span>';host.prepend(button);}
 addReturnsTile();
-function clear(){if(started){started=false;nav?.reset('home');}activeFrame=null;$('workspace').dataset.focus='';moduleDirty=false;generation++;actor=null;access=false;current='home';$('module').replaceChildren();$('workspace').hidden=true;$('identity').textContent='';$('sectionNotice').hidden=true;$('backHome').hidden=true;}
+function showEntry(){$('entry').hidden=false;$('login').hidden=true;$('status').textContent='';}
+function showLogin(){$('entry').hidden=true;$('login').hidden=false;$('status').textContent='';$('email').focus?.();}
+function clear(){if(started){started=false;nav?.reset('home');}activeFrame=null;$('workspace').dataset.focus='';moduleDirty=false;generation++;actor=null;access=false;current='home';$('module').replaceChildren();$('workspace').hidden=true;$('identity').textContent='';$('sectionNotice').hidden=true;$('backHome').hidden=true;showEntry();}
 const isRoute=name=>name==='home'||Object.hasOwn(routes,name);
 /* A user request to change section: confirmation, history entry, then display. */
 function section(name,receiptId=null){if(!access)return;if(!isRoute(name))name='home';if(current===name&&(activeFrame||name==='home')&&!receiptId)return;
@@ -38,7 +40,7 @@ function show(name,receiptId=null){if(!isRoute(name))name='home';moduleDirty=fal
  if(name!=='home'){const frame=document.createElement('iframe');frame.title=labels[name];frame.src=routes[name]+(['receipts','scan'].includes(name)&&/^[0-9a-f-]{36}$/i.test(receiptId||'')?'&receipt='+encodeURIComponent(receiptId):'');frame.allow='camera';$('module').append(frame);activeFrame=frame;}
  if(!nav)history.replaceState(null,'','#'+name);
 }
-async function enter(session){const id=session?.user?.id||null;if(id!==actor){clear();actor=id;}$('login').hidden=!!id;$('logout').hidden=!id;if(!id){$('status').textContent='';return;}
+async function enter(session){const id=session?.user?.id||null;if(id!==actor){clear();actor=id;}$('entry').hidden=!!id;$('login').hidden=!!id;$('logout').hidden=!id;if(!id){showEntry();return;}
  const ticket=++generation;try{const result=await client.from('scanette_members').select('role').eq('workspace_id',shop).eq('user_id',id).maybeSingle();if(ticket!==generation)return;
  if(result.error)throw Error('Impossible de vérifier les accès. Réessayez en vous reconnectant.');
  if(!result.data||!['reader','operator','admin'].includes(result.data.role))throw Error('Ce compte ne dispose pas encore d’un accès au magasin. L’administrateur de l’application doit lui attribuer un rôle.');
@@ -58,8 +60,9 @@ async function enter(session){const id=session?.user?.id||null;if(id!==actor){cl
  // The first user action allows the browser to keep our entries (Chrome skips entries added without one).
  for(const type of ['pointerdown','keydown'])document.addEventListener(type,()=>{if(access)nav?.activate();},true);
  $('sections').querySelector?.('details')?.addEventListener('toggle',event=>{if(!nav||!access)return;if(event.target.open)nav.layerOpened('sections','shell');else nav.layerClosed('sections');});
- $('loginForm').onsubmit=async e=>{e.preventDefault();if(!client)return;$('connect').disabled=true;try{const r=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)throw r.error;await enter(r.data.session);}catch{clear();$('login').hidden=false;$('status').textContent='Connexion impossible. Vérifiez vos identifiants et votre connexion.';}finally{$('password').value='';$('connect').disabled=false;}};
- $('logout').onclick=async()=>{$('logout').disabled=true;try{clear();const r=await client.auth.signOut({scope:'local'});if(r.error)throw r.error;$('login').hidden=false;$('logout').hidden=true;$('status').textContent='Vous êtes déconnecté de cet appareil.';}catch{$('status').textContent='Déconnexion non confirmée. Réessayez ; les sections restent fermées.';}finally{$('logout').disabled=false;}};
+ $('openLogistics').onclick=showLogin;$('backToEntry').onclick=showEntry;
+ $('loginForm').onsubmit=async e=>{e.preventDefault();if(!client)return;$('connect').disabled=true;try{const r=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)throw r.error;await enter(r.data.session);}catch{clear();showLogin();$('status').textContent='Connexion impossible. Vérifiez vos identifiants et votre connexion.';}finally{$('password').value='';$('connect').disabled=false;}};
+ $('logout').onclick=async()=>{$('logout').disabled=true;try{clear();const r=await client.auth.signOut({scope:'local'});if(r.error)throw r.error;$('logout').hidden=true;$('status').textContent='Vous êtes déconnecté de cet appareil.';}catch{$('status').textContent='Déconnexion non confirmée. Réessayez ; les sections restent fermées.';}finally{$('logout').disabled=false;}};
  try{client=supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co','sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ');window.AlcorbAuth=client;client.auth.onAuthStateChange((_event,session)=>setTimeout(()=>enter(session),0));client.auth.getSession().then(r=>enter(r.data.session)).catch(()=>{$('status').textContent='Session indisponible. Reconnectez-vous.';});}catch{$('connect').disabled=true;$('status').textContent='Le service de connexion est indisponible. Rechargez la page lorsque la connexion est rétablie.';}
 })();
 // The PIN client preserves individual Supabase sessions; the password form remains a recovery and activation path.
