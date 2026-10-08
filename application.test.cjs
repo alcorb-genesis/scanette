@@ -22,3 +22,4 @@ test('Returns remains an authenticated logistics route',async()=>{const a=setup(
 test('Retired GPS route returns home and never requests geolocation',async()=>{
  const a=setup();await tick();a.auth(session('member'));a.requests.shift()({data:{role:'operator'}});await tick();a.click('tracking');assert.equal(a.nodes.module.children.length,0);assert.equal(a.nodes.home.hidden,false);a.click('scan');assert.equal(a.nodes.module.firstChild.allow,'camera');
 });
+test('Garage access is a plain link to the public portal: no login, no session check',async()=>{const html=fs.readFileSync('application.html','utf8');assert.match(html,/<a id="openGarage" class="access-card garage-access" href="returns-portal.html">/);assert.doesNotMatch(html,/lien privé/);const a=setup();await tick();assert.equal(a.nodes.entry.hidden,false);assert.equal(a.requests.length,0);assert.equal(a.nodes.openGarage?.onclick,undefined,'the shell does not intercept the garage link');});

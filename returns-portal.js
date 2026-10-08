@@ -1,16 +1,36 @@
+/* Public garage portal. No account, no session, no token: two public RPCs and nothing else. */
 (()=>{'use strict';
-const $=id=>document.getElementById(id),token=new URLSearchParams(location.search).get('t')||'',db=supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co','sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ');
-let lines=[],scanner=null,last='',lastAt=0,busy=false;
-const safe=value=>String(value||'').trim().toUpperCase();
+const G=GaragePortal,$=id=>document.getElementById(id),shop='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
+// Never reuse a staff session that may exist on this device: the portal always calls as an anonymous visitor.
+const db=supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co','sb_publishable_AQ9cr2Z7Kr6EAravVOgB9Q_Z5Mx2yOZ',{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+let garages=[],lines=[],scanner=null,last='',lastAt=0,busy=false,pending=null;
 function say(text,error=false){$('status').textContent=text;$('status').className=error?'error':'';}
-function hasToken(value){return /^[a-f0-9]{64}$/i.test(value);}
-function showAccess(){$('status').textContent='';$('access').hidden=false;}
-function selectedType(){return document.querySelector('input[name="type"]:checked')?.value||'return';}
-function paint(){const host=$('lines');host.replaceChildren();if(!lines.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='Aucune pièce ajoutée pour l’instant.';host.append(empty);return;}for(const [index,item] of lines.entries()){const card=document.createElement('article'),ref=document.createElement('strong'),quantity=document.createElement('span'),less=document.createElement('button'),more=document.createElement('button'),remove=document.createElement('button');card.className='line';ref.textContent=item.reference;quantity.className='quantity';quantity.textContent=String(item.quantity);less.type=more.type=remove.type='button';less.className=more.className=remove.className='secondary';less.textContent='−';more.textContent='+';remove.textContent='Retirer';less.setAttribute('aria-label','Retirer une unité de '+item.reference);more.setAttribute('aria-label','Ajouter une unité de '+item.reference);less.onclick=()=>{if(item.quantity===1)lines.splice(index,1);else item.quantity--;paint();};more.onclick=()=>{if(item.quantity<100000)item.quantity++;paint();};remove.onclick=()=>{lines.splice(index,1);paint();};card.append(ref,less,quantity,more,remove);host.append(card);}}
-function add(raw){const reference=safe(raw);if(!reference)return;const existing=lines.find(item=>item.reference===reference);if(existing){if(existing.quantity<100000)existing.quantity++;say(reference+' : quantité portée à '+existing.quantity+'.');}else{lines.push({id:crypto.randomUUID(),reference,quantity:1});say(reference+' ajoutée.');}$('reference').value='';paint();}
+function paintGarageHint(){const value=G.space($('garage').value);if(!value){$('garageHint').textContent='';return;}const g=G.garage(value,garages);$('garageHint').textContent=g.listed?'Garage reconnu.':g.ambiguous?'Plusieurs garages portent ce nom : l’équipe vérifiera.':'Nom saisi : l’équipe vérifiera le garage.';}
+function paint(){const host=$('lines');host.replaceChildren();if(!lines.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='Aucune pièce ajoutée pour l’instant.';host.append(empty);return;}
+ for(const item of lines){const card=document.createElement('article'),ref=document.createElement('strong'),quantity=document.createElement('span'),less=document.createElement('button'),more=document.createElement('button'),remove=document.createElement('button');
+  card.className='line';ref.textContent=item.reference;quantity.className='quantity';quantity.textContent=String(item.quantity);less.type=more.type=remove.type='button';less.className=more.className=remove.className='secondary';less.textContent='−';more.textContent='+';remove.textContent='Retirer';
+  less.setAttribute('aria-label','Une pièce de moins pour '+item.reference);more.setAttribute('aria-label','Une pièce de plus pour '+item.reference);remove.setAttribute('aria-label','Retirer '+item.reference);
+  less.onclick=()=>{lines=item.quantity===1?lines.filter(l=>l!==item):lines.map(l=>l===item?{...l,quantity:l.quantity-1}:l);paint();};
+  more.onclick=()=>{if(item.quantity<G.LIMITS.quantity)lines=lines.map(l=>l===item?{...l,quantity:l.quantity+1}:l);paint();};
+  remove.onclick=()=>{lines=lines.filter(l=>l!==item);paint();say(item.reference+' retirée.');};
+  card.append(ref,less,quantity,more,remove);host.append(card);}}
+function add(raw){const result=G.addLine(lines,raw);if(result.error){say(result.error,true);return;}if(!result.line)return;lines=result.lines;$('reference').value='';say(result.line.quantity>1?result.line.reference+' : '+result.line.quantity+' pièces.':result.line.reference+' ajoutée.');paint();}
 async function stop(){const old=scanner;scanner=null;$('scanner').hidden=true;if(old)try{await old.stop();old.clear();}catch{}}
-async function start(){if(scanner)return;scanner=new Html5Qrcode('reader');$('scanner').hidden=false;try{await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:120}},async code=>{const now=Date.now();if(code===last&&now-lastAt<1300)return;last=code;lastAt=now;add(code);},()=>{});}catch{await stop();say('Caméra indisponible. Saisissez la référence.',true);}}
-async function profile(){if(!token){showAccess();return;}if(!hasToken(token))throw Error('Ce lien de retour est invalide.');const {data,error}=await db.rpc('returns_portal_profile',{portal_token:token});if(error)throw error;if(!data?.client_name)throw Error('Ce lien de retour a expiré ou a été révoqué.');$('clientName').textContent=data.client_name;$('access').hidden=true;$('form').hidden=false;paint();say('Prêt.');}
-async function submit(event){event.preventDefault();if(busy)return;if(!lines.length){say('Ajoutez au moins une référence.',true);return;}for(const item of lines)if(!item.reference||!Number.isSafeInteger(item.quantity)||item.quantity<1||item.quantity>100000){say('Vérifiez les références et quantités.',true);return;}busy=true;$('submit').disabled=true;try{const {error}=await db.rpc('returns_portal_submit',{portal_token:token,case_type:selectedType(),case_lines:lines,case_note:$('note').value.trim()});if(error)throw error;$('form').hidden=true;$('done').hidden=false;say('Demande transmise.');lines=[];await stop();}catch{say('La demande n’a pas été transmise. Vérifiez le lien puis réessayez.',true);}finally{busy=false;$('submit').disabled=false;}}
-$('openPortal').onclick=()=>{try{const url=new URL($('portalLink').value.trim());if(url.origin!==location.origin||!url.pathname.endsWith('/returns-portal.html')||!hasToken(url.searchParams.get('t')))throw Error();location.replace(url.href);}catch{say('Collez le lien privé reçu de Bellecave.',true);}};$('add').onclick=()=>add($('reference').value);$('reference').onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();add($('reference').value);}};$('camera').onclick=start;$('stop').onclick=stop;$('form').onsubmit=submit;$('again').onclick=()=>{$('done').hidden=true;$('form').hidden=false;$('form').reset();lines=[];paint();say('Prêt.');};window.addEventListener('pagehide',stop);profile().catch(error=>say(error.message||'Lien indisponible.',true));
+async function start(){if(scanner)return;scanner=new Html5Qrcode('reader');$('scanner').hidden=false;try{await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:120}},code=>{const now=Date.now();if(code===last&&now-lastAt<1300)return;last=code;lastAt=now;add(code);},()=>{});}catch{await stop();say('Caméra indisponible. Saisissez la référence.',true);}}
+async function loadGarages(){try{const {data,error}=await db.rpc('returns_public_garages',{shop_id:shop});if(error)throw error;garages=Array.isArray(data)?data.filter(g=>g&&typeof g.id==='string'&&typeof g.name==='string'):[];const list=$('garageList');list.replaceChildren();for(const g of garages){const option=document.createElement('option');option.value=g.name;list.append(option);}paintGarageHint();}catch{garages=[];/* The name can always be typed. */}}
+async function submit(event){event.preventDefault();if(busy)return;
+ const problem=G.validate({garageName:$('garage').value,lines,location:$('location').value});if(problem){say(problem,true);return;}
+ const draft=G.payload({shopId:shop,requestId:'',garageName:$('garage').value,list:garages,lines,location:$('location').value}),fingerprint=JSON.stringify({...draft,request_id:''});
+ // The same request id is reused only for an identical retry, so a lost answer never creates a duplicate.
+ if(!pending||pending.fingerprint!==fingerprint)pending={id:crypto.randomUUID(),fingerprint};
+ busy=true;$('submit').disabled=true;say('Envoi…');
+ try{const {error}=await db.rpc('returns_public_submit',{...draft,request_id:pending.id});if(error)throw error;
+  pending=null;lines=[];paint();await stop();$('form').hidden=true;$('done').hidden=false;say('');}
+ catch(error){say(G.errorMessage(error),true);}
+ finally{busy=false;$('submit').disabled=false;}}
+$('garage').oninput=paintGarageHint;$('add').onclick=()=>add($('reference').value);$('reference').onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();add($('reference').value);}};
+$('camera').onclick=start;$('stop').onclick=stop;$('form').onsubmit=submit;
+$('again').onclick=()=>{$('done').hidden=true;$('form').hidden=false;$('reference').value='';$('location').value='';lines=[];paint();say('');};
+window.addEventListener('pagehide',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+paint();loadGarages();
 })();

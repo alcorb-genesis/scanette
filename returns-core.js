@@ -13,6 +13,10 @@
  function csvCell(value){const text=String(value??'');return '"'+(/^[=+\-@]/.test(text)?"'":'')+text.replace(/"/g,'""')+'"';}
  function creditCsv(row){const d=row?.document||row;if(!d)throw Error('Dossier avoir introuvable.');validateDocument(d);const headers=['Dossier','État','Type','Garage','Fournisseur','Référence','Désignation','À reprendre','Réceptionné','État pièce','Motif'];const rows=d.lines.map(line=>[row.id||'',STATUS[d.status]||d.status,d.type,d.client_name,d.supplier_name,line.reference,line.description,line.quantity,line.received_quantity??'',line.condition,line.reason]);return '\uFEFF'+[headers,...rows].map(values=>values.map(csvCell).join(';')).join('\r\n');}
  function creditMail(row){const d=row.document||row;const subject='Avoir à traiter · '+d.client_name+(d.supplier_name?' · '+d.supplier_name:'');const details=d.lines.map(line=>'- '+line.reference+' · '+line.quantity+' à reprendre'+(line.received_quantity!==null&&line.received_quantity!==undefined?' · '+line.received_quantity+' réceptionnée(s)':'')).join('\n');return {subject,body:'Bonjour,\n\nVeuillez trouver ci-joint le relevé de retour / garantie à traiter.\n\nGarage : '+d.client_name+'\nType : '+(d.type==='warranty'?'Garantie':d.type==='deposit'?'Consigne':d.type==='mixed'?'Retour et garantie':'Retour client')+'\n\nPièces :\n'+details+'\n\nCordialement.'};}
- const api={STATUS,NEXT,norm,quantity,newLine,validateLine,validateDocument,canMove,badge,search,creditCsv,creditMail};
+ /* Fields that the form does not edit (garage portal origin, pickup place) are carried over unchanged. */
+ function mergeDocument(previous,edited){return {...(previous&&typeof previous==='object'?previous:{}),...edited};}
+ /* Requests created by garages on the public portal, shown as such to the internal team. */
+ function portalInfo(d){if(d?.source!=='public_portal'&&d?.portal!==true)return null;return {location:String(d.pickup_location||'').trim(),verified:d.garage_verified===true||!!d.client_id};}
+ const api={STATUS,NEXT,norm,quantity,newLine,validateLine,validateDocument,canMove,badge,search,creditCsv,creditMail,mergeDocument,portalInfo};
  if(typeof module!=='undefined')module.exports=api;else root.ReturnsCore=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

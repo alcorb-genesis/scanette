@@ -5,7 +5,7 @@ fs.mkdirSync(output, {recursive:true});
 for (const file of ['returns.html','returns.css','returns.js','returns-core.js','preparation-live.js','preparation-ocr-core.js','preparation-photo.js','preparation.html','preparation.css','preparation-core.js','preparation.js','catalogue-evidence.js','garage-records.js','delivery-garages.js','scan-suppliers.js','location-search.js','receipt-link-core.js','receipt-link.js','password-visibility.js','password-visibility.css','camera-controls.js','logistics-sessions.html','logistics-sessions.js','logistics-core.js','store-partners.html','store-partners.js','partner-planning-core.js','team.html','team.js','store-settings.html','store-settings.js','application.js','application.css','workspaces.js','workspaces.css','suppliers-official-data.json','reference.css','reference-core.js','reference-ui.js','partners-osm-data.json','products-open-data.json','gestion-shell.css','application.html','application-nav.js','partenaires.html','partenaires.css','partenaires.js','partners-data.json','index.html','core.js','scan-input-core.js','ui-base.css','nav-history.js','nav-layers.js','interface.css','bellecave.html','bellecave.js','warehouse.js','palette-worker.js','sweep-tracker.js','sweep.js']) {
   fs.copyFileSync(path.join(__dirname,file),path.join(output,file));
 }
-for (const file of ['returns-portal.html','returns-portal.css','returns-portal.js']) fs.copyFileSync(path.join(__dirname,file),path.join(output,file));
+for (const file of ['returns-portal.html','returns-portal.css','returns-portal.js','returns-portal-core.js']) fs.copyFileSync(path.join(__dirname,file),path.join(output,file));
 
 
 // Retired screens remain in source history, but are not served as active modules.
