@@ -1,0 +1,40 @@
+{
+ "name": "Alcorb Logistique",
+ "short_name": "Alcorb",
+ "description": "Logistique du magasin : réception, scanette, inventaire, préparation, départs, catalogue et retours.",
+ "id": "application.html",
+ "start_url": "application.html",
+ "scope": "./",
+ "lang": "fr",
+ "dir": "ltr",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#0b151d",
+ "theme_color": "#0b151d",
+ "icons": [
+  {
+   "src": "icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "launch_handler": {
+  "client_mode": [
+   "navigate-existing",
+   "auto"
+  ]
+ }
+}

@@ -6,6 +6,11 @@ for (const file of ['returns.html','returns.css','returns.js','returns-core.js',
   fs.copyFileSync(path.join(__dirname,file),path.join(output,file));
 }
 for (const file of ['returns-portal.html','returns-portal.css','returns-portal.js','returns-portal-core.js']) fs.copyFileSync(path.join(__dirname,file),path.join(output,file));
+// Installable application: without a manifest, a home-screen shortcut is a plain bookmark and the
+// browser opens a new tab at every launch. One manifest for logistics, one for the garage portal.
+for (const file of ['manifest.webmanifest','returns-portal.webmanifest']) fs.copyFileSync(path.join(__dirname,file),path.join(output,file));
+fs.mkdirSync(path.join(output,'icons'),{recursive:true});
+for (const file of ['icon-192.png','icon-512.png','icon-maskable-512.png']) fs.copyFileSync(path.join(__dirname,'icons',file),path.join(output,'icons',file));
 
 
 // Retired screens remain in source history, but are not served as active modules.

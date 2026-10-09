@@ -2,6 +2,8 @@
 
 Application statique de pointage et catalogue magasin. Aucun serveur applicatif n'est nécessaire ; l'authentification et les données partagées utilisent Supabase.
 
+Écran d'accueil du téléphone : l'application est installable (`manifest.webmanifest`, icônes dans `icons/`). Installée, elle s'ouvre dans sa propre fenêtre et une relance revient à cette fenêtre ; un simple favori ajouté avant ce changement continue d'ouvrir un nouvel onglet à chaque lancement et doit être remplacé (supprimer le raccourci, rouvrir le site, « Installer l'application »). Le portail garage a son propre manifeste (`returns-portal.webmanifest`), limité à sa page.
+
 ## Alcorb Gestion — réception partagée, 20 septembre 2026
 
 `gestion.html` est le module réel de réception et de suivi de stock. `gestion-demo.html` reste une démonstration indépendante avec données fictives : elle ne produit aucune vente réelle et n'alimente pas le stock partagé.
