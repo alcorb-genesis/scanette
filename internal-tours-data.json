@@ -1,0 +1,557 @@
+{
+ "source": "Liste de référence saisie par Alexis le 09/10/2026",
+ "note": "Aucune coordonnée, aucun horaire ni aucune fiche ne vient d’Internet : seuls figurent les éléments écrits par Alexis. « existing » désigne le nom exact d’une fiche déjà présente dans le magasin, à compléter sans la remplacer ; « open » désigne une ambiguïté laissée sans décision : la ligne n’est ni créée ni rattachée.",
+ "tours": [
+  {
+   "id": "damian",
+   "name": "Damian",
+   "zone": "Bayonne / Anglet / Biarritz / Bassussary / Arcangues / Arbonne",
+   "schedule": null
+  },
+  {
+   "id": "maxime",
+   "name": "Maxime",
+   "zone": "Bayonne / Anglet / Biarritz / Boucau",
+   "schedule": null
+  },
+  {
+   "id": "charlie",
+   "name": "Charlie",
+   "zone": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+   "schedule": {
+    "times": [
+     "10:00",
+     "15:00"
+    ],
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   }
+  },
+  {
+   "id": "cedric",
+   "name": "Cédric",
+   "zone": "Bayonne / Boucau / Tarnos / Mouguerre / Ondres",
+   "schedule": null
+  },
+  {
+   "id": "ludovic",
+   "name": "Ludovic",
+   "zone": "",
+   "schedule": null,
+   "reinforcement": true
+  }
+ ],
+ "garages": [
+  {
+   "tour": "damian",
+   "name": "JM Hirigoyen",
+   "city": "Arcangues",
+   "address": "chemin du Mondarrain",
+   "notes": "Garage à domicile."
+  },
+  {
+   "tour": "damian",
+   "name": "Carrosserie Biarrotte",
+   "city": "Biarritz",
+   "notes": "Quartier de l’Allégresse."
+  },
+  {
+   "tour": "damian",
+   "name": "Garage de l’Allégresse",
+   "city": "Biarritz",
+   "aliases": [
+    "Garage de la Négresse"
+   ],
+   "notes": "Anciennement Garage de la Négresse."
+  },
+  {
+   "tour": "damian",
+   "name": "Garage Modena",
+   "city": "Biarritz"
+  },
+  {
+   "tour": "damian",
+   "name": "Ville de Biarritz"
+  },
+  {
+   "tour": "damian",
+   "name": "Garage l’Avenue",
+   "city": "Biarritz"
+  },
+  {
+   "tour": "damian",
+   "name": "Crosa (Biarritz)",
+   "city": "Biarritz"
+  },
+  {
+   "tour": "damian",
+   "name": "First Stop (Biarritz)",
+   "existing": "First Stop Biarritz Pneus",
+   "match": "enseigne et ville indiquées par Alexis ; fiche existante située à Biarritz"
+  },
+  {
+   "tour": "damian",
+   "name": "Erviti Porsche",
+   "city": "Anglet"
+  },
+  {
+   "tour": "damian",
+   "name": "Carro Vans",
+   "city": "Bidart",
+   "aliases": [
+    "Car Vans"
+   ]
+  },
+  {
+   "tour": "damian",
+   "name": "Classic Vans",
+   "city": "Arbonne"
+  },
+  {
+   "tour": "damian",
+   "name": "Dea",
+   "city": "Anglet"
+  },
+  {
+   "tour": "damian",
+   "name": "Ville d’Anglet"
+  },
+  {
+   "tour": "damian",
+   "name": "MC Garage"
+  },
+  {
+   "tour": "damian",
+   "name": "Carrosserie Poau",
+   "notes": "Maignon."
+  },
+  {
+   "tour": "damian",
+   "name": "Irribarren",
+   "open": "Une fiche « IRIBARREN PATRICK » existe déjà (Paketo Pays Basque). Même garage avec une autre orthographe, ou un autre garage ?"
+  },
+  {
+   "tour": "damian",
+   "name": "Makila",
+   "network": "Toyota"
+  },
+  {
+   "tour": "damian",
+   "name": "Land Rover / Auto Real",
+   "aliases": [
+    "Auto Real",
+    "Land Rover"
+   ]
+  },
+  {
+   "tour": "damian",
+   "name": "Grimso",
+   "network": "Ford"
+  },
+  {
+   "tour": "damian",
+   "name": "SB Auto",
+   "city": "Bassussary"
+  },
+  {
+   "tour": "damian",
+   "name": "Peugeot"
+  },
+  {
+   "tour": "damian",
+   "name": "Honda"
+  },
+  {
+   "tour": "damian",
+   "name": "Car Bayonne"
+  },
+  {
+   "tour": "damian",
+   "name": "Belle Marion (Bayonne)",
+   "city": "Bayonne"
+  },
+  {
+   "tour": "damian",
+   "name": "Maeva Car"
+  },
+  {
+   "tour": "damian",
+   "name": "Feu Vert (Bidart)",
+   "existing": "FEU VERT BIDART",
+   "match": "même nom, même ville"
+  },
+  {
+   "tour": "damian",
+   "name": "Carrosserie de la Gare"
+  },
+  {
+   "tour": "damian",
+   "name": "SOS D Bosses"
+  },
+  {
+   "tour": "damian",
+   "name": "Etcheparre"
+  },
+  {
+   "tour": "damian",
+   "name": "Ocean Dépannage"
+  },
+  {
+   "tour": "damian",
+   "name": "Slavi"
+  },
+  {
+   "tour": "maxime",
+   "name": "Labachot (Anglet)",
+   "city": "Anglet"
+  },
+  {
+   "tour": "maxime",
+   "name": "Norauto Pontot",
+   "aliases": [
+    "Nauroto Pontot"
+   ]
+  },
+  {
+   "tour": "maxime",
+   "name": "Garage du Centre"
+  },
+  {
+   "tour": "maxime",
+   "name": "Carrosserie Barcelona"
+  },
+  {
+   "tour": "maxime",
+   "name": "Carrosserie Moderne"
+  },
+  {
+   "tour": "maxime",
+   "name": "Feu Vert (Anglet)",
+   "city": "Anglet"
+  },
+  {
+   "tour": "maxime",
+   "name": "Norauto France",
+   "aliases": [
+    "Nauroto France"
+   ]
+  },
+  {
+   "tour": "maxime",
+   "name": "Point S",
+   "address": "allée Paulmy"
+  },
+  {
+   "tour": "maxime",
+   "name": "Pneu Service Auto"
+  },
+  {
+   "tour": "maxime",
+   "name": "Ondres Auto"
+  },
+  {
+   "tour": "maxime",
+   "name": "Pneu du BAB"
+  },
+  {
+   "tour": "maxime",
+   "name": "Concept Car"
+  },
+  {
+   "tour": "maxime",
+   "name": "Atelier Carrosserie Shark"
+  },
+  {
+   "tour": "maxime",
+   "name": "Euromaster (allées Marines)",
+   "address": "allées Marines"
+  },
+  {
+   "tour": "maxime",
+   "name": "Hirigoyen"
+  },
+  {
+   "tour": "maxime",
+   "name": "JC Auto"
+  },
+  {
+   "tour": "maxime",
+   "name": "Auto Sélection"
+  },
+  {
+   "tour": "maxime",
+   "name": "Castagnet",
+   "notes": "Total, allées Marines."
+  },
+  {
+   "tour": "maxime",
+   "name": "Fidalgo"
+  },
+  {
+   "tour": "maxime",
+   "name": "Belle Marion (Anglet)",
+   "city": "Anglet"
+  },
+  {
+   "tour": "maxime",
+   "name": "Anglet Auto Service"
+  },
+  {
+   "tour": "maxime",
+   "name": "Ferdinand Aviation",
+   "notes": "Particulier."
+  },
+  {
+   "tour": "maxime",
+   "name": "Cossec"
+  },
+  {
+   "tour": "maxime",
+   "name": "Service Auto 64"
+  },
+  {
+   "tour": "maxime",
+   "name": "Communauté de Bayonne"
+  },
+  {
+   "tour": "maxime",
+   "name": "Urrusty"
+  },
+  {
+   "tour": "maxime",
+   "name": "Dayde"
+  },
+  {
+   "tour": "maxime",
+   "name": "Mendi"
+  },
+  {
+   "tour": "charlie",
+   "name": "Lamerain Renault"
+  },
+  {
+   "tour": "charlie",
+   "name": "Cigarroa"
+  },
+  {
+   "tour": "charlie",
+   "name": "CN Auto",
+   "existing": "CN AUTO",
+   "match": "même nom"
+  },
+  {
+   "tour": "charlie",
+   "name": "First Stop",
+   "existing": "First Stop Laboudigue Saint-Jean-de-Luz",
+   "match": "enseigne unique dans la zone de la tournée de Charlie (fiche existante à Saint-Jean-de-Luz)"
+  },
+  {
+   "tour": "charlie",
+   "name": "Leclerc Auto",
+   "existing": "LECLERC ST JEAN DE LUZ",
+   "aliases": [
+    "Leclerc Auto"
+   ],
+   "match": "enseigne unique dans la zone de la tournée de Charlie (Saint-Jean-de-Luz)"
+  },
+  {
+   "tour": "charlie",
+   "name": "Autosport",
+   "existing": "AUTO SPORT",
+   "aliases": [
+    "Autosport"
+   ],
+   "match": "même nom à l’espace près"
+  },
+  {
+   "tour": "charlie",
+   "name": "Auto 64"
+  },
+  {
+   "tour": "charlie",
+   "name": "Marinela",
+   "existing": "MARINELA",
+   "match": "même nom"
+  },
+  {
+   "tour": "charlie",
+   "name": "Dallard",
+   "existing": "DALLARD ST JEAN DE LUZ",
+   "match": "enseigne unique dans la zone de la tournée de Charlie (Saint-Jean-de-Luz)"
+  },
+  {
+   "tour": "charlie",
+   "name": "Huchet"
+  },
+  {
+   "tour": "charlie",
+   "name": "JS Auto",
+   "existing": "JS AUTO",
+   "match": "même nom"
+  },
+  {
+   "tour": "charlie",
+   "name": "Top Auto"
+  },
+  {
+   "tour": "charlie",
+   "name": "PBA"
+  },
+  {
+   "tour": "charlie",
+   "name": "Antao"
+  },
+  {
+   "tour": "charlie",
+   "name": "Darboure Pampi"
+  },
+  {
+   "tour": "charlie",
+   "name": "Herrikoa",
+   "existing": "HERRIKOA",
+   "match": "même nom"
+  },
+  {
+   "tour": "charlie",
+   "name": "Darboure Famille",
+   "notes": "Particulier."
+  },
+  {
+   "tour": "charlie",
+   "name": "Endarra"
+  },
+  {
+   "tour": "charlie",
+   "name": "Pare-Brise 64"
+  },
+  {
+   "tour": "cedric",
+   "name": "Adrien"
+  },
+  {
+   "tour": "cedric",
+   "name": "Charli’Auto"
+  },
+  {
+   "tour": "cedric",
+   "name": "Hôpital de Bayonne"
+  },
+  {
+   "tour": "cedric",
+   "name": "Bay Utilitaire"
+  },
+  {
+   "tour": "cedric",
+   "name": "Carrosserie Grand Basque"
+  },
+  {
+   "tour": "cedric",
+   "name": "Garage des 3 Vallées"
+  },
+  {
+   "tour": "cedric",
+   "name": "Roady",
+   "open": "Une fiche « AUGARAY (ROADY) » existe déjà (Serge, Paketo Pays Basque). Même magasin, ou un autre Roady ?"
+  },
+  {
+   "tour": "cedric",
+   "name": "Iveco",
+   "aliases": [
+    "Yveco"
+   ]
+  },
+  {
+   "tour": "cedric",
+   "name": "Barthes"
+  },
+  {
+   "tour": "cedric",
+   "name": "Dulamon"
+  },
+  {
+   "tour": "cedric",
+   "name": "Feu Vert (Tarnos)",
+   "city": "Tarnos"
+  },
+  {
+   "tour": "cedric",
+   "name": "Mega Auto"
+  },
+  {
+   "tour": "cedric",
+   "name": "AT Auto"
+  },
+  {
+   "tour": "cedric",
+   "name": "EMD"
+  },
+  {
+   "tour": "cedric",
+   "name": "Carrosserie Sanchez"
+  },
+  {
+   "tour": "cedric",
+   "name": "Hureaux"
+  },
+  {
+   "tour": "cedric",
+   "name": "Yliass"
+  },
+  {
+   "tour": "cedric",
+   "name": "Lopez Qonian"
+  },
+  {
+   "tour": "cedric",
+   "name": "TPM"
+  },
+  {
+   "tour": "cedric",
+   "name": "Relais de l’Océan"
+  },
+  {
+   "tour": "cedric",
+   "name": "Bazé"
+  },
+  {
+   "tour": "cedric",
+   "name": "Sophydro"
+  },
+  {
+   "tour": "cedric",
+   "name": "Duchet"
+  },
+  {
+   "tour": "cedric",
+   "name": "Atelier Shark"
+  },
+  {
+   "tour": "cedric",
+   "name": "Pascassio"
+  },
+  {
+   "tour": "cedric",
+   "name": "Vulco"
+  },
+  {
+   "tour": "cedric",
+   "name": "Bayonne PL"
+  },
+  {
+   "tour": "cedric",
+   "name": "BMW"
+  },
+  {
+   "tour": "cedric",
+   "name": "Scania",
+   "aliases": [
+    "Scannia"
+   ]
+  }
+ ]
+}
