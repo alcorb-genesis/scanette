@@ -15,7 +15,7 @@ for (const file of ['icon-192.png','icon-512.png','icon-maskable-512.png']) fs.c
 
 // Retired screens remain in source history, but are not served as active modules.
 const retired = ['delivery-tracking.html', 'store-purchases.html', 'store-sales.html', 'gestion.html', 'gestion-demo.html', 'scenario.html'];
-const redirect = '<!doctype html><html lang="fr"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=application.html#home"><title>Alcorb Logistique</title><a href="application.html#home">Revenir à la logistique</a></html>';
+const redirect = '<!doctype html><html lang="fr"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=application.html#home"><title>Repclick</title><a href="application.html#home">Revenir à la logistique</a></html>';
 for (const file of retired) fs.writeFileSync(path.join(output,file),redirect);
 for (const file of ['delivery-tracking.js','delivery-tracking.css','delivery-position.js','store-purchases.js', 'store-sales.js', 'sales-core.js', 'delivery-tours-core.js', 'delivery-tours-ui.js', 'delivery-tours.css', 'delivery-print.js', 'delivery-print.css', 'scenario.css', 'scenario.js', 'scenario-core.js', 'gestion.css', 'gestion.js', 'gestion-core.js', 'gestion-bridge.js', 'gestion-demo.js']) { const target=path.join(output,file); if(fs.existsSync(target)) fs.unlinkSync(target); }
 

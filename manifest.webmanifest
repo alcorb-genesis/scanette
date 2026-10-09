@@ -1,6 +1,6 @@
 {
- "name": "Alcorb Logistique",
- "short_name": "Alcorb",
+ "name": "Repclick",
+ "short_name": "Repclick",
  "description": "Logistique du magasin : réception, scanette, inventaire, préparation, départs, catalogue et retours.",
  "id": "application.html",
  "start_url": "application.html",

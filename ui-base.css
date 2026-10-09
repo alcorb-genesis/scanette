@@ -1,4 +1,4 @@
-/* Alcorb logistique — shared tokens and light components.
+/* Repclick logistique — shared tokens and light components.
    Tokens are global. Element styles only apply inside .ui and use :where(),
    so they carry no extra specificity: a page stylesheet loaded after this one
    keeps the last word for its own layout. */
