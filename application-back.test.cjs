@@ -2,7 +2,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const tick=async(n=6)=>{for(let i=0;i<n;i++)await new Promise(r=>setImmediate(r));};
 /* Application shell with the real history controller and a joint-session-history model. */
 function setup({confirmAnswer=false}={}){
- const nodes={},docEvents={},events={},requests=[],posted=[];let authCallback;
+ const nodes={},docEvents={},events={},posted=[];
  function node(){return {dataset:{},hidden:false,textContent:'',value:'',disabled:false,children:[],replaceChildren(){this.children=[]},append(n){this.children.push(n);n.parentNode=this},remove(){},get firstChild(){return this.children[0]}};}
  const history={entries:[{state:null},{state:null}],index:1,exited:false,pushes:0,
   get state(){return this.entries[this.index].state;},
@@ -10,15 +10,15 @@ function setup({confirmAnswer=false}={}){
   replaceState(s,_t,u){this.entries[this.index]={state:structuredClone(s),url:u};if(u)c.location.hash=u;},
   back(){this.go(-1);},
   go(d){setImmediate(()=>{const t=this.index+d;if(t<1){this.exited=true;return;}if(t>=this.entries.length)return;this.index=t;events.popstate?.({state:this.entries[t].state});});}};
- const client={from:()=>({select(){return this},eq(){return this},maybeSingle(){return new Promise(r=>requests.push(r))}}),auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange(cb){authCallback=cb},signOut:async()=>({})}};
- const c={URLSearchParams,structuredClone,confirm:()=>confirmAnswer,
+ const c={URLSearchParams,structuredClone,SharedAccess:{enter:async()=>{},leave(){}},confirm:()=>confirmAnswer,
   document:{getElementById:id=>nodes[id]??=node(),querySelectorAll:()=>[],createElement:()=>{const frame={...node(),contentWindow:{postMessage:(m,o)=>posted.push({m,o})}};return frame;},addEventListener:(k,f)=>docEvents[k]=f},
-  window:{addEventListener:(k,f)=>events[k]=f},history,location:{hash:'',search:'',origin:'https://example.test'},supabase:{createClient:()=>client},clearTimeout(){},setTimeout:(f,ms)=>{if(!ms)f();return 1;}};
+  window:{addEventListener:(k,f)=>events[k]=f},history,location:{hash:'',search:'',origin:'https://example.test'},clearTimeout(){},setTimeout:(f,ms)=>{if(!ms)f();return 1;}};
  vm.createContext(c);vm.runInContext(fs.readFileSync('nav-history.js','utf8'),c);vm.runInContext(fs.readFileSync('application.js','utf8'),c);
  const frame=()=>nodes.module.firstChild;
  const message=data=>events.message({origin:'https://example.test',source:frame().contentWindow,data});
  return {nodes,events,history,posted,frame,message,
-  async login(){await tick();authCallback('TEST',{user:{id:'member',email:'m@example.test'}});requests.shift()({data:{role:'operator'}});await tick();},
+  // Shared access: choosing « Accès logistique » opens the workspace, without credentials.
+  async login(){await tick();nodes.openLogistics.onclick();await tick();},
   tap(){docEvents.pointerdown?.({});},
   click(s){docEvents.pointerdown?.({});docEvents.click({target:{closest:()=>({dataset:{section:s}})}});},
   async back(){history.back();await tick();},
@@ -67,7 +67,7 @@ test('a fragment link such as « Aller au contenu » is not treated as navigatio
  const a=setup();await a.login();a.click('scan');const before=a.history.pushes;a.events.hashchange?.();
  assert.equal(shown(a),'index.html?embedded=1');assert.equal(a.history.pushes,before);
 });
-test('logout resets the boundary: after a new login, Back from home warns before leaving',async()=>{
- const a=setup();await a.login();a.click('scan');await a.nodes.logout.onclick?.();
+test('leaving resets the boundary: after reopening, Back from home warns before leaving',async()=>{
+ const a=setup();await a.login();a.click('scan');await a.nodes.leave.onclick?.();
  await a.login();a.tap();await a.back();assert.equal(a.history.exited,false);assert.equal(a.nodes.backHint.hidden,false);
 });

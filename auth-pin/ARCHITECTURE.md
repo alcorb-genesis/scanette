@@ -1,5 +1,7 @@
 # Connexion logistique par nom et PIN — contrat de sécurité
 
+> Depuis le 9 octobre 2026, l’application publiée n’utilise plus cet écran : l’accès logistique passe par le mot de passe partagé (voir ../SHARED-ACCESS.md). `pin-ui.js` n’est plus chargé ni publié. Le service (`index.ts`, `service.mjs`), le schéma et leurs tests restent dans le dépôt ; la fermeture des fonctions `logistics_pin_*` côté base est une étape séparée, décrite dans « Déploiement » de ../SHARED-ACCESS.md, et `enable.sql` permet de revenir en arrière.
+
 Demande confirmée : choisir son nom, puis saisir son PIN personnel.
 
 La connexion e-mail/mot de passe existante reste le moyen d'activation et de récupération, pas le parcours quotidien.

@@ -43,18 +43,17 @@ async function invitation(){const match=location.hash.match(/^#i=([0-9a-f-]{36})
 async function shopList(){
  message('Chargement de la liste du magasin…');
  try{
-  let db=window.parent!==window?window.parent.AlcorbAuth:null;
-  if(!db){
-   await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js';s.onload=resolve;s.onerror=reject;document.head.append(s);});
-   db=supabase.createClient('https://pryocchvwmnuoidtitow.supabase.co',key);
-  }
-  const session=await db.auth.getSession();
-  if(!session.data.session){message('Pour charger les pièces du magasin, ouvrez Inventaire depuis votre espace connecté, ou utilisez le lien envoyé par l’organisateur.');return;}
-  const r=await db.rpc('inventory_current_list',{shop:'8770297c-cadb-4cc6-8b93-55a0f9bd154e'});
-  if(r.error)throw Error('La liste du magasin est indisponible. Réessayez avec une connexion, ou utilisez votre lien d’inventaire.');
-  if(!r.data){message('Aucune liste préparée pour ce magasin. L’organisateur peut en préparer une avec le lien ci-dessous.');return;}
+  // Shared logistics access without account: the list comes from shared_inventory_current,
+  // which serves the shop configured on the server. Loaded on demand so counting works offline.
+  const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.append(s);});
+  if(!window.supabase)await load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js');
+  if(!window.SharedAccess)await load('../shared-access.js?v=20261008-password');
+  const shared=window.SharedAccess;let list;
+  try{list=await shared.call('shared_inventory_current');}
+  catch(e){throw Error(e.code==='42501'?shared.message(e):'La liste du magasin est indisponible. Réessayez avec une connexion, ou utilisez votre lien d’inventaire.');}
+  if(!list){message('Aucune liste publiée pour ce magasin. Utilisez « Préparer et publier les listes du magasin ».');return;}
   if(draft||catalogue.length)return;
-  loadList(r.data.rows,r.data.title);message('Liste du magasin chargée. Choisissez votre marque, gamme ou allée.');
+  loadList(list.rows,list.title);message('Liste du magasin chargée. Choisissez votre marque, gamme ou allée.');
  }catch(e){message(e.message||'Liste indisponible. Vérifiez votre connexion.',true);}
 }
 

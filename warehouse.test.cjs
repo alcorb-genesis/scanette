@@ -1,25 +1,26 @@
-const {harness}=require('./app.test.cjs');
+const {harness,TOKEN}=require('./app.test.cjs');
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 async function setup(){const h=harness();h.run(fs.readFileSync('warehouse.js','utf8'));await new Promise(r=>setImmediate(r));await h.run('synchronize()');return h;}
 const product=(id,reference='SAME')=>({id,reference,description:'Description '+id});
 test('Bellecave barcode resolves automatically and never publishes shop aliases',async()=>{
- const h=await setup();h.context.fetch=async url=>({ok:true,json:async()=>url.includes('scanette_products')?[product('p1','REF123')]:[]});
+ const h=await setup();h.context.fetch=async url=>({ok:true,json:async()=>url.endsWith('/rpc/shared_product_lookup')?[product('p1','REF123')]:[]});
  await h.run("onBarcode('0123456789012')");
- const state=JSON.parse(h.data.get('scanette_account_v1:alice'));
+ const state=JSON.parse(h.data.get('scanette_account_v1:shared'));
  assert.equal(state.sections[0].items['BELLECAVE:p1'].qty,1);assert.equal(state.sections[0].items['BELLECAVE:p1'].reference,'REF123');assert.equal(state.pushQueue.length,0);assert.deepEqual(state.aliases,{});
 });
 test('same reference on different product identities remains distinct through backup',async()=>{
  const h=await setup();h.context.entries=[{product:product('p1'),code:'001',qty:2},{product:product('p2'),code:'002',qty:3}];h.run('Warehouse.commit(entries)');
- const saved=JSON.parse(h.data.get('scanette_account_v1:alice'));assert.equal(Object.keys(saved.sections[0].items).length,2);assert.equal(saved.sections[0].items['BELLECAVE:p2'].qty,3);
- h.run("loadAccount('alice')");assert.equal(h.run("sections[0].items['BELLECAVE:p1'].productId"),'p1');
+ const saved=JSON.parse(h.data.get('scanette_account_v1:shared'));assert.equal(Object.keys(saved.sections[0].items).length,2);assert.equal(saved.sections[0].items['BELLECAVE:p2'].qty,3);
+ h.run("loadAccount('shared')");assert.equal(h.run("sections[0].items['BELLECAVE:p1'].productId"),'p1');
 });
 test('a batch is atomic when storage fails',async()=>{
- const h=await setup(),before=h.data.get('scanette_account_v1:alice');h.context.entries=[{product:product('p1'),code:'001',qty:2}];
- h.context.localStorage.setItem=()=>{throw Error('Quota');};assert.throws(()=>h.run('Warehouse.commit(entries)'),/Quota/);assert.equal(h.run('sections.length'),0);assert.equal(h.data.get('scanette_account_v1:alice'),before);
+ const h=await setup(),before=h.data.get('scanette_account_v1:shared');h.context.entries=[{product:product('p1'),code:'001',qty:2}];
+ h.context.localStorage.setItem=()=>{throw Error('Quota');};assert.throws(()=>h.run('Warehouse.commit(entries)'),/Quota/);assert.equal(h.run('sections.length'),0);assert.equal(h.data.get('scanette_account_v1:shared'),before);
 });
-test('a stale lookup cannot add to another account',async()=>{
- const h=await setup();let release;h.context.fetch=()=>new Promise(r=>release=r);
- const pending=h.run("onBarcode('001')");await new Promise(r=>setImmediate(r));h.run('clearAccount()');release({ok:true,json:async()=>[product('p1')]});await pending;assert.equal(h.run('sections.length'),0);
+test('the lookup sends only the scanned code to the shared function, never a shop or a table filter',async()=>{
+ const h=await setup();h.calls.length=0;h.context.fetch=async(url,opts)=>{h.calls.push({url,opts});return {ok:true,json:async()=>[product('p1','REF1')]};};
+ await h.run("onBarcode('001')");assert.deepEqual(h.rpc('shared_product_lookup'),[{code:'001',session_token:TOKEN}]);
+ assert.equal(h.calls.some(c=>/scanette_products|workspace/.test(c.url+(c.opts?.body||''))),false);
 });
 test('network failure does not silently create an unknown reference',async()=>{
  const h=await setup();h.context.fetch=async()=>({ok:false,status:503});await h.run("onBarcode('001')");assert.equal(h.run('sections.length'),0);assert.equal(h.run('pendingEan'),null);
@@ -58,9 +59,9 @@ test('video controller counts distinct labels, pauses, retains four recent adds 
  el('sweepDialog').open=true;await el('sweepToggle').onclick();await new Promise(r=>setImmediate(r));
  assert.equal(h.run('sections.length'),0);assert.equal(ticks.length,1);
  ticks.shift()();await new Promise(r=>setImmediate(r));
- assert.equal(h.run('Object.keys(sections[0].items).length'),5);assert.equal(recent.length,4);assert.equal(JSON.parse(h.data.get('scanette_account_v1:alice')).recentScans.length,4);
- el('sweepToggle').onclick();const saved=h.data.get('scanette_account_v1:alice');
- if(ticks.length)ticks.shift()();await new Promise(r=>setImmediate(r));assert.equal(h.data.get('scanette_account_v1:alice'),saved);assert.equal(recent.length,4);
+ assert.equal(h.run('Object.keys(sections[0].items).length'),5);assert.equal(recent.length,4);assert.equal(JSON.parse(h.data.get('scanette_account_v1:shared')).recentScans.length,4);
+ el('sweepToggle').onclick();const saved=h.data.get('scanette_account_v1:shared');
+ if(ticks.length)ticks.shift()();await new Promise(r=>setImmediate(r));assert.equal(h.data.get('scanette_account_v1:shared'),saved);assert.equal(recent.length,4);
  el('sweepUndo').onclick();assert.equal(h.run('Object.keys(sections[0].items).length'),4);
 });
 

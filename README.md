@@ -2,6 +2,8 @@
 
 Application statique de pointage et catalogue magasin. Aucun serveur applicatif n'est nécessaire ; l'authentification et les données partagées utilisent Supabase.
 
+Depuis le 9 octobre 2026, l'accès logistique est partagé, sans compte ni PIN, derrière un mot de passe unique vérifié par le serveur : voir SHARED-ACCESS.md (risque, périmètre, déploiement). Les mentions de compte ci-dessous décrivent l'ancien fonctionnement. L'accès garage reste public.
+
 Écran d'accueil du téléphone : l'application est installable (`manifest.webmanifest`, icônes dans `icons/`). Installée, elle s'ouvre dans sa propre fenêtre et une relance revient à cette fenêtre ; un simple favori ajouté avant ce changement continue d'ouvrir un nouvel onglet à chaque lancement et doit être remplacé (supprimer le raccourci, rouvrir le site, « Installer l'application »). Le portail garage a son propre manifeste (`returns-portal.webmanifest`), limité à sa page.
 
 ## Repclick Gestion — réception partagée, 20 septembre 2026
