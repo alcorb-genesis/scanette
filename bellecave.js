@@ -7,8 +7,11 @@ let pageIndex=0,total=0,epoch=0,requestId=0,selectedProduct=null;
 let aisleRows=[],selectedAisle=null;
 let cameraScanner=null,cameraStarting=false,cameraGeneration=0;
 function status(text,error=false){el('status').textContent=text;el('status').classList.toggle('error',error);}
+/* Another section may ask for a reference (scanner, inventory, preparation, returns): it is searched
+   at once, and its record opens when exactly one product bears that reference. */
+let requested=typeof SectionLinks!=='undefined'?SectionLinks.param('q'):'';
 async function enter(){
- const current=++epoch;el('catalogue').hidden=false;pageIndex=0;await Promise.all([search(),loadAisles(current)]);
+ const current=++epoch;el('catalogue').hidden=false;pageIndex=0;if(requested)el('query').value=requested;await Promise.all([search(),loadAisles(current)]);
 }
 async function search(){
  const current=epoch,request=++requestId;
@@ -36,6 +39,8 @@ async function search(){
  el('page').textContent='Page '+(pageIndex+1)+' / '+Math.max(1,Math.ceil(total/40));
  el('previous').disabled=pageIndex===0;el('next').disabled=(pageIndex+1)*40>=total;
  status(total?'':'Aucune fiche correspondante.');
+ if(requested){const wanted=requested.toLocaleUpperCase('fr');requested='';const exact=data.filter(p=>p.reference===wanted||p.internal_barcode===wanted||p.manufacturer_barcode===wanted);
+  if(exact.length===1)detail(exact[0]);else if(!total)status('« '+wanted+' » n’est pas au catalogue. Vérifiez la référence, ou cherchez par désignation.');}
 }
 function detail(product){
  showEvidence(product.catalogue_enrichment);

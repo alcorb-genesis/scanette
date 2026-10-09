@@ -22,3 +22,8 @@ label{display:grid;gap:5px;font-weight:650;flex:1;min-width:150px;margin:0}
 /* Requests from the public garage portal. */
 .case-place{margin:0;color:var(--ui-warning);font-weight:650;overflow-wrap:anywhere}
 .portal-info{padding:12px 14px;border-radius:var(--ui-radius);background:var(--ui-warning-bg);border:1px solid #8a6a3f;color:var(--ui-text);overflow-wrap:anywhere}
+/* Links to the other sections, and a search field that keeps its whole placeholder on a phone. */
+#garageLink{margin:8px 0 0}
+.line .section-link{align-self:end;min-height:var(--ui-control)}
+@media(max-width:620px){.toolbar label{flex:1 1 100%}}
+.line .section-link{justify-self:start}

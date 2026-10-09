@@ -18,3 +18,7 @@ article small{display:block;margin:7px 0}
 #liveVideo{width:100%;max-height:60vh;background:#111;object-fit:contain;border-radius:var(--ui-radius)}
 #livePanel{margin:16px 0}
 @media(max-width:500px){section,form#editor{padding:14px}.row button{flex-grow:1}}
+/* The departure frame is a short notice: centred. Links to the other sections sit under their subject. */
+.departure{text-align:center}
+#departureLink{display:block;margin:8px auto 0}
+#lines .section-link{margin-top:10px}

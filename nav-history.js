@@ -33,6 +33,9 @@ function createNavHistory({history,render,current,canLeave,closeLayer,toast,root
    for(const e of stack)if(e.kind==='layer')e.dead=true; // layers of the previous screen are gone
    push(make(top().n+1,'screen',{section,...extra}));
   });},
+  /* The screen the user is leaving notes where it should reopen (a record identifier). Kept in
+     memory on its own entry: Back hands it to render, a reload forgets it. */
+  annotate(extra){run(()=>{const entry=stack.findLast(e=>e.kind==='screen'||e.kind==='base');if(entry)Object.assign(entry,extra);});},
   /* User asks for the home screen: go back to it when it is below, never stack a copy. */
   goHome(){
    const index=stack.findLastIndex(e=>e.kind==='screen'&&e.section==='home');
@@ -56,14 +59,14 @@ function createNavHistory({history,render,current,canLeave,closeLayer,toast,root
    if(state.sid!==sid){                                       // entry from before a reload
     stack=[make(0,'base',{section:state.section})];silent=0;queue.length=0;
     history.replaceState(stack[0],title,url(state.section));
-    if(state.section&&state.section!==current())render(state.section,state.receiptId);
+    if(state.section&&state.section!==current())render(state.section,state.receiptId,state);
     return;
    }
    const from=top();
    if(silent>0){silent--;stack=stack.filter(e=>e.n<=state.n);flush();return;}
    if(state.n>from.n){                                        // Forward button
     if(state.kind==='layer'){back(true);return;}
-    stack.push(state);if(state.section!==current())render(state.section,state.receiptId);flush();return;
+    stack.push(state);if(state.section!==current())render(state.section,state.receiptId,state);flush();return;
    }
    const popped=stack.filter(e=>e.n>state.n).reverse();
    stack=stack.filter(e=>e.n<=state.n);
@@ -73,7 +76,7 @@ function createNavHistory({history,render,current,canLeave,closeLayer,toast,root
    const target=landed.kind==='base'?(rootGuard?'home':current()):landed.section;
    if(target!==current()){
     if(!canLeave()){push(make(top().n+1,'screen',{section:current()}));flush();return;}
-    render(target,landed.receiptId);
+    render(target,landed.receiptId,landed);
     if(landed.n===0&&rootGuard)push(make(1,'screen',{section:'home'}));
     flush();return;
    }

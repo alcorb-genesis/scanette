@@ -59,6 +59,10 @@
 :where(.ui) :where(.alert-success){background:var(--ui-success-bg);border:1px solid var(--ui-accent);color:var(--ui-text)}
 :where(.ui) :where(.alert-info){background:var(--ui-surface-2);border:1px solid var(--ui-line);color:var(--ui-text)}
 
+/* Link to another section of the application: quieter than an action, still a full-size touch target. */
+:where(.ui) :where(.section-link){min-height:40px;padding:6px 12px;background:transparent;border:1px solid var(--ui-line-strong);border-radius:999px;color:var(--ui-accent);font-size:14px;font-weight:650;line-height:1.25;text-align:center;white-space:normal;overflow-wrap:anywhere}
+:where(.ui) :where(.section-link)::after{content:" ›"}
+
 /* Scan zones: full width on a phone, bounded on a desktop, never cropped. */
 :where(.ui) :where(#reader){width:100%;max-width:480px;margin:12px auto;border:2px solid var(--ui-accent);border-radius:var(--ui-radius-lg);overflow:hidden;background:#000}
 :where(.ui) :where(#reader video){display:block;width:100%!important;height:auto!important;object-fit:contain}

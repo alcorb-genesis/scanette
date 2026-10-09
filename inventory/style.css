@@ -29,3 +29,6 @@ progress{width:100%;accent-color:var(--ui-accent)}
 body:has(#work:not([hidden])) main>header,body:has(#work:not([hidden])) #offline{display:none}
 @media(max-width:520px){main{padding:12px}.count-line{grid-template-columns:minmax(0,1fr) 96px}.toolbar button{font-size:14px;padding:9px}.row{gap:8px}}
 @media print{.no-print,header,button,input,select,dialog{display:none!important}.count-line{break-inside:avoid}body{background:white;color:black}}
+/* Link to the catalogue record, under the location; selectors on one line each on a phone. */
+.count-line .section-link{display:block;margin-top:8px}
+@media(max-width:520px){#start .row>label{flex-basis:100%}}

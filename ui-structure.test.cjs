@@ -22,7 +22,7 @@ test('main actions are marked, so they stand out from secondary ones',()=>{
 });
 test('new shared files are published and kept offline for the inventory',()=>{
  const build=read('build.cjs');for(const f of ['ui-base.css','nav-history.js','nav-layers.js'])assert.match(build,new RegExp("'"+f.replace('.','\\.')+"'"));
- const sw=read('inventory/sw.js');for(const f of ['../ui-base.css','../nav-history.js','../nav-layers.js','../shared-access.js'])assert.ok(sw.includes("'"+f+"'"),f);assert.match(sw,/alcorb-inventory-static-v6/);
+ const sw=read('inventory/sw.js');for(const f of ['../ui-base.css','../nav-history.js','../nav-layers.js','../shared-access.js','../section-links.js'])assert.ok(sw.includes("'"+f+"'"),f);assert.match(sw,/alcorb-inventory-static-v7/);
 });
 test('the base stylesheet adds no specificity to element rules',()=>{
  const css=read('ui-base.css').replace(/\/\*[\s\S]*?\*\//g,'').replace(/@media[^{]*\{/g,'');let checked=0;

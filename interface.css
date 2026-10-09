@@ -29,3 +29,7 @@ body:has(#scanModes){--accent:#68e0c4;--accent2:#68e0c4;background:radial-gradie
 
 /* Compact viewfinder: limit width without cropping or distorting decoder coordinates. */
 .scan-workbench #reader{width:100%;max-width:420px;margin:12px auto}.scan-workbench #reader video{height:auto!important;object-fit:contain}
+/* Links between sections (pages outside .ui), and room under the catalogue search row. */
+.section-link{min-height:40px;padding:6px 12px;background:transparent;border:1px solid #4f6d7b;border-radius:999px;color:var(--accent2,#6fe0c6);font:650 14px/1.25 inherit;font-family:inherit;text-align:center;cursor:pointer}
+.section-link::after{content:" ›"}
+#searchForm>.row:first-of-type{margin-bottom:14px}
