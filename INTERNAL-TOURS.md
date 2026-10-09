@@ -29,16 +29,20 @@ Tant que `internal-tours.sql` n’est pas exécuté, l’écran propose les tour
 
 ## En attente de décision
 
-Ces lignes de la liste ne sont ni créées ni rattachées : une fiche existante pourrait être le même garage, sans certitude. Elles figurent dans le rapport et dans le message de l’essai à blanc.
+Plus aucune ligne n’est en attente. Le mécanisme reste en place : une ligne marquée `open` dans `internal-tours-data.json` n’est ni créée ni rattachée, et figure dans le rapport et dans le message de l’essai à blanc.
 
-| Tournée | Ligne d’Alexis | Fiche existante candidate |
+## Décisions d’Alexis déjà appliquées à la main en base (9 octobre 2026)
+
+| Ligne d’origine | Décision | Comment la fiche est retrouvée |
 |---|---|---|
-| Damian | Irribarren | IRIBARREN PATRICK |
-| Cédric | Roady | AUGARAY (ROADY) |
+| Irribarren (Damian) | **Jo Iribarren**, fiche nouvelle et distincte de « IRIBARREN PATRICK » : ne jamais les fusionner. Adresse, deux téléphones, activités, horaires d’ouverture ; variantes « Irribarren », « Garage Jo Iribarren » ; aucun départ interne fixe | par sa clé `tour-jo-iribarren-20261009`, jamais par son nom |
+| Roady (Cédric) | **Roady Bayonne** est la fiche existante « AUGARAY (ROADY) » (un seul R, nom lu en base ; c’est la seule fiche dont le nom contient ROADY). Tournée de Cédric, variantes « Roady Bayonne » et « Centre auto Roady Bayonne », adresse, téléphone, horaires d’ouverture ; ses départs externes sont conservés tels quels | par son nom exact ; le script s’arrête s’il n’y a pas exactement une fiche contenant ROADY |
 
-Une fois la décision prise : écrire `existing` (même garage) ou retirer `open` (garage distinct) dans `internal-tours-data.json`, régénérer, rejouer la mutation — elle ne touche que ce qui change.
+Rejouer `internal-tours.sql` sur la base réelle ne change donc rien ; sur une base neuve, il recrée ces deux décisions. Les détails confirmés d’une fiche existante sont ajoutés quand la fiche n’en a pas et ne remplacent jamais une valeur présente. Les horaires d’ouverture ne créent aucun départ.
 
-## Correspondances confirmées par Alexis (9 octobre 2026)
+Le rapport (`internal-tours.check.sql`) liste en section 4 tout écart entre la base et ce que la mutation applique, et en section 5 les fiches à ne jamais fusionner.
+
+## Correspondances de la tournée de Charlie confirmées par Alexis (9 octobre 2026)
 
 Charlie est le livreur ; ces trois lignes de sa tournée désignent des fiches déjà présentes, complétées sans être remplacées :
 

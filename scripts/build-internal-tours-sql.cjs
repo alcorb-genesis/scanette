@@ -4,10 +4,16 @@
 const fs=require('node:fs'),path=require('node:path'),root=path.join(__dirname,'..');
 const data=JSON.parse(fs.readFileSync(path.join(root,'internal-tours-data.json'),'utf8')),P=require(path.join(root,'partner-planning-core.js'));
 const SHOP='8770297c-cadb-4cc6-8b93-55a0f9bd154e',KEY='repclick:internal-tours:2026-10-09';
+/* One entry per line of the list that is applied:
+   existing    exact name of a record already in the shop, completed and never replaced;
+   source_key  a record created by hand in the base, found again by that key (never by its name);
+   details     what a new record is created with; fill: keys added to an existing record when it has
+               none (never overwriting); distinct_from: a record this one must never be merged with;
+   unique_like the shop must hold exactly one record whose name contains this text. */
 function rows(){return data.garages.filter(g=>!g.open).map(g=>{
- const details={};for(const k of ['city','address','network'])if(g[k])details[k]=g[k];
- details.notes=g.notes||'';details.aliases='';details.source=data.source;
- return {tour:g.tour,name:g.existing?undefined:g.name,existing:g.existing,aliases:g.aliases||[],details:g.existing?undefined:details,slots:P.fixedSlots(g.tour)};});}
+ let details;
+ if(!g.existing){details=g.details?{...g.details}:{};if(!g.details){for(const k of ['city','address','network'])if(g[k])details[k]=g[k];details.notes=g.notes||'';details.source=data.source;}details.aliases='';}
+ return {tour:g.tour,name:g.existing?undefined:g.name,existing:g.existing,source_key:g.source_key,distinct_from:g.distinct_from,unique_like:g.unique_like,aliases:g.aliases||[],details,fill:g.fill||{},slots:P.fixedSlots(g.tour)};});}
 const pending=()=>data.garages.filter(g=>g.open).map(g=>({tour:g.tour,name:g.name,candidate:g.candidate||'',reason:g.open}));
 /* Dollar-quoting with named tags only. Some ways of sending SQL (a replacement string in
    JavaScript, a template) turn « $$ » into « $ », or reject BEGIN/COMMIT: each file is therefore ONE
@@ -41,7 +47,7 @@ const mutation=dryRun=>header(dryRun?'Internal delivery rounds: DRY RUN of inter
 --   * a garage without record gets a new one, with what Alexis wrote and nothing else;
 --   * Damian, Maxime and Cédric get no hour at all; Ludovic gets no garage (reinforcement).
 --   * garages whose match with an existing record is not certain are PENDING: neither created nor
---     attached, listed by internal-tours.check.sql for a decision (${pending().map(p=>p.name).join(', ')}).
+--     attached, listed by internal-tours.check.sql for a decision (${pending().map(p=>p.name).join(', ')||'none at present'}).
 -- Strict: stops without changing anything when an expected record is missing or not unique, or when
 -- a record with the same name already exists for a garage that should be new.
 -- Atomic: a single statement; any error undoes everything it did.
@@ -51,20 +57,29 @@ declare shop constant uuid:='${SHOP}'; dry_run constant boolean:=${dryRun?'true'
  ref constant jsonb:=${literal(rows())};
  waiting constant jsonb:=${literal(pending())};
  e jsonb; target public.gestion_partners%rowtype; found_count integer; new_id uuid; is_new boolean;
- next_details jsonb; next_departures jsonb; rounds jsonb; known text; alias text; slot jsonb;
+ next_details jsonb; next_departures jsonb; rounds jsonb; known text; alias text; slot jsonb; fill_key text;
  created integer:=0; changed integer:=0; untouched integer:=0;
 begin
  if not exists(select 1 from public.scanette_workspaces w where w.id=shop) then raise exception 'Shop % not found',shop; end if;
  lock table public.gestion_partners in share row exclusive mode;
  for e in select value from jsonb_array_elements(ref) loop
   is_new:=false;
+  if e ? 'unique_like' then
+   select count(*) into found_count from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and not (p.details ? 'merged_into') and p.name ilike '%'||(e->>'unique_like')||'%';
+   if found_count<>1 then raise exception 'Expected exactly one record whose name contains "%", found %: nothing is attached or created',e->>'unique_like',found_count; end if;
+  end if;
   if e ? 'existing' then
    select count(*) into found_count from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and p.name=e->>'existing' and not (p.details ? 'merged_into');
    if found_count<>1 then raise exception 'Expected exactly one record named "%", found %',e->>'existing',found_count; end if;
    select * into target from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and p.name=e->>'existing' and not (p.details ? 'merged_into') for update;
   else
    new_id:=md5('${KEY}:'||(e->>'tour')||':'||(e->>'name'))::uuid;
-   select * into target from public.gestion_partners p where p.id=new_id for update;
+   -- A record created by hand is found again by its key; otherwise by the identifier this script gives.
+   if e ? 'source_key' then
+    select * into target from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and p.source_key=e->>'source_key' for update;
+   else
+    select * into target from public.gestion_partners p where p.id=new_id for update;
+   end if;
    if not found then
     if exists(select 1 from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and not (p.details ? 'merged_into') and lower(btrim(p.name))=lower(btrim(e->>'name'))) then
      raise exception 'A record named "%" already exists: decide whether it is the same garage before adding it',e->>'name'; end if;
@@ -72,6 +87,8 @@ begin
    elsif target.workspace_id<>shop or target.kind<>'client' then raise exception 'Record % belongs to another shop or kind',new_id;
    end if;
   end if;
+  if e ? 'distinct_from' and (target.name=e->>'distinct_from' or lower(btrim(target.name))=lower(btrim(e->>'distinct_from'))) then
+   raise exception '"%" must stay a record distinct from "%": refusing to merge them',e->>'name',e->>'distinct_from'; end if;
   -- Round: added to the list, never replacing another round.
   rounds:=case when jsonb_typeof(target.details->'tours')='array' then target.details->'tours' else '[]'::jsonb end;
   if not rounds ? (e->>'tour') then rounds:=rounds||to_jsonb(e->>'tour'); end if;
@@ -79,11 +96,15 @@ begin
   -- Aliases: kept as the « a ; b » text the records already use; a variant is added once.
   known:=coalesce(next_details->>'aliases','');
   for alias in select value from jsonb_array_elements_text(e->'aliases') loop
-   if lower(btrim(alias))<>lower(btrim(target.name)) and not exists(select 1 from regexp_split_to_table(known,'\\s*;\\s*') a where lower(btrim(a))=lower(btrim(alias))) then
+   if lower(btrim(alias))<>lower(btrim(target.name)) and not exists(select 1 from regexp_split_to_table(known,'\\s*[;,]\\s*') a where lower(btrim(a))=lower(btrim(alias))) then
     known:=case when btrim(known)='' then alias else known||' ; '||alias end;
    end if;
   end loop;
   if known is distinct from coalesce(next_details->>'aliases','') then next_details:=jsonb_set(next_details,'{aliases}',to_jsonb(known)); end if;
+  -- Confirmed details of an existing record: a key is added when the record has none; nothing is overwritten.
+  for fill_key in select jsonb_object_keys(coalesce(e->'fill','{}'::jsonb)) loop
+   if not (next_details ? fill_key) or coalesce(next_details->>fill_key,'')='' then next_details:=jsonb_set(next_details,array[fill_key],e->'fill'->fill_key); end if;
+  end loop;
   -- Fixed departures (Charlie): added beside the existing ones, once.
   next_departures:=target.departures;
   for slot in select value from jsonb_array_elements(e->'slots') loop
@@ -94,7 +115,7 @@ begin
   if jsonb_array_length(next_departures)>30 then raise exception 'Too many departures on "%"',target.name; end if;
   if is_new then
    insert into public.gestion_partners(id,workspace_id,kind,name,details,departures,source_key,version,updated_by)
-   values(target.id,shop,'client',target.name,next_details,next_departures,'',1,null);
+   values(target.id,shop,'client',target.name,next_details,next_departures,coalesce(e->>'source_key',''),1,null);
    created:=created+1;
   elsif next_details is distinct from target.details or next_departures is distinct from target.departures then
    update public.gestion_partners p set details=next_details,departures=next_departures,version=p.version+1,updated_at=now() where p.id=target.id;
@@ -104,7 +125,7 @@ begin
  end loop;
  if dry_run then
   raise exception 'DRY RUN OK — nothing written. Would create % record(s), complete % existing record(s), leave % unchanged. Pending, neither created nor attached: %',created,changed,untouched,
-   (select string_agg((w.value->>'name')||' ['||(w.value->>'tour')||']',', ') from jsonb_array_elements(waiting) w) using errcode='P0001';
+   coalesce((select string_agg((w.value->>'name')||' ['||(w.value->>'tour')||']',', ') from jsonb_array_elements(waiting) w),'none') using errcode='P0001';
  end if;
  raise notice 'Internal rounds: % record(s) created, % existing record(s) completed, % already up to date, % pending',created,changed,untouched,jsonb_array_length(waiting);
 end ${RUN};
@@ -119,7 +140,7 @@ const rollback=header('Internal delivery rounds: undo internal-tours.sql.')+`--
 do ${RUN}
 declare shop constant uuid:='${SHOP}';
  ref constant jsonb:=${literal(rows())};
- e jsonb; target public.gestion_partners%rowtype; new_id uuid; next_details jsonb; next_departures jsonb; rounds jsonb; known text; alias text;
+ e jsonb; target public.gestion_partners%rowtype; new_id uuid; next_details jsonb; next_departures jsonb; rounds jsonb; known text; alias text; fill_key text;
  deleted integer:=0; changed integer:=0; kept text:='';
 begin
  lock table public.gestion_partners in share row exclusive mode;
@@ -128,18 +149,26 @@ begin
    select * into target from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and p.name=e->>'existing' and not (p.details ? 'merged_into') for update;
   else
    new_id:=md5('${KEY}:'||(e->>'tour')||':'||(e->>'name'))::uuid;
-   select * into target from public.gestion_partners p where p.id=new_id and p.workspace_id=shop for update;
-   if found and target.version=1 then delete from public.gestion_partners p where p.id=new_id; deleted:=deleted+1; continue; end if;
+   if e ? 'source_key' then
+    select * into target from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and p.source_key=e->>'source_key' for update;
+   else
+    select * into target from public.gestion_partners p where p.id=new_id and p.workspace_id=shop for update;
+   end if;
+   if found and target.version=1 then delete from public.gestion_partners p where p.id=target.id; deleted:=deleted+1; continue; end if;
    if found then kept:=kept||case when kept='' then '' else ', ' end||target.name; end if;
   end if;
   if not found then continue; end if;
   rounds:=coalesce((select jsonb_agg(r.value) from jsonb_array_elements(case when jsonb_typeof(target.details->'tours')='array' then target.details->'tours' else '[]'::jsonb end) r where r.value<>to_jsonb(e->>'tour')),'[]'::jsonb);
   next_details:=case when jsonb_array_length(rounds)=0 then target.details-'tours' else jsonb_set(target.details,'{tours}',rounds) end;
   if e ? 'existing' and jsonb_array_length(e->'aliases')>0 and next_details ? 'aliases' then
-   known:=coalesce((select string_agg(btrim(a),' ; ') from regexp_split_to_table(next_details->>'aliases','\\s*;\\s*') a
+   known:=coalesce((select string_agg(btrim(a),' ; ') from regexp_split_to_table(next_details->>'aliases','\\s*[;,]\\s*') a
     where btrim(a)<>'' and not exists(select 1 from jsonb_array_elements_text(e->'aliases') x where lower(btrim(x.value))=lower(btrim(a)))),'');
    next_details:=jsonb_set(next_details,'{aliases}',to_jsonb(known));
   end if;
+  -- Details this script added to an existing record are removed only if they still hold the same value.
+  for fill_key in select jsonb_object_keys(coalesce(e->'fill','{}'::jsonb)) loop
+   if next_details->fill_key=e->'fill'->fill_key then next_details:=next_details-fill_key; end if;
+  end loop;
   next_departures:=coalesce((select jsonb_agg(s.value) from jsonb_array_elements(target.departures) s where not exists(select 1 from jsonb_array_elements(e->'slots') x where x.value=s.value)),'[]'::jsonb);
   if next_details is distinct from target.details or next_departures is distinct from target.departures then
    update public.gestion_partners p set details=next_details,departures=next_departures,version=p.version+1,updated_at=now() where p.id=target.id;
@@ -152,12 +181,18 @@ end ${RUN};
 `;
 const quote=text=>"'"+String(text).replace(/'/g,"''")+"'";
 const expected=()=>P.TOURS.map(t=>[t.id,rows().filter(r=>r.tour===t.id).length]);
-const check=header('Internal delivery rounds: read-only report, before or after internal-tours.sql.')+`-- One query, one result: rounds, existing records completed, and the garages PENDING a decision.
+const check=header('Internal delivery rounds: read-only report, before or after internal-tours.sql.')+`-- One query, one result: rounds, existing records completed, garages PENDING a decision, and every
+-- GAP between the base and what internal-tours.sql applies (no row in section 4 = nothing to apply).
 with shop as (select '${SHOP}'::uuid as id),
 records as (select p.* from public.gestion_partners p, shop where p.workspace_id=shop.id and p.kind='client' and not (p.details ? 'merged_into')),
 rounds(round,expected) as (values ${expected().map(([id,n])=>`(${quote(id)},${n})`).join(',')}),
 completed(name) as (values ${rows().filter(r=>r.existing).map(r=>`(${quote(r.existing)})`).join(',')}),
-waiting(position,round,name,candidate,reason) as (values ${pending().map((p,i)=>`(${i+1},${quote(p.tour)},${quote(p.name)},${quote(p.candidate)},${quote(p.reason)})`).join(',\n ')})
+waiting(position,round,name,candidate,reason) as (${pending().length?'values '+pending().map((p,i)=>`(${i+1},${quote(p.tour)},${quote(p.name)},${quote(p.candidate)},${quote(p.reason)})`).join(',\n '):"select 0,'','','','' where false"}),
+-- Every line the mutation applies: how its record is found, and what it must hold afterwards.
+wanted(round,label,existing,source_key,new_id,aliases,departures,filled) as (values
+ ${rows().map(r=>`(${quote(r.tour)},${quote(r.existing||r.name)},${r.existing?quote(r.existing):'null'},${r.source_key?quote(r.source_key):'null'},${r.existing?'null':`md5(${quote(KEY+':'+r.tour+':'+r.name)})::uuid`},${r.aliases.length?'array['+r.aliases.map(quote).join(',')+']':'array[]::text[]'},${r.slots.length},${quote(JSON.stringify(r.fill))}::jsonb)`).join(',\n ')}),
+located as (select w.*,p.id as record_id,p.name as record_name,p.details,p.departures as record_departures
+ from wanted w left join records p on case when w.existing is not null then p.name=w.existing when w.source_key is not null then p.source_key=w.source_key else p.id=w.new_id end)
 select '1 · tournée' as rubrique, r.round as element,
  count(p.id)||' fiche(s) rattachée(s) sur '||r.expected||' attendue(s) · '||count(p.id) filter (where jsonb_array_length(p.departures)=0)||' sans horaire · '
  ||count(p.id) filter (where exists(select 1 from jsonb_array_elements(p.departures) s where lower(s.value->>'carrier')=r.round))||' avec les départs de la tournée' as detail
@@ -173,6 +208,25 @@ select '3 · EN ATTENTE de décision', w.name||' ['||w.round||']',
  w.reason||' — fiche candidate « '||w.candidate||' » : '||(select count(*) from records p where p.name=w.candidate)||' trouvée(s)'
  ||case when exists(select 1 from records p where lower(btrim(p.name))=lower(btrim(w.name))) then ' · une fiche porte déjà exactement ce nom' else ' · ni créée ni rattachée' end
 from waiting w
+union all
+select '4 · ÉCART avec la mutation', l.label||' ['||l.round||']',
+ case when l.record_id is null then 'fiche absente'
+  else concat_ws(' · ',
+   case when not (jsonb_typeof(l.details->'tours')='array' and l.details->'tours' ? l.round) then 'tournée non rattachée' end,
+   (select 'variante manquante : '||string_agg(a,', ') from unnest(l.aliases) a where lower(btrim(a))<>lower(btrim(l.record_name)) and not exists(select 1 from regexp_split_to_table(coalesce(l.details->>'aliases',''),'\\s*[;,]\\s*') k where lower(btrim(k))=lower(btrim(a)))),
+   case when (select count(*) from jsonb_array_elements(l.record_departures) s where lower(s.value->>'carrier')=l.round and s.value->>'time' in ('10:00','15:00'))<l.departures then 'départs fixes manquants' end,
+   (select 'détail manquant : '||string_agg(f.key,', ') from jsonb_each(l.filled) f where coalesce(l.details->>f.key,'')=''))
+ end
+from located l
+where l.record_id is null
+ or not (jsonb_typeof(l.details->'tours')='array' and l.details->'tours' ? l.round)
+ or exists(select 1 from unnest(l.aliases) a where lower(btrim(a))<>lower(btrim(l.record_name)) and not exists(select 1 from regexp_split_to_table(coalesce(l.details->>'aliases',''),'\\s*[;,]\\s*') k where lower(btrim(k))=lower(btrim(a))))
+ or (select count(*) from jsonb_array_elements(l.record_departures) s where lower(s.value->>'carrier')=l.round and s.value->>'time' in ('10:00','15:00'))<l.departures
+ or exists(select 1 from jsonb_each(l.filled) f where coalesce(l.details->>f.key,'')='')
+union all
+select '5 · fiches à ne jamais fusionner', d.name||' ≠ '||d.other,
+ (select count(*) from records p where p.name=d.name)||' fiche « '||d.name||' » et '||(select count(*) from records p where p.name=d.other)||' fiche « '||d.other||' », distinctes'
+from (${rows().filter(r=>r.distinct_from).length?'values '+rows().filter(r=>r.distinct_from).map(r=>`(${quote(r.name)},${quote(r.distinct_from)})`).join(','):"select '','' where false"}) d(name,other)
 order by 1,2;
 `;
 const files=Object.fromEntries(Object.entries({'internal-tours.dry-run.sql':mutation(true),'internal-tours.sql':mutation(false),'internal-tours.rollback.sql':rollback,'internal-tours.check.sql':check}).map(([name,sql])=>[name,transportSafe(name,sql)]));

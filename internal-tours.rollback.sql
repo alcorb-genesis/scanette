@@ -22,9 +22,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
    "city": "Arcangues",
    "address": "chemin du Mondarrain",
    "notes": "Garage à domicile.",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -34,9 +35,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Biarritz",
    "notes": "Quartier de l’Allégresse.",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -48,9 +50,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Biarritz",
    "notes": "Anciennement Garage de la Négresse.",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -60,9 +63,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Biarritz",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -71,9 +75,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -83,9 +88,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Biarritz",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -95,15 +101,17 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Biarritz",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
   "tour": "damian",
   "existing": "First Stop Biarritz Pneus",
   "aliases": [],
+  "fill": {},
   "slots": []
  },
  {
@@ -113,9 +121,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Anglet",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -127,9 +136,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Bidart",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -139,9 +149,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Arbonne",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -151,9 +162,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Anglet",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -162,9 +174,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -173,9 +186,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -184,9 +198,34 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "Maignon.",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
+  "slots": []
+ },
+ {
+  "tour": "damian",
+  "name": "Jo Iribarren",
+  "source_key": "tour-jo-iribarren-20261009",
+  "distinct_from": "IRIBARREN PATRICK",
+  "aliases": [
+   "Irribarren",
+   "Garage Jo Iribarren"
+  ],
+  "details": {
+   "city": "Anglet",
+   "address": "48 avenue de Cambo, Quartier Sutar, 64600 Anglet",
+   "phones": [
+    "05 59 42 37 67",
+    "05 59 42 30 56"
+   ],
+   "hours": "Lundi à jeudi : 08h00–12h00 / 14h00–18h00 ; vendredi : 08h00–12h00 / 14h00–17h00.",
+   "activities": "Réparation toutes marques, self-garage, contrôle anti-pollution, carrosserie, peinture, dépannage et remorquage, agrément assurances.",
+   "source": "Informations fournies et confirmées par Alexis le 09/10/2026",
+   "aliases": ""
+  },
+  "fill": {},
   "slots": []
  },
  {
@@ -196,9 +235,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "network": "Toyota",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -210,9 +250,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   ],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -222,9 +263,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "network": "Ford",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -234,9 +276,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Bassussary",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -245,9 +288,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -256,9 +300,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -267,9 +312,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -279,9 +325,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Bayonne",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -290,15 +337,17 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
   "tour": "damian",
   "existing": "FEU VERT BIDART",
   "aliases": [],
+  "fill": {},
   "slots": []
  },
  {
@@ -307,9 +356,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -318,9 +368,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -329,9 +380,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -340,9 +392,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -351,9 +404,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -363,9 +417,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Anglet",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -376,9 +431,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   ],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -387,9 +443,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -398,9 +455,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -409,9 +467,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -421,9 +480,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Anglet",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -434,9 +494,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   ],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -446,9 +507,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "address": "allée Paulmy",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -457,9 +519,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -468,9 +531,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -479,9 +543,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -490,9 +555,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -501,9 +567,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -513,9 +580,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "address": "allées Marines",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -524,9 +592,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -535,9 +604,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -546,9 +616,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -557,9 +628,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "Total, allées Marines.",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -568,9 +640,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -580,9 +653,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Anglet",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -591,9 +665,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -602,9 +677,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "Particulier.",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -613,9 +689,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -624,9 +701,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -635,9 +713,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -646,9 +725,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -657,9 +737,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -668,9 +749,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -679,9 +761,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -723,9 +806,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -765,6 +849,7 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "tour": "charlie",
   "existing": "CN AUTO",
   "aliases": [],
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -804,6 +889,7 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "tour": "charlie",
   "existing": "First Stop Laboudigue Saint-Jean-de-Luz",
   "aliases": [],
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -845,6 +931,7 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [
    "Leclerc Auto"
   ],
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -886,6 +973,7 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [
    "Autosport"
   ],
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -927,9 +1015,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -969,6 +1058,7 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "tour": "charlie",
   "existing": "MARINELA",
   "aliases": [],
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1008,6 +1098,7 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "tour": "charlie",
   "existing": "DALLARD ST JEAN DE LUZ",
   "aliases": [],
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1049,9 +1140,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1091,6 +1183,7 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "tour": "charlie",
   "existing": "JS AUTO",
   "aliases": [],
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1132,9 +1225,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1176,9 +1270,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1220,9 +1315,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1264,9 +1360,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1306,6 +1403,7 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "tour": "charlie",
   "existing": "HERRIKOA",
   "aliases": [],
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1347,9 +1445,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "Particulier.",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1391,9 +1490,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1435,9 +1535,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": [
    {
     "mode": "internal",
@@ -1479,9 +1580,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1490,9 +1592,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1501,9 +1604,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1512,9 +1616,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1523,9 +1628,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1534,8 +1640,25 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
+  },
+  "fill": {},
+  "slots": []
+ },
+ {
+  "tour": "cedric",
+  "existing": "AUGARAY (ROADY)",
+  "unique_like": "roady",
+  "aliases": [
+   "Roady Bayonne",
+   "Centre auto Roady Bayonne"
+  ],
+  "fill": {
+   "city": "Bayonne",
+   "address": "12 allée de Biarnes, 64100 Bayonne",
+   "phone": "05 18 23 07 86",
+   "hours": "Lundi à vendredi : 09h00–12h00 / 14h00–19h00 ; samedi : 09h00–12h00 / 14h00–18h00 ; dimanche : fermé."
   },
   "slots": []
  },
@@ -1547,9 +1670,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   ],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1558,9 +1682,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1569,9 +1694,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1581,9 +1707,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "details": {
    "city": "Tarnos",
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1592,9 +1719,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1603,9 +1731,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1614,9 +1743,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1625,9 +1755,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1636,9 +1767,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1647,9 +1779,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1658,9 +1791,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1669,9 +1803,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1680,9 +1815,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1691,9 +1827,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1702,9 +1839,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1713,9 +1851,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1724,9 +1863,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1735,9 +1875,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1746,9 +1887,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1757,9 +1899,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1768,9 +1911,10 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   "aliases": [],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  },
  {
@@ -1781,13 +1925,14 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
   ],
   "details": {
    "notes": "",
-   "aliases": "",
-   "source": "Liste de référence saisie par Alexis le 09/10/2026"
+   "source": "Liste de référence saisie par Alexis le 09/10/2026",
+   "aliases": ""
   },
+  "fill": {},
   "slots": []
  }
 ]$repclick_data$;
- e jsonb; target public.gestion_partners%rowtype; new_id uuid; next_details jsonb; next_departures jsonb; rounds jsonb; known text; alias text;
+ e jsonb; target public.gestion_partners%rowtype; new_id uuid; next_details jsonb; next_departures jsonb; rounds jsonb; known text; alias text; fill_key text;
  deleted integer:=0; changed integer:=0; kept text:='';
 begin
  lock table public.gestion_partners in share row exclusive mode;
@@ -1796,18 +1941,26 @@ begin
    select * into target from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and p.name=e->>'existing' and not (p.details ? 'merged_into') for update;
   else
    new_id:=md5('repclick:internal-tours:2026-10-09:'||(e->>'tour')||':'||(e->>'name'))::uuid;
-   select * into target from public.gestion_partners p where p.id=new_id and p.workspace_id=shop for update;
-   if found and target.version=1 then delete from public.gestion_partners p where p.id=new_id; deleted:=deleted+1; continue; end if;
+   if e ? 'source_key' then
+    select * into target from public.gestion_partners p where p.workspace_id=shop and p.kind='client' and p.source_key=e->>'source_key' for update;
+   else
+    select * into target from public.gestion_partners p where p.id=new_id and p.workspace_id=shop for update;
+   end if;
+   if found and target.version=1 then delete from public.gestion_partners p where p.id=target.id; deleted:=deleted+1; continue; end if;
    if found then kept:=kept||case when kept='' then '' else ', ' end||target.name; end if;
   end if;
   if not found then continue; end if;
   rounds:=coalesce((select jsonb_agg(r.value) from jsonb_array_elements(case when jsonb_typeof(target.details->'tours')='array' then target.details->'tours' else '[]'::jsonb end) r where r.value<>to_jsonb(e->>'tour')),'[]'::jsonb);
   next_details:=case when jsonb_array_length(rounds)=0 then target.details-'tours' else jsonb_set(target.details,'{tours}',rounds) end;
   if e ? 'existing' and jsonb_array_length(e->'aliases')>0 and next_details ? 'aliases' then
-   known:=coalesce((select string_agg(btrim(a),' ; ') from regexp_split_to_table(next_details->>'aliases','\s*;\s*') a
+   known:=coalesce((select string_agg(btrim(a),' ; ') from regexp_split_to_table(next_details->>'aliases','\s*[;,]\s*') a
     where btrim(a)<>'' and not exists(select 1 from jsonb_array_elements_text(e->'aliases') x where lower(btrim(x.value))=lower(btrim(a)))),'');
    next_details:=jsonb_set(next_details,'{aliases}',to_jsonb(known));
   end if;
+  -- Details this script added to an existing record are removed only if they still hold the same value.
+  for fill_key in select jsonb_object_keys(coalesce(e->'fill','{}'::jsonb)) loop
+   if next_details->fill_key=e->'fill'->fill_key then next_details:=next_details-fill_key; end if;
+  end loop;
   next_departures:=coalesce((select jsonb_agg(s.value) from jsonb_array_elements(target.departures) s where not exists(select 1 from jsonb_array_elements(e->'slots') x where x.value=s.value)),'[]'::jsonb);
   if next_details is distinct from target.details or next_departures is distinct from target.departures then
    update public.gestion_partners p set details=next_details,departures=next_departures,version=p.version+1,updated_at=now() where p.id=target.id;

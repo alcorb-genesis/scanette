@@ -14,10 +14,11 @@ const before=()=>[
  {id:'e5',kind:'client',name:'IRIBARREN PATRICK',details:{aliases:''},departures:[slot('Paketo Pays Basque','11:15')],version:2},
  {id:'e6',kind:'client',name:'AUGARAY (ROADY)',details:{aliases:'ROADY (AUGARAY)'},departures:[slot('Serge','11:00')],version:2}];
 function apply(shop){const out=structuredClone(shop);
- for(const r of rows){let p=out.find(x=>x.name===(r.existing||r.name));if(r.existing&&!p)continue;
-  if(!p){p={id:'n'+out.length,kind:'client',name:r.name,details:structuredClone(r.details),departures:[],version:1};out.push(p);}
+ for(const r of rows){let p=r.existing?out.find(x=>x.name===r.existing):r.source_key?out.find(x=>x.source_key===r.source_key):out.find(x=>x.name===r.name);if(r.existing&&!p)continue;
+  if(!p){p={id:'n'+out.length,kind:'client',name:r.name,source_key:r.source_key||'',details:structuredClone(r.details),departures:[],version:1};out.push(p);}
+  for(const [k,v] of Object.entries(r.fill))if(!p.details[k])p.details[k]=v;
   p.details.tours=[...new Set([...(p.details.tours||[]),r.tour])];
-  const known=String(p.details.aliases||'').split(';').map(a=>a.trim()).filter(Boolean);for(const a of r.aliases)if(!known.some(k=>k.toLowerCase()===a.toLowerCase()))known.push(a);p.details.aliases=known.join(' ; ');
+  const known=String(p.details.aliases||'').split(/[;,]/).map(a=>a.trim()).filter(Boolean);for(const a of r.aliases)if(!known.some(k=>k.toLowerCase()===a.toLowerCase()))known.push(a);if(r.aliases.some(a=>!String(p.details.aliases||'').split(/[;,]/).map(x=>x.trim().toLowerCase()).includes(a.toLowerCase())))p.details.aliases=known.join(' ; ');
   for(const s of r.slots)if(!p.departures.some(d=>d.carrier===s.carrier&&d.time===s.time))p.departures.push(structuredClone(s));}
  return out;}
 const shop=apply(before()),find=q=>shop.filter(p=>P.matches(p,q)).map(p=>p.name),inRound=id=>shop.filter(p=>P.inService(p,'tour:'+id)).map(p=>p.name);
@@ -27,10 +28,15 @@ test('the reference list is complete and holds only what Alexis wrote',()=>{
  assert.deepEqual([count('damian'),count('maxime'),count('charlie'),count('cedric')],[31,28,19,29]);
  assert.equal(data.garages.some(g=>g.tour==='ludovic'),false,'no garage is duplicated for Ludovic');
  for(const g of data.garages){
-  for(const key of Object.keys(g))assert.ok(['tour','name','city','address','network','notes','aliases','existing','match','open','candidate'].includes(key),g.name+' → '+key);
-  assert.equal(/https?:|www\.|@|\d{2}[ .]\d{2}[ .]\d{2}|\d{5}|\b\d{1,2}\s?[h:]\s?\d{2}\b/.test(JSON.stringify(g)),false,g.name+' holds a link, phone, postcode or hour');
+  for(const key of Object.keys(g))assert.ok(['tour','name','city','address','network','notes','aliases','existing','match','open','candidate','source_key','distinct_from','unique_like','details','fill'].includes(key),g.name+' → '+key);
+  assert.equal(/https?:|www\.|@/.test(JSON.stringify(g)),false,g.name+' holds a link or an e-mail');
+  // Phone, postcode and opening hours exist only on the records Alexis confirmed one by one.
+  if(!g.details&&!g.fill)assert.equal(/\d{2}[ .]\d{2}[ .]\d{2}|\d{5}|\b\d{1,2}\s?[h:]\s?\d{2}\b/.test(JSON.stringify(g)),false,g.name+' holds a phone, postcode or hour');
+  else assert.match(g.match,/confirmée par Alexis le 09\/10\/2026/,g.name);
  }
- // The only hours of the file are Charlie's two fixed departures.
+ assert.deepEqual(data.garages.filter(g=>g.details||g.fill).map(g=>[g.tour,g.name]),[['damian','Jo Iribarren'],['cedric','Roady Bayonne']]);
+ // Opening hours of a garage never become a departure: the only departures are Charlie's two fixed ones.
+ for(const r of rows.filter(r=>r.tour!=='charlie'))assert.deepEqual(r.slots,[],r.name||r.existing);
  assert.deepEqual(data.tours.filter(t=>t.schedule).map(t=>[t.id,t.schedule.times,t.schedule.days]),[['charlie',['10:00','15:00'],[1,2,3,4,5]]]);
  assert.equal(new Set(data.garages.map(g=>g.name)).size,data.garages.length,'no name twice');
  assert.deepEqual(data.tours.map(t=>t.name),['Damian','Maxime','Charlie','Cédric','Ludovic']);
@@ -88,20 +94,35 @@ test('existing garages are completed, never replaced',()=>{
  // Confirmed by Alexis: Leclerc Auto is LECLERC ST JEAN DE LUZ. The record keeps its name, alias and carrier hour.
  assert.equal(now('e3').name,'LECLERC ST JEAN DE LUZ');assert.equal(now('e3').details.aliases,'Leclerc SJL ; Leclerc Auto');assert.deepEqual(now('e3').departures.map(s=>s.carrier+' '+s.time),['ACE Hendaye 11:15','Charlie 10:00','Charlie 15:00']);
  // Garages left open by the list are untouched, and no second record was created for them.
- for(const id of ['e4','e5','e6'])assert.deepEqual(now(id),was.find(p=>p.id===id));
+ for(const id of ['e4','e5'])assert.deepEqual(now(id),was.find(p=>p.id===id));
+ // Roady Bayonne is the existing record « AUGARAY (ROADY) » (one R, as read in the real base): completed in place.
+ const roady=now('e6'),roadyBefore=was.find(p=>p.id==='e6');
+ assert.equal(roady.name,'AUGARAY (ROADY)');assert.deepEqual(roady.departures,roadyBefore.departures,'external departures strictly kept');assert.deepEqual(roady.details.tours,['cedric']);
+ assert.equal(roady.details.aliases,'ROADY (AUGARAY) ; Roady Bayonne ; Centre auto Roady Bayonne');
+ assert.deepEqual([roady.details.city,roady.details.address,roady.details.phone],['Bayonne','12 allée de Biarnes, 64100 Bayonne','05 18 23 07 86']);assert.match(roady.details.hours,/samedi : 09h00–12h00 \/ 14h00–18h00 ; dimanche : fermé/);
+ assert.equal(shop.filter(p=>/roady/i.test(p.name)).length,1,'no second Roady record');assert.equal(shop.some(p=>p.name==='Roady'||p.name==='Roady Bayonne'),false);
+ assert.equal(data.garages.some(g=>/AUGARRAY/.test(JSON.stringify(g))),false,'the name with two R does not exist in the base');
+ // Jo Iribarren is a new record, distinct from IRIBARREN PATRICK, which is left exactly as it was.
+ const jo=shop.find(p=>p.name==='Jo Iribarren');assert.ok(jo&&jo.id!=='e5');assert.equal(jo.source_key,'tour-jo-iribarren-20261009');assert.deepEqual(jo.details.tours,['damian']);assert.deepEqual(jo.departures,[],'no fixed internal departure');
+ assert.deepEqual(jo.details.phones,['05 59 42 37 67','05 59 42 30 56']);assert.equal(jo.details.address,'48 avenue de Cambo, Quartier Sutar, 64600 Anglet');assert.equal(jo.details.aliases,'Irribarren ; Garage Jo Iribarren');
+ assert.match(jo.details.activities,/self-garage/);assert.match(jo.details.hours,/vendredi : 08h00–12h00 \/ 14h00–17h00/);
+ assert.equal((now('e5').details.tours||[]).length,0);assert.equal(now('e5').details.aliases,'');
+ // A base where both decisions were already applied by hand (other identifier, aliases separated by commas) is left untouched.
+ const byHand=structuredClone(shop);Object.assign(byHand.find(p=>p.name==='Jo Iribarren'),{id:'f96cd8e3'}).details.aliases='Irribarren, Garage Jo Iribarren';byHand.find(p=>p.id==='e6').details.aliases='ROADY (AUGARAY), Roady Bayonne, Centre auto Roady Bayonne';
+ assert.deepEqual(apply(byHand),byHand);
  for(const open of data.garages.filter(g=>g.open)){assert.equal(shop.some(p=>p.name===open.name),false,open.name+' is neither created nor attached');assert.equal(rows.some(r=>r.name===open.name),false);}
- // Pending: the two spelling doubts. The three garages of Charlie were confirmed by Alexis and are no longer pending.
+ // Nothing is pending any more: Alexis decided the two spelling doubts and confirmed the three garages of Charlie.
  const waiting=data.garages.filter(g=>g.open);
- assert.deepEqual(waiting.map(g=>[g.tour,g.name,g.candidate]),[['damian','Irribarren','IRIBARREN PATRICK'],['cedric','Roady','AUGARAY (ROADY)']]);
+ assert.deepEqual(waiting.map(g=>[g.tour,g.name,g.candidate]),[]);
  for(const g of waiting){assert.ok(g.open.length>30&&/\?$/.test(g.open),g.name+' carries a readable question');assert.equal('existing' in g||'aliases' in g,false,g.name+' is not attached by any automatic match');}
  // A pending garage never disappears: it is in the report, in the dry run and in the notice of the mutation.
  assert.deepEqual(B.pending().map(p=>p.name),waiting.map(g=>g.name));
  for(const g of waiting){assert.ok(B.files['internal-tours.check.sql'].includes("'"+g.name+"'"),g.name+' in the report');for(const f of ['internal-tours.sql','internal-tours.dry-run.sql'])assert.ok(B.files[f].includes('"name": "'+g.name+'"'),g.name+' in '+f);}
  assert.match(B.files['internal-tours.check.sql'],/EN ATTENTE de décision/);
  // No match rests on the zone of a round: each names the same garage, or was confirmed by Alexis.
- assert.deepEqual(data.garages.filter(g=>g.existing).map(g=>[g.name,g.existing]),[['First Stop (Biarritz)','First Stop Biarritz Pneus'],['Feu Vert (Bidart)','FEU VERT BIDART'],['CN Auto','CN AUTO'],['First Stop','First Stop Laboudigue Saint-Jean-de-Luz'],['Leclerc Auto','LECLERC ST JEAN DE LUZ'],['Autosport','AUTO SPORT'],['Marinela','MARINELA'],['Dallard','DALLARD ST JEAN DE LUZ'],['JS Auto','JS AUTO'],['Herrikoa','HERRIKOA']]);
+ assert.deepEqual(data.garages.filter(g=>g.existing).map(g=>[g.name,g.existing]),[['First Stop (Biarritz)','First Stop Biarritz Pneus'],['Feu Vert (Bidart)','FEU VERT BIDART'],['CN Auto','CN AUTO'],['First Stop','First Stop Laboudigue Saint-Jean-de-Luz'],['Leclerc Auto','LECLERC ST JEAN DE LUZ'],['Autosport','AUTO SPORT'],['Marinela','MARINELA'],['Dallard','DALLARD ST JEAN DE LUZ'],['JS Auto','JS AUTO'],['Herrikoa','HERRIKOA'],['Roady Bayonne','AUGARAY (ROADY)']]);
  const confirmed=data.garages.filter(g=>/confirmée par Alexis/.test(g.match||''));
- assert.deepEqual(confirmed.map(g=>[g.tour,g.name,g.existing]),[['charlie','First Stop','First Stop Laboudigue Saint-Jean-de-Luz'],['charlie','Leclerc Auto','LECLERC ST JEAN DE LUZ'],['charlie','Dallard','DALLARD ST JEAN DE LUZ']]);
+ assert.deepEqual(confirmed.map(g=>[g.tour,g.name,g.existing]),[['damian','Jo Iribarren',undefined],['charlie','First Stop','First Stop Laboudigue Saint-Jean-de-Luz'],['charlie','Leclerc Auto','LECLERC ST JEAN DE LUZ'],['charlie','Dallard','DALLARD ST JEAN DE LUZ'],['cedric','Roady Bayonne','AUGARAY (ROADY)']]);
  for(const g of confirmed){assert.equal('open' in g||'candidate' in g,false,g.name+' is confirmed, not pending');assert.equal(B.pending().some(p=>p.name===g.name),false);}
  for(const g of data.garages.filter(g=>g.existing))assert.equal(/zone/i.test(g.match),false,g.name);
  // Applying twice changes nothing.
@@ -121,8 +142,12 @@ test('search accepts spelling variants and never merges two garages',()=>{
  assert.deepEqual(find('autosport'),['AUTO SPORT']);
  // A confirmed match is found by the name Alexis uses, under Charlie, and creates no second record.
  assert.deepEqual(find('leclerc auto'),['LECLERC ST JEAN DE LUZ']);assert.ok(inRound('charlie').includes('LECLERC ST JEAN DE LUZ'));assert.equal(shop.filter(p=>/leclerc/i.test(p.name)).length,1);
- // A pending name attaches nothing: its candidate record stays outside every internal round.
- assert.deepEqual(find('irribarren'),['IRIBARREN PATRICK']);assert.equal(inRound('damian').includes('IRIBARREN PATRICK'),false);assert.equal(inRound('cedric').includes('AUGARAY (ROADY)'),false);
+ // Two garages with close names stay two records: both are found, only Jo Iribarren is on Damian's round.
+ assert.deepEqual(find('irribarren').sort(),['IRIBARREN PATRICK','Jo Iribarren']);assert.deepEqual(find('garage jo iribarren'),['Jo Iribarren']);assert.deepEqual(find('iribarren patrick'),['IRIBARREN PATRICK']);
+ assert.ok(inRound('damian').includes('Jo Iribarren'));assert.equal(inRound('damian').includes('IRIBARREN PATRICK'),false);
+ // Roady Bayonne is found by its new names under Cédric, and still under its carrier.
+ for(const q of ['roady bayonne','centre auto roady bayonne','roady','allée de biarnes'])assert.deepEqual(find(q),['AUGARAY (ROADY)'],q);
+ assert.ok(inRound('cedric').includes('AUGARAY (ROADY)'));assert.ok(shop.filter(p=>P.inService(p,'carrier:Serge')).some(p=>p.name==='AUGARAY (ROADY)'));
  // Two garages stay two garages.
  assert.deepEqual(find('carrosserie de la gare'),['Carrosserie de la Gare']);assert.deepEqual(find('garage de la gare'),['Garage de la Gare (Cambo)']);
  assert.deepEqual(find('de la gare').sort(),['Carrosserie de la Gare','Garage de la Gare (Cambo)']);
@@ -130,7 +155,7 @@ test('search accepts spelling variants and never merges two garages',()=>{
  assert.deepEqual(find('shark').sort(),['Atelier Carrosserie Shark','Atelier Shark']);
  assert.deepEqual(find('feu vert').sort(),['FEU VERT BIDART','Feu Vert (Anglet)','Feu Vert (Tarnos)']);
  assert.deepEqual(find('hirigoyen').sort(),['Hirigoyen','JM Hirigoyen']);
- assert.equal(shop.length,before().length+rows.filter(r=>!r.existing).length+0,'one record per garage, none merged');
+ assert.equal(shop.length,before().length+rows.filter(r=>!r.existing).length,'one record per garage, none merged');
  // By round, by zone, by town.
  assert.ok(find('damian').includes('Garage Modena'));assert.ok(find('cédric tarnos').includes('Feu Vert (Tarnos)'));assert.deepEqual(find('arcangues'),inRound('damian').sort((a,b)=>shop.findIndex(p=>p.name===a)-shop.findIndex(p=>p.name===b)));
  // A word that matches nothing still finds nothing.
@@ -139,7 +164,7 @@ test('search accepts spelling variants and never merges two garages',()=>{
 test('generated SQL files are up to date, strict and complete',()=>{
  assert.deepEqual(Object.keys(B.files).sort(),['internal-tours.check.sql','internal-tours.dry-run.sql','internal-tours.rollback.sql','internal-tours.sql']);
  for(const [name,text] of Object.entries(B.files))assert.equal(fs.readFileSync(name,'utf8'),text,name+' : run node scripts/build-internal-tours-sql.cjs');
- assert.equal(rows.length,105);assert.equal(rows.filter(r=>r.existing).length,10);assert.equal(rows.filter(r=>r.slots.length).length,19);assert.equal(B.pending().length,2);
+ assert.equal(rows.length,107);assert.equal(rows.filter(r=>r.existing).length,11);assert.equal(rows.filter(r=>r.slots.length).length,19);assert.equal(B.pending().length,0);
  assert.equal(rows.length+B.pending().length,data.garages.length,'every line of the list is either applied or pending');
  for(const name of ['internal-tours.sql','internal-tours.dry-run.sql','internal-tours.rollback.sql'])assert.match(B.files[name],/workspace_id=shop/);
  assert.equal(/\b(insert|update|delete|alter|create|drop|lock|do)\b/i.test(B.files['internal-tours.check.sql'].split('\n').filter(l=>!l.startsWith('--')).join('\n').replace(/'(?:[^']|'')*'/g,"''")),false,'the report only reads');
@@ -159,7 +184,7 @@ test('every SQL file survives the editor: one statement, named tags, no transact
   const code=sql.split('\n').filter(l=>!l.startsWith('--')).join('\n');
   assert.equal(/^\s*(begin|commit|rollback|start transaction)\s*;/im.test(code),false,name+' has no transaction statement of its own');
   assert.doesNotThrow(()=>B.transportSafe(name,sql));
-  if(name==='internal-tours.check.sql'){assert.match(code,/^with shop as/);assert.equal((code.match(/;/g)||[]).length,1,'one query, one result');continue;}
+  if(name==='internal-tours.check.sql'){assert.match(code,/^with shop as/);assert.equal((code.replace(/'(?:[^']|'')*'/g,"''").match(/;/g)||[]).length,1,'one query, one result');continue;}
   // One DO block: opened and closed once with the same named tag, the data in a second named tag.
   assert.equal((sql.match(/\$repclick_run\$/g)||[]).length,2,name);assert.match(code,/^do \$repclick_run\$\n/);assert.match(code,/\nend \$repclick_run\$;\s*$/);
   assert.equal((sql.match(/\$repclick_data\$/g)||[]).length%2,0,name);
@@ -178,6 +203,14 @@ test('dry run and mutation are the same statement, the dry run always ends by un
  // Strictness is unchanged: missing or duplicated record, or a « new » garage that already exists, stop everything.
  assert.match(real,/if found_count<>1 then raise exception 'Expected exactly one record named/);assert.match(real,/already exists: decide whether it is the same garage/);
  assert.match(real,/lock table public\.gestion_partners in share row exclusive mode;/);
+ // No approximate merge: a record is reached by its exact name, its key or the identifier of this script, never by resemblance.
+ assert.equal(/\bp\.name\s+(i?like|~)|similarity|levenshtein|soundex/i.test(real.replace(/p\.name ilike '%'\|\|\(e->>'unique_like'\)\|\|'%'/,'')),false);
+ assert.match(real,/p\.name=e->>'existing'/);assert.match(real,/p\.source_key=e->>'source_key'/);
+ assert.match(real,/Expected exactly one record whose name contains "%", found %: nothing is attached or created/);
+ assert.match(real,/must stay a record distinct from "%": refusing to merge them/);
+ // Confirmed details complete an existing record and never overwrite a value it already has.
+ assert.match(real,/if not \(next_details \? fill_key\) or coalesce\(next_details->>fill_key,''\)='' then/);
+ const report=B.files['internal-tours.check.sql'];assert.match(report,/4 · ÉCART avec la mutation/);assert.match(report,/5 · fiches à ne jamais fusionner/);assert.ok(report.includes("('Jo Iribarren','IRIBARREN PATRICK')"));
  // The way back removes what was added and deletes only untouched created records.
  const back=B.files['internal-tours.rollback.sql'];assert.match(back,/if found and target\.version=1 then delete from public\.gestion_partners/);assert.match(back,/kept without their round/);
 });

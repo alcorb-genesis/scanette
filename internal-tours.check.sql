@@ -4,13 +4,124 @@
 -- Run by hand as postgres in the Supabase SQL Editor. Not applied by the application.
 -- ONE statement, with named dollar-quote tags and no transaction keyword of its own: it runs as a
 -- whole or not at all, and survives tools that alter doubled dollar signs.
--- One query, one result: rounds, existing records completed, and the garages PENDING a decision.
+-- One query, one result: rounds, existing records completed, garages PENDING a decision, and every
+-- GAP between the base and what internal-tours.sql applies (no row in section 4 = nothing to apply).
 with shop as (select '8770297c-cadb-4cc6-8b93-55a0f9bd154e'::uuid as id),
 records as (select p.* from public.gestion_partners p, shop where p.workspace_id=shop.id and p.kind='client' and not (p.details ? 'merged_into')),
-rounds(round,expected) as (values ('damian',30),('maxime',28),('charlie',19),('cedric',28)),
-completed(name) as (values ('First Stop Biarritz Pneus'),('FEU VERT BIDART'),('CN AUTO'),('First Stop Laboudigue Saint-Jean-de-Luz'),('LECLERC ST JEAN DE LUZ'),('AUTO SPORT'),('MARINELA'),('DALLARD ST JEAN DE LUZ'),('JS AUTO'),('HERRIKOA')),
-waiting(position,round,name,candidate,reason) as (values (1,'damian','Irribarren','IRIBARREN PATRICK','Une fiche « IRIBARREN PATRICK » existe déjà (Paketo Pays Basque). Même garage avec une autre orthographe, ou un autre garage ?'),
- (2,'cedric','Roady','AUGARAY (ROADY)','Une fiche « AUGARAY (ROADY) » existe déjà (Serge, Paketo Pays Basque). Même magasin, ou un autre Roady ?'))
+rounds(round,expected) as (values ('damian',31),('maxime',28),('charlie',19),('cedric',29)),
+completed(name) as (values ('First Stop Biarritz Pneus'),('FEU VERT BIDART'),('CN AUTO'),('First Stop Laboudigue Saint-Jean-de-Luz'),('LECLERC ST JEAN DE LUZ'),('AUTO SPORT'),('MARINELA'),('DALLARD ST JEAN DE LUZ'),('JS AUTO'),('HERRIKOA'),('AUGARAY (ROADY)')),
+waiting(position,round,name,candidate,reason) as (select 0,'','','','' where false),
+-- Every line the mutation applies: how its record is found, and what it must hold afterwards.
+wanted(round,label,existing,source_key,new_id,aliases,departures,filled) as (values
+ ('damian','JM Hirigoyen',null,null,md5('repclick:internal-tours:2026-10-09:damian:JM Hirigoyen')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Carrosserie Biarrotte',null,null,md5('repclick:internal-tours:2026-10-09:damian:Carrosserie Biarrotte')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Garage de l’Allégresse',null,null,md5('repclick:internal-tours:2026-10-09:damian:Garage de l’Allégresse')::uuid,array['Garage de la Négresse'],0,'{}'::jsonb),
+ ('damian','Garage Modena',null,null,md5('repclick:internal-tours:2026-10-09:damian:Garage Modena')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Ville de Biarritz',null,null,md5('repclick:internal-tours:2026-10-09:damian:Ville de Biarritz')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Garage l’Avenue',null,null,md5('repclick:internal-tours:2026-10-09:damian:Garage l’Avenue')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Crosa (Biarritz)',null,null,md5('repclick:internal-tours:2026-10-09:damian:Crosa (Biarritz)')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','First Stop Biarritz Pneus','First Stop Biarritz Pneus',null,null,array[]::text[],0,'{}'::jsonb),
+ ('damian','Erviti Porsche',null,null,md5('repclick:internal-tours:2026-10-09:damian:Erviti Porsche')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Carro Vans',null,null,md5('repclick:internal-tours:2026-10-09:damian:Carro Vans')::uuid,array['Car Vans'],0,'{}'::jsonb),
+ ('damian','Classic Vans',null,null,md5('repclick:internal-tours:2026-10-09:damian:Classic Vans')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Dea',null,null,md5('repclick:internal-tours:2026-10-09:damian:Dea')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Ville d’Anglet',null,null,md5('repclick:internal-tours:2026-10-09:damian:Ville d’Anglet')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','MC Garage',null,null,md5('repclick:internal-tours:2026-10-09:damian:MC Garage')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Carrosserie Poau',null,null,md5('repclick:internal-tours:2026-10-09:damian:Carrosserie Poau')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Jo Iribarren',null,'tour-jo-iribarren-20261009',md5('repclick:internal-tours:2026-10-09:damian:Jo Iribarren')::uuid,array['Irribarren','Garage Jo Iribarren'],0,'{}'::jsonb),
+ ('damian','Makila',null,null,md5('repclick:internal-tours:2026-10-09:damian:Makila')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Land Rover / Auto Real',null,null,md5('repclick:internal-tours:2026-10-09:damian:Land Rover / Auto Real')::uuid,array['Auto Real','Land Rover'],0,'{}'::jsonb),
+ ('damian','Grimso',null,null,md5('repclick:internal-tours:2026-10-09:damian:Grimso')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','SB Auto',null,null,md5('repclick:internal-tours:2026-10-09:damian:SB Auto')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Peugeot',null,null,md5('repclick:internal-tours:2026-10-09:damian:Peugeot')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Honda',null,null,md5('repclick:internal-tours:2026-10-09:damian:Honda')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Car Bayonne',null,null,md5('repclick:internal-tours:2026-10-09:damian:Car Bayonne')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Belle Marion (Bayonne)',null,null,md5('repclick:internal-tours:2026-10-09:damian:Belle Marion (Bayonne)')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Maeva Car',null,null,md5('repclick:internal-tours:2026-10-09:damian:Maeva Car')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','FEU VERT BIDART','FEU VERT BIDART',null,null,array[]::text[],0,'{}'::jsonb),
+ ('damian','Carrosserie de la Gare',null,null,md5('repclick:internal-tours:2026-10-09:damian:Carrosserie de la Gare')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','SOS D Bosses',null,null,md5('repclick:internal-tours:2026-10-09:damian:SOS D Bosses')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Etcheparre',null,null,md5('repclick:internal-tours:2026-10-09:damian:Etcheparre')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Ocean Dépannage',null,null,md5('repclick:internal-tours:2026-10-09:damian:Ocean Dépannage')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('damian','Slavi',null,null,md5('repclick:internal-tours:2026-10-09:damian:Slavi')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Labachot (Anglet)',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Labachot (Anglet)')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Norauto Pontot',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Norauto Pontot')::uuid,array['Nauroto Pontot'],0,'{}'::jsonb),
+ ('maxime','Garage du Centre',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Garage du Centre')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Carrosserie Barcelona',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Carrosserie Barcelona')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Carrosserie Moderne',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Carrosserie Moderne')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Feu Vert (Anglet)',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Feu Vert (Anglet)')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Norauto France',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Norauto France')::uuid,array['Nauroto France'],0,'{}'::jsonb),
+ ('maxime','Point S',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Point S')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Pneu Service Auto',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Pneu Service Auto')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Ondres Auto',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Ondres Auto')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Pneu du BAB',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Pneu du BAB')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Concept Car',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Concept Car')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Atelier Carrosserie Shark',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Atelier Carrosserie Shark')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Euromaster (allées Marines)',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Euromaster (allées Marines)')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Hirigoyen',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Hirigoyen')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','JC Auto',null,null,md5('repclick:internal-tours:2026-10-09:maxime:JC Auto')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Auto Sélection',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Auto Sélection')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Castagnet',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Castagnet')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Fidalgo',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Fidalgo')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Belle Marion (Anglet)',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Belle Marion (Anglet)')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Anglet Auto Service',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Anglet Auto Service')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Ferdinand Aviation',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Ferdinand Aviation')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Cossec',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Cossec')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Service Auto 64',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Service Auto 64')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Communauté de Bayonne',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Communauté de Bayonne')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Urrusty',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Urrusty')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Dayde',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Dayde')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('maxime','Mendi',null,null,md5('repclick:internal-tours:2026-10-09:maxime:Mendi')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('charlie','Lamerain Renault',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Lamerain Renault')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','Cigarroa',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Cigarroa')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','CN AUTO','CN AUTO',null,null,array[]::text[],2,'{}'::jsonb),
+ ('charlie','First Stop Laboudigue Saint-Jean-de-Luz','First Stop Laboudigue Saint-Jean-de-Luz',null,null,array[]::text[],2,'{}'::jsonb),
+ ('charlie','LECLERC ST JEAN DE LUZ','LECLERC ST JEAN DE LUZ',null,null,array['Leclerc Auto'],2,'{}'::jsonb),
+ ('charlie','AUTO SPORT','AUTO SPORT',null,null,array['Autosport'],2,'{}'::jsonb),
+ ('charlie','Auto 64',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Auto 64')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','MARINELA','MARINELA',null,null,array[]::text[],2,'{}'::jsonb),
+ ('charlie','DALLARD ST JEAN DE LUZ','DALLARD ST JEAN DE LUZ',null,null,array[]::text[],2,'{}'::jsonb),
+ ('charlie','Huchet',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Huchet')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','JS AUTO','JS AUTO',null,null,array[]::text[],2,'{}'::jsonb),
+ ('charlie','Top Auto',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Top Auto')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','PBA',null,null,md5('repclick:internal-tours:2026-10-09:charlie:PBA')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','Antao',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Antao')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','Darboure Pampi',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Darboure Pampi')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','HERRIKOA','HERRIKOA',null,null,array[]::text[],2,'{}'::jsonb),
+ ('charlie','Darboure Famille',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Darboure Famille')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','Endarra',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Endarra')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('charlie','Pare-Brise 64',null,null,md5('repclick:internal-tours:2026-10-09:charlie:Pare-Brise 64')::uuid,array[]::text[],2,'{}'::jsonb),
+ ('cedric','Adrien',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Adrien')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Charli’Auto',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Charli’Auto')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Hôpital de Bayonne',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Hôpital de Bayonne')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Bay Utilitaire',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Bay Utilitaire')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Carrosserie Grand Basque',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Carrosserie Grand Basque')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Garage des 3 Vallées',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Garage des 3 Vallées')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','AUGARAY (ROADY)','AUGARAY (ROADY)',null,null,array['Roady Bayonne','Centre auto Roady Bayonne'],0,'{"city":"Bayonne","address":"12 allée de Biarnes, 64100 Bayonne","phone":"05 18 23 07 86","hours":"Lundi à vendredi : 09h00–12h00 / 14h00–19h00 ; samedi : 09h00–12h00 / 14h00–18h00 ; dimanche : fermé."}'::jsonb),
+ ('cedric','Iveco',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Iveco')::uuid,array['Yveco'],0,'{}'::jsonb),
+ ('cedric','Barthes',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Barthes')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Dulamon',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Dulamon')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Feu Vert (Tarnos)',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Feu Vert (Tarnos)')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Mega Auto',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Mega Auto')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','AT Auto',null,null,md5('repclick:internal-tours:2026-10-09:cedric:AT Auto')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','EMD',null,null,md5('repclick:internal-tours:2026-10-09:cedric:EMD')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Carrosserie Sanchez',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Carrosserie Sanchez')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Hureaux',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Hureaux')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Yliass',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Yliass')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Lopez Qonian',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Lopez Qonian')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','TPM',null,null,md5('repclick:internal-tours:2026-10-09:cedric:TPM')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Relais de l’Océan',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Relais de l’Océan')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Bazé',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Bazé')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Sophydro',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Sophydro')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Duchet',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Duchet')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Atelier Shark',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Atelier Shark')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Pascassio',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Pascassio')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Vulco',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Vulco')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Bayonne PL',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Bayonne PL')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','BMW',null,null,md5('repclick:internal-tours:2026-10-09:cedric:BMW')::uuid,array[]::text[],0,'{}'::jsonb),
+ ('cedric','Scania',null,null,md5('repclick:internal-tours:2026-10-09:cedric:Scania')::uuid,array['Scannia'],0,'{}'::jsonb)),
+located as (select w.*,p.id as record_id,p.name as record_name,p.details,p.departures as record_departures
+ from wanted w left join records p on case when w.existing is not null then p.name=w.existing when w.source_key is not null then p.source_key=w.source_key else p.id=w.new_id end)
 select '1 · tournée' as rubrique, r.round as element,
  count(p.id)||' fiche(s) rattachée(s) sur '||r.expected||' attendue(s) · '||count(p.id) filter (where jsonb_array_length(p.departures)=0)||' sans horaire · '
  ||count(p.id) filter (where exists(select 1 from jsonb_array_elements(p.departures) s where lower(s.value->>'carrier')=r.round))||' avec les départs de la tournée' as detail
@@ -26,4 +137,23 @@ select '3 · EN ATTENTE de décision', w.name||' ['||w.round||']',
  w.reason||' — fiche candidate « '||w.candidate||' » : '||(select count(*) from records p where p.name=w.candidate)||' trouvée(s)'
  ||case when exists(select 1 from records p where lower(btrim(p.name))=lower(btrim(w.name))) then ' · une fiche porte déjà exactement ce nom' else ' · ni créée ni rattachée' end
 from waiting w
+union all
+select '4 · ÉCART avec la mutation', l.label||' ['||l.round||']',
+ case when l.record_id is null then 'fiche absente'
+  else concat_ws(' · ',
+   case when not (jsonb_typeof(l.details->'tours')='array' and l.details->'tours' ? l.round) then 'tournée non rattachée' end,
+   (select 'variante manquante : '||string_agg(a,', ') from unnest(l.aliases) a where lower(btrim(a))<>lower(btrim(l.record_name)) and not exists(select 1 from regexp_split_to_table(coalesce(l.details->>'aliases',''),'\s*[;,]\s*') k where lower(btrim(k))=lower(btrim(a)))),
+   case when (select count(*) from jsonb_array_elements(l.record_departures) s where lower(s.value->>'carrier')=l.round and s.value->>'time' in ('10:00','15:00'))<l.departures then 'départs fixes manquants' end,
+   (select 'détail manquant : '||string_agg(f.key,', ') from jsonb_each(l.filled) f where coalesce(l.details->>f.key,'')=''))
+ end
+from located l
+where l.record_id is null
+ or not (jsonb_typeof(l.details->'tours')='array' and l.details->'tours' ? l.round)
+ or exists(select 1 from unnest(l.aliases) a where lower(btrim(a))<>lower(btrim(l.record_name)) and not exists(select 1 from regexp_split_to_table(coalesce(l.details->>'aliases',''),'\s*[;,]\s*') k where lower(btrim(k))=lower(btrim(a))))
+ or (select count(*) from jsonb_array_elements(l.record_departures) s where lower(s.value->>'carrier')=l.round and s.value->>'time' in ('10:00','15:00'))<l.departures
+ or exists(select 1 from jsonb_each(l.filled) f where coalesce(l.details->>f.key,'')='')
+union all
+select '5 · fiches à ne jamais fusionner', d.name||' ≠ '||d.other,
+ (select count(*) from records p where p.name=d.name)||' fiche « '||d.name||' » et '||(select count(*) from records p where p.name=d.other)||' fiche « '||d.other||' », distinctes'
+from (values ('Jo Iribarren','IRIBARREN PATRICK')) d(name,other)
 order by 1,2;

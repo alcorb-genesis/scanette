@@ -1,6 +1,6 @@
 {
  "source": "Liste de référence saisie par Alexis le 09/10/2026",
- "note": "Aucune coordonnée, aucun horaire ni aucune fiche ne vient d’Internet : seuls figurent les éléments écrits par Alexis. « existing » désigne le nom exact d’une fiche déjà présente dans le magasin, à compléter sans la remplacer. « open » désigne une ambiguïté en attente de décision : la ligne n’est ni créée ni rattachée, elle figure dans le rapport ; « candidate » nomme la fiche existante qui pourrait être la même.",
+ "note": "Aucune fiche ne vient d’Internet. Les lignes de la liste d’origine ne portent que ce qu’Alexis a écrit ; les coordonnées et horaires d’ouverture ne figurent que sur les fiches qu’il a confirmées une à une (« details » pour une fiche à créer, « fill » pour compléter une fiche existante sans rien y remplacer). « existing » désigne le nom exact d’une fiche déjà présente dans le magasin, à compléter sans la remplacer. « source_key » identifie une fiche créée à la main en base, pour la retrouver sans en créer une seconde. « distinct_from » nomme une fiche avec laquelle il ne faut jamais fusionner. « open » désigne une ambiguïté en attente de décision : la ligne n’est ni créée ni rattachée ; « candidate » nomme la fiche existante qui pourrait être la même. Aucun horaire de départ n’est déduit des horaires d’ouverture.",
  "tours": [
   {
    "id": "damian",
@@ -132,9 +132,25 @@
   },
   {
    "tour": "damian",
-   "name": "Irribarren",
-   "open": "Une fiche « IRIBARREN PATRICK » existe déjà (Paketo Pays Basque). Même garage avec une autre orthographe, ou un autre garage ?",
-   "candidate": "IRIBARREN PATRICK"
+   "name": "Jo Iribarren",
+   "source_key": "tour-jo-iribarren-20261009",
+   "distinct_from": "IRIBARREN PATRICK",
+   "aliases": [
+    "Irribarren",
+    "Garage Jo Iribarren"
+   ],
+   "details": {
+    "city": "Anglet",
+    "address": "48 avenue de Cambo, Quartier Sutar, 64600 Anglet",
+    "phones": [
+     "05 59 42 37 67",
+     "05 59 42 30 56"
+    ],
+    "hours": "Lundi à jeudi : 08h00–12h00 / 14h00–18h00 ; vendredi : 08h00–12h00 / 14h00–17h00.",
+    "activities": "Réparation toutes marques, self-garage, contrôle anti-pollution, carrosserie, peinture, dépannage et remorquage, agrément assurances.",
+    "source": "Informations fournies et confirmées par Alexis le 09/10/2026"
+   },
+   "match": "fiche distincte de « IRIBARREN PATRICK », confirmée par Alexis le 09/10/2026 : ne jamais les fusionner"
   },
   {
    "tour": "damian",
@@ -456,9 +472,20 @@
   },
   {
    "tour": "cedric",
-   "name": "Roady",
-   "open": "Une fiche « AUGARAY (ROADY) » existe déjà (Serge, Paketo Pays Basque). Même magasin, ou un autre Roady ?",
-   "candidate": "AUGARAY (ROADY)"
+   "name": "Roady Bayonne",
+   "existing": "AUGARAY (ROADY)",
+   "unique_like": "roady",
+   "aliases": [
+    "Roady Bayonne",
+    "Centre auto Roady Bayonne"
+   ],
+   "fill": {
+    "city": "Bayonne",
+    "address": "12 allée de Biarnes, 64100 Bayonne",
+    "phone": "05 18 23 07 86",
+    "hours": "Lundi à vendredi : 09h00–12h00 / 14h00–19h00 ; samedi : 09h00–12h00 / 14h00–18h00 ; dimanche : fermé."
+   },
+   "match": "correspondance confirmée par Alexis le 09/10/2026 : seule fiche du magasin dont le nom contient ROADY"
   },
   {
    "tour": "cedric",
