@@ -16,7 +16,7 @@
 --   * a garage without record gets a new one, with what Alexis wrote and nothing else;
 --   * Damian, Maxime and Cédric get no hour at all; Ludovic gets no garage (reinforcement).
 --   * garages whose match with an existing record is not certain are PENDING: neither created nor
---     attached, listed by internal-tours.check.sql for a decision (Irribarren, First Stop, Leclerc Auto, Dallard, Roady).
+--     attached, listed by internal-tours.check.sql for a decision (Irribarren, Roady).
 -- Strict: stops without changing anything when an expected record is missing or not unique, or when
 -- a record with the same name already exists for a garage that should be new.
 -- Atomic: a single statement; any error undoes everything it did.
@@ -812,6 +812,86 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e'; dry_run cons
  },
  {
   "tour": "charlie",
+  "existing": "First Stop Laboudigue Saint-Jean-de-Luz",
+  "aliases": [],
+  "slots": [
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "10:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "15:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   }
+  ]
+ },
+ {
+  "tour": "charlie",
+  "existing": "LECLERC ST JEAN DE LUZ",
+  "aliases": [
+   "Leclerc Auto"
+  ],
+  "slots": [
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "10:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "15:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   }
+  ]
+ },
+ {
+  "tour": "charlie",
   "existing": "AUTO SPORT",
   "aliases": [
    "Autosport"
@@ -898,6 +978,45 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e'; dry_run cons
  {
   "tour": "charlie",
   "existing": "MARINELA",
+  "aliases": [],
+  "slots": [
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "10:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "15:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   }
+  ]
+ },
+ {
+  "tour": "charlie",
+  "existing": "DALLARD ST JEAN DE LUZ",
   "aliases": [],
   "slots": [
    {
@@ -1684,24 +1803,6 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e'; dry_run cons
   "name": "Irribarren",
   "candidate": "IRIBARREN PATRICK",
   "reason": "Une fiche « IRIBARREN PATRICK » existe déjà (Paketo Pays Basque). Même garage avec une autre orthographe, ou un autre garage ?"
- },
- {
-  "tour": "charlie",
-  "name": "First Stop",
-  "candidate": "First Stop Laboudigue Saint-Jean-de-Luz",
-  "reason": "Une fiche « First Stop Laboudigue Saint-Jean-de-Luz » existe déjà. Alexis n’a pas précisé la ville de ce First Stop : est-ce bien celui de la tournée de Charlie ?"
- },
- {
-  "tour": "charlie",
-  "name": "Leclerc Auto",
-  "candidate": "LECLERC ST JEAN DE LUZ",
-  "reason": "Une fiche « LECLERC ST JEAN DE LUZ » existe déjà. « Leclerc Auto » est-il ce magasin, ou un autre établissement ?"
- },
- {
-  "tour": "charlie",
-  "name": "Dallard",
-  "candidate": "DALLARD ST JEAN DE LUZ",
-  "reason": "Deux fiches Dallard existent (Saint-Jean-de-Luz et Saint-Paul-lès-Dax). Celui de Charlie est-il bien « DALLARD ST JEAN DE LUZ » ?"
  },
  {
   "tour": "cedric",

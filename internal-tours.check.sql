@@ -7,13 +7,10 @@
 -- One query, one result: rounds, existing records completed, and the garages PENDING a decision.
 with shop as (select '8770297c-cadb-4cc6-8b93-55a0f9bd154e'::uuid as id),
 records as (select p.* from public.gestion_partners p, shop where p.workspace_id=shop.id and p.kind='client' and not (p.details ? 'merged_into')),
-rounds(round,expected) as (values ('damian',30),('maxime',28),('charlie',16),('cedric',28)),
-completed(name) as (values ('First Stop Biarritz Pneus'),('FEU VERT BIDART'),('CN AUTO'),('AUTO SPORT'),('MARINELA'),('JS AUTO'),('HERRIKOA')),
+rounds(round,expected) as (values ('damian',30),('maxime',28),('charlie',19),('cedric',28)),
+completed(name) as (values ('First Stop Biarritz Pneus'),('FEU VERT BIDART'),('CN AUTO'),('First Stop Laboudigue Saint-Jean-de-Luz'),('LECLERC ST JEAN DE LUZ'),('AUTO SPORT'),('MARINELA'),('DALLARD ST JEAN DE LUZ'),('JS AUTO'),('HERRIKOA')),
 waiting(position,round,name,candidate,reason) as (values (1,'damian','Irribarren','IRIBARREN PATRICK','Une fiche « IRIBARREN PATRICK » existe déjà (Paketo Pays Basque). Même garage avec une autre orthographe, ou un autre garage ?'),
- (2,'charlie','First Stop','First Stop Laboudigue Saint-Jean-de-Luz','Une fiche « First Stop Laboudigue Saint-Jean-de-Luz » existe déjà. Alexis n’a pas précisé la ville de ce First Stop : est-ce bien celui de la tournée de Charlie ?'),
- (3,'charlie','Leclerc Auto','LECLERC ST JEAN DE LUZ','Une fiche « LECLERC ST JEAN DE LUZ » existe déjà. « Leclerc Auto » est-il ce magasin, ou un autre établissement ?'),
- (4,'charlie','Dallard','DALLARD ST JEAN DE LUZ','Deux fiches Dallard existent (Saint-Jean-de-Luz et Saint-Paul-lès-Dax). Celui de Charlie est-il bien « DALLARD ST JEAN DE LUZ » ?'),
- (5,'cedric','Roady','AUGARAY (ROADY)','Une fiche « AUGARAY (ROADY) » existe déjà (Serge, Paketo Pays Basque). Même magasin, ou un autre Roady ?'))
+ (2,'cedric','Roady','AUGARAY (ROADY)','Une fiche « AUGARAY (ROADY) » existe déjà (Serge, Paketo Pays Basque). Même magasin, ou un autre Roady ?'))
 select '1 · tournée' as rubrique, r.round as element,
  count(p.id)||' fiche(s) rattachée(s) sur '||r.expected||' attendue(s) · '||count(p.id) filter (where jsonb_array_length(p.departures)=0)||' sans horaire · '
  ||count(p.id) filter (where exists(select 1 from jsonb_array_elements(p.departures) s where lower(s.value->>'carrier')=r.round))||' avec les départs de la tournée' as detail

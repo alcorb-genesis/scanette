@@ -348,14 +348,17 @@
   {
    "tour": "charlie",
    "name": "First Stop",
-   "open": "Une fiche « First Stop Laboudigue Saint-Jean-de-Luz » existe déjà. Alexis n’a pas précisé la ville de ce First Stop : est-ce bien celui de la tournée de Charlie ?",
-   "candidate": "First Stop Laboudigue Saint-Jean-de-Luz"
+   "existing": "First Stop Laboudigue Saint-Jean-de-Luz",
+   "match": "correspondance confirmée par Alexis le 09/10/2026"
   },
   {
    "tour": "charlie",
    "name": "Leclerc Auto",
-   "open": "Une fiche « LECLERC ST JEAN DE LUZ » existe déjà. « Leclerc Auto » est-il ce magasin, ou un autre établissement ?",
-   "candidate": "LECLERC ST JEAN DE LUZ"
+   "existing": "LECLERC ST JEAN DE LUZ",
+   "match": "correspondance confirmée par Alexis le 09/10/2026",
+   "aliases": [
+    "Leclerc Auto"
+   ]
   },
   {
    "tour": "charlie",
@@ -379,8 +382,8 @@
   {
    "tour": "charlie",
    "name": "Dallard",
-   "open": "Deux fiches Dallard existent (Saint-Jean-de-Luz et Saint-Paul-lès-Dax). Celui de Charlie est-il bien « DALLARD ST JEAN DE LUZ » ?",
-   "candidate": "DALLARD ST JEAN DE LUZ"
+   "existing": "DALLARD ST JEAN DE LUZ",
+   "match": "correspondance confirmée par Alexis le 09/10/2026"
   },
   {
    "tour": "charlie",

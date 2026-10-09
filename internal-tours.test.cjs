@@ -43,7 +43,7 @@ test('assignment: every garage is found under its round, and only there',()=>{
  assert.equal(inRound('maxime').includes('Carro Vans'),false);assert.equal(inRound('damian').includes('CN AUTO'),false);
  // Existing carriers stay independent services; a round is not a carrier and the reverse.
  assert.deepEqual(shop.filter(p=>P.inService(p,'carrier:Serge')).map(p=>p.name),['Garage de la Gare (Cambo)','AUGARAY (ROADY)']);
- assert.deepEqual(shop.filter(p=>P.inService(p,'carrier:ACE Hendaye')).map(p=>p.name).sort(),['AUTO SPORT','CN AUTO','FEU VERT BIDART','LECLERC ST JEAN DE LUZ']);
+ assert.deepEqual(shop.filter(p=>P.inService(p,'carrier:ACE Hendaye')).map(p=>p.name).sort(),['AUTO SPORT','CN AUTO','FEU VERT BIDART','LECLERC ST JEAN DE LUZ'],'the carrier keeps its garages');
  const services=P.services(shop).map(s=>s.label);
  assert.deepEqual(services.slice(0,5),['Damian · tournée interne','Maxime · tournée interne','Charlie · tournée interne','Cédric · tournée interne','Ludovic · renfort des tournées internes']);
  assert.deepEqual(services.slice(5),['ACE Hendaye','Paketo Pays Basque','Serge'],'Charlie appears once, as a round');
@@ -70,7 +70,7 @@ test('Damian, Maxime and Cédric have no hour: « tournée interne — horaire s
 test('Charlie: fixed departures at 10:00 and 15:00, Monday to Friday',()=>{
  assert.deepEqual(P.fixedSlots('charlie').map(s=>[s.carrier,s.mode,s.time,s.days]),[['Charlie','internal','10:00',[1,2,3,4,5]],['Charlie','internal','15:00',[1,2,3,4,5]]]);
  assert.doesNotThrow(()=>P.validate(P.fixedSlots('charlie')));
- const charlie=shop.filter(p=>(p.details.tours||[]).includes('charlie'));assert.equal(charlie.length,13,'11 new garages and the two existing ones of this fixture');
+ const charlie=shop.filter(p=>(p.details.tours||[]).includes('charlie'));assert.equal(charlie.length,14,'11 new garages and the three existing ones of this fixture');
  for(const p of charlie){assert.deepEqual(p.departures.filter(s=>s.carrier==='Charlie').map(s=>s.time),['10:00','15:00'],p.name);assert.deepEqual(P.unscheduled(p),[],p.name+' shows hours, not the no-hour sentence');}
  const top=shop.find(p=>p.name==='Top Auto');
  // Wednesday 9:00 → 10:00 the same day; Friday 16:00 → Monday 10:00; never on Saturday or Sunday.
@@ -85,19 +85,24 @@ test('existing garages are completed, never replaced',()=>{
   for(const a of String(p.details.aliases||'').split(';').map(a=>a.trim()).filter(Boolean))assert.ok(n.details.aliases.includes(a),p.name+' keeps alias '+a);}
  assert.deepEqual(now('e1').departures.map(s=>s.carrier+' '+s.time),['ACE Hendaye 11:15','Charlie 10:00','Charlie 15:00']);
  assert.equal(now('e7').details.aliases,'Sport Auto ; Autosport');assert.deepEqual(now('e7').details.tours,['charlie']);
+ // Confirmed by Alexis: Leclerc Auto is LECLERC ST JEAN DE LUZ. The record keeps its name, alias and carrier hour.
+ assert.equal(now('e3').name,'LECLERC ST JEAN DE LUZ');assert.equal(now('e3').details.aliases,'Leclerc SJL ; Leclerc Auto');assert.deepEqual(now('e3').departures.map(s=>s.carrier+' '+s.time),['ACE Hendaye 11:15','Charlie 10:00','Charlie 15:00']);
  // Garages left open by the list are untouched, and no second record was created for them.
- for(const id of ['e3','e4','e5','e6'])assert.deepEqual(now(id),was.find(p=>p.id===id));
+ for(const id of ['e4','e5','e6'])assert.deepEqual(now(id),was.find(p=>p.id===id));
  for(const open of data.garages.filter(g=>g.open)){assert.equal(shop.some(p=>p.name===open.name),false,open.name+' is neither created nor attached');assert.equal(rows.some(r=>r.name===open.name),false);}
- // Pending: the two spelling doubts, and the three matches that rested on the zone of the round only.
+ // Pending: the two spelling doubts. The three garages of Charlie were confirmed by Alexis and are no longer pending.
  const waiting=data.garages.filter(g=>g.open);
- assert.deepEqual(waiting.map(g=>[g.tour,g.name,g.candidate]),[['damian','Irribarren','IRIBARREN PATRICK'],['charlie','First Stop','First Stop Laboudigue Saint-Jean-de-Luz'],['charlie','Leclerc Auto','LECLERC ST JEAN DE LUZ'],['charlie','Dallard','DALLARD ST JEAN DE LUZ'],['cedric','Roady','AUGARAY (ROADY)']]);
+ assert.deepEqual(waiting.map(g=>[g.tour,g.name,g.candidate]),[['damian','Irribarren','IRIBARREN PATRICK'],['cedric','Roady','AUGARAY (ROADY)']]);
  for(const g of waiting){assert.ok(g.open.length>30&&/\?$/.test(g.open),g.name+' carries a readable question');assert.equal('existing' in g||'aliases' in g,false,g.name+' is not attached by any automatic match');}
  // A pending garage never disappears: it is in the report, in the dry run and in the notice of the mutation.
  assert.deepEqual(B.pending().map(p=>p.name),waiting.map(g=>g.name));
  for(const g of waiting){assert.ok(B.files['internal-tours.check.sql'].includes("'"+g.name+"'"),g.name+' in the report');for(const f of ['internal-tours.sql','internal-tours.dry-run.sql'])assert.ok(B.files[f].includes('"name": "'+g.name+'"'),g.name+' in '+f);}
  assert.match(B.files['internal-tours.check.sql'],/EN ATTENTE de décision/);
- // No automatic match rests on the zone of a round: every remaining one names the same garage.
- assert.deepEqual(data.garages.filter(g=>g.existing).map(g=>[g.name,g.existing]),[['First Stop (Biarritz)','First Stop Biarritz Pneus'],['Feu Vert (Bidart)','FEU VERT BIDART'],['CN Auto','CN AUTO'],['Autosport','AUTO SPORT'],['Marinela','MARINELA'],['JS Auto','JS AUTO'],['Herrikoa','HERRIKOA']]);
+ // No match rests on the zone of a round: each names the same garage, or was confirmed by Alexis.
+ assert.deepEqual(data.garages.filter(g=>g.existing).map(g=>[g.name,g.existing]),[['First Stop (Biarritz)','First Stop Biarritz Pneus'],['Feu Vert (Bidart)','FEU VERT BIDART'],['CN Auto','CN AUTO'],['First Stop','First Stop Laboudigue Saint-Jean-de-Luz'],['Leclerc Auto','LECLERC ST JEAN DE LUZ'],['Autosport','AUTO SPORT'],['Marinela','MARINELA'],['Dallard','DALLARD ST JEAN DE LUZ'],['JS Auto','JS AUTO'],['Herrikoa','HERRIKOA']]);
+ const confirmed=data.garages.filter(g=>/confirmée par Alexis/.test(g.match||''));
+ assert.deepEqual(confirmed.map(g=>[g.tour,g.name,g.existing]),[['charlie','First Stop','First Stop Laboudigue Saint-Jean-de-Luz'],['charlie','Leclerc Auto','LECLERC ST JEAN DE LUZ'],['charlie','Dallard','DALLARD ST JEAN DE LUZ']]);
+ for(const g of confirmed){assert.equal('open' in g||'candidate' in g,false,g.name+' is confirmed, not pending');assert.equal(B.pending().some(p=>p.name===g.name),false);}
  for(const g of data.garages.filter(g=>g.existing))assert.equal(/zone/i.test(g.match),false,g.name);
  // Applying twice changes nothing.
  assert.deepEqual(apply(shop),shop);
@@ -114,8 +119,10 @@ test('search accepts spelling variants and never merges two garages',()=>{
  assert.deepEqual(find('nauroto').sort(),['Norauto France','Norauto Pontot']);assert.deepEqual(find('norauto').sort(),['Norauto France','Norauto Pontot']);
  assert.deepEqual(find('car vans'),['Carro Vans']);assert.deepEqual(find('carro vans'),['Carro Vans']);assert.deepEqual(find('garage de la négresse'),['Garage de l’Allégresse']);
  assert.deepEqual(find('autosport'),['AUTO SPORT']);
- // A pending name finds nothing new and attaches nothing: the existing record is only found by its own name.
- assert.deepEqual(find('leclerc auto'),[]);assert.deepEqual(find('leclerc'),['LECLERC ST JEAN DE LUZ']);assert.equal(inRound('charlie').includes('LECLERC ST JEAN DE LUZ'),false);
+ // A confirmed match is found by the name Alexis uses, under Charlie, and creates no second record.
+ assert.deepEqual(find('leclerc auto'),['LECLERC ST JEAN DE LUZ']);assert.ok(inRound('charlie').includes('LECLERC ST JEAN DE LUZ'));assert.equal(shop.filter(p=>/leclerc/i.test(p.name)).length,1);
+ // A pending name attaches nothing: its candidate record stays outside every internal round.
+ assert.deepEqual(find('irribarren'),['IRIBARREN PATRICK']);assert.equal(inRound('damian').includes('IRIBARREN PATRICK'),false);assert.equal(inRound('cedric').includes('AUGARAY (ROADY)'),false);
  // Two garages stay two garages.
  assert.deepEqual(find('carrosserie de la gare'),['Carrosserie de la Gare']);assert.deepEqual(find('garage de la gare'),['Garage de la Gare (Cambo)']);
  assert.deepEqual(find('de la gare').sort(),['Carrosserie de la Gare','Garage de la Gare (Cambo)']);
@@ -132,7 +139,7 @@ test('search accepts spelling variants and never merges two garages',()=>{
 test('generated SQL files are up to date, strict and complete',()=>{
  assert.deepEqual(Object.keys(B.files).sort(),['internal-tours.check.sql','internal-tours.dry-run.sql','internal-tours.rollback.sql','internal-tours.sql']);
  for(const [name,text] of Object.entries(B.files))assert.equal(fs.readFileSync(name,'utf8'),text,name+' : run node scripts/build-internal-tours-sql.cjs');
- assert.equal(rows.length,102);assert.equal(rows.filter(r=>r.existing).length,7);assert.equal(rows.filter(r=>r.slots.length).length,16);assert.equal(B.pending().length,5);
+ assert.equal(rows.length,105);assert.equal(rows.filter(r=>r.existing).length,10);assert.equal(rows.filter(r=>r.slots.length).length,19);assert.equal(B.pending().length,2);
  assert.equal(rows.length+B.pending().length,data.garages.length,'every line of the list is either applied or pending');
  for(const name of ['internal-tours.sql','internal-tours.dry-run.sql','internal-tours.rollback.sql'])assert.match(B.files[name],/workspace_id=shop/);
  assert.equal(/\b(insert|update|delete|alter|create|drop|lock|do)\b/i.test(B.files['internal-tours.check.sql'].split('\n').filter(l=>!l.startsWith('--')).join('\n').replace(/'(?:[^']|'')*'/g,"''")),false,'the report only reads');

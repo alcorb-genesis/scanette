@@ -802,6 +802,86 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
  },
  {
   "tour": "charlie",
+  "existing": "First Stop Laboudigue Saint-Jean-de-Luz",
+  "aliases": [],
+  "slots": [
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "10:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "15:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   }
+  ]
+ },
+ {
+  "tour": "charlie",
+  "existing": "LECLERC ST JEAN DE LUZ",
+  "aliases": [
+   "Leclerc Auto"
+  ],
+  "slots": [
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "10:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "15:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   }
+  ]
+ },
+ {
+  "tour": "charlie",
   "existing": "AUTO SPORT",
   "aliases": [
    "Autosport"
@@ -888,6 +968,45 @@ declare shop constant uuid:='8770297c-cadb-4cc6-8b93-55a0f9bd154e';
  {
   "tour": "charlie",
   "existing": "MARINELA",
+  "aliases": [],
+  "slots": [
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "10:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "mode": "internal",
+    "carrier": "Charlie",
+    "time": "15:00",
+    "cutoff": "",
+    "sector": "Saint-Jean-de-Luz / Urrugne / Ciboure / Ascain / Saint-Pée-sur-Nivelle",
+    "place": "",
+    "notes": "",
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   }
+  ]
+ },
+ {
+  "tour": "charlie",
+  "existing": "DALLARD ST JEAN DE LUZ",
   "aliases": [],
   "slots": [
    {

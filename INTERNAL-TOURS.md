@@ -34,12 +34,19 @@ Ces lignes de la liste ne sont ni créées ni rattachées : une fiche existante 
 | Tournée | Ligne d’Alexis | Fiche existante candidate |
 |---|---|---|
 | Damian | Irribarren | IRIBARREN PATRICK |
-| Charlie | First Stop | First Stop Laboudigue Saint-Jean-de-Luz |
-| Charlie | Leclerc Auto | LECLERC ST JEAN DE LUZ |
-| Charlie | Dallard | DALLARD ST JEAN DE LUZ |
 | Cédric | Roady | AUGARAY (ROADY) |
 
 Une fois la décision prise : écrire `existing` (même garage) ou retirer `open` (garage distinct) dans `internal-tours-data.json`, régénérer, rejouer la mutation — elle ne touche que ce qui change.
+
+## Correspondances confirmées par Alexis (9 octobre 2026)
+
+Charlie est le livreur ; ces trois lignes de sa tournée désignent des fiches déjà présentes, complétées sans être remplacées :
+
+| Ligne d’Alexis | Fiche existante |
+|---|---|
+| First Stop | First Stop Laboudigue Saint-Jean-de-Luz |
+| Leclerc Auto | LECLERC ST JEAN DE LUZ (variante « Leclerc Auto » ajoutée) |
+| Dallard | DALLARD ST JEAN DE LUZ |
 
 ## Pourquoi une seule instruction et des délimiteurs nommés
 
