@@ -1,6 +1,6 @@
 {
  "source": "Liste de référence saisie par Alexis le 09/10/2026",
- "note": "Aucune coordonnée, aucun horaire ni aucune fiche ne vient d’Internet : seuls figurent les éléments écrits par Alexis. « existing » désigne le nom exact d’une fiche déjà présente dans le magasin, à compléter sans la remplacer ; « open » désigne une ambiguïté laissée sans décision : la ligne n’est ni créée ni rattachée.",
+ "note": "Aucune coordonnée, aucun horaire ni aucune fiche ne vient d’Internet : seuls figurent les éléments écrits par Alexis. « existing » désigne le nom exact d’une fiche déjà présente dans le magasin, à compléter sans la remplacer. « open » désigne une ambiguïté en attente de décision : la ligne n’est ni créée ni rattachée, elle figure dans le rapport ; « candidate » nomme la fiche existante qui pourrait être la même.",
  "tours": [
   {
    "id": "damian",
@@ -133,7 +133,8 @@
   {
    "tour": "damian",
    "name": "Irribarren",
-   "open": "Une fiche « IRIBARREN PATRICK » existe déjà (Paketo Pays Basque). Même garage avec une autre orthographe, ou un autre garage ?"
+   "open": "Une fiche « IRIBARREN PATRICK » existe déjà (Paketo Pays Basque). Même garage avec une autre orthographe, ou un autre garage ?",
+   "candidate": "IRIBARREN PATRICK"
   },
   {
    "tour": "damian",
@@ -347,17 +348,14 @@
   {
    "tour": "charlie",
    "name": "First Stop",
-   "existing": "First Stop Laboudigue Saint-Jean-de-Luz",
-   "match": "enseigne unique dans la zone de la tournée de Charlie (fiche existante à Saint-Jean-de-Luz)"
+   "open": "Une fiche « First Stop Laboudigue Saint-Jean-de-Luz » existe déjà. Alexis n’a pas précisé la ville de ce First Stop : est-ce bien celui de la tournée de Charlie ?",
+   "candidate": "First Stop Laboudigue Saint-Jean-de-Luz"
   },
   {
    "tour": "charlie",
    "name": "Leclerc Auto",
-   "existing": "LECLERC ST JEAN DE LUZ",
-   "aliases": [
-    "Leclerc Auto"
-   ],
-   "match": "enseigne unique dans la zone de la tournée de Charlie (Saint-Jean-de-Luz)"
+   "open": "Une fiche « LECLERC ST JEAN DE LUZ » existe déjà. « Leclerc Auto » est-il ce magasin, ou un autre établissement ?",
+   "candidate": "LECLERC ST JEAN DE LUZ"
   },
   {
    "tour": "charlie",
@@ -381,8 +379,8 @@
   {
    "tour": "charlie",
    "name": "Dallard",
-   "existing": "DALLARD ST JEAN DE LUZ",
-   "match": "enseigne unique dans la zone de la tournée de Charlie (Saint-Jean-de-Luz)"
+   "open": "Deux fiches Dallard existent (Saint-Jean-de-Luz et Saint-Paul-lès-Dax). Celui de Charlie est-il bien « DALLARD ST JEAN DE LUZ » ?",
+   "candidate": "DALLARD ST JEAN DE LUZ"
   },
   {
    "tour": "charlie",
@@ -456,7 +454,8 @@
   {
    "tour": "cedric",
    "name": "Roady",
-   "open": "Une fiche « AUGARAY (ROADY) » existe déjà (Serge, Paketo Pays Basque). Même magasin, ou un autre Roady ?"
+   "open": "Une fiche « AUGARAY (ROADY) » existe déjà (Serge, Paketo Pays Basque). Même magasin, ou un autre Roady ?",
+   "candidate": "AUGARAY (ROADY)"
   },
   {
    "tour": "cedric",
