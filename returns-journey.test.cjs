@@ -61,14 +61,14 @@ test('the whole journey: exact scans, manual exception, decisions, carton, credi
  assert.equal(await scan(p,'lx 1780'),'✓ LX 1780 : 1 reçue sur 2 attendues.');assert.equal(await scan(p,'4009026000014'),'✓ LX 1780 : 2 reçues sur 2 attendues.');
  assert.match(await scan(p,'LX 1780'),/déjà reçue en totalité/,'no unit beyond what was announced');
  assert.equal(await scan(p,'3322937000000'),'✓ GDB1330 : 1 reçue sur 1 attendue.');assert.match(p.text(line(p,'l1')),/Attendu 2 Reçu 2/);
- await p.click(p.$('steps'),'Valider la réception contrôlée');assert.match(p.text(p.$('saved')),/quantité reçue pour W 712/,'a line is not controlled yet');
+ await p.click(p.$('steps'),'Valider la réception et passer aux suites');assert.match(p.text(p.$('saved')),/quantité reçue pour W 712/,'a line is not controlled yet');
  // Manual exception, on the line itself, with its cause.
  p.by(line(p,'l3'),'manual','l3')[0].onclick({});await p.tick();let form=p.shown(line(p,'l3')).find(n=>n.className==='decision-form');assert.match(p.text(form),/Le scan reste la règle/);
  await p.click(form,'Enregistrer la saisie manuelle');assert.match(p.text(form),/Choisissez la raison/);
  const cause=p.shown(form).find(n=>n.tagName==='SELECT');assert.deepEqual(cause.options.map(o=>o._text),['Choisir la raison…','Pièce absente','Étiquette illisible']);cause.value='absent';cause.onchange({});
  await p.click(form,'Enregistrer la saisie manuelle');assert.match(p.text(p.$('receiveFeedback')),/W 712 : 0 reçue par saisie manuelle \(Pièce absente\)/);assert.match(p.text(line(p,'l3')),/Reçu 0 Motif : Pièce absente/);
  assert.equal(p.shown(p.$('lines')).some(n=>n.dataset.kind),false,'no decision is offered before the reception is validated');
- await p.click(p.$('steps'),'Valider la réception contrôlée');assert.match(p.text(p.$('saved')),/Réception validée/);assert.equal(p.server.db.cases[0].document.status,'received');assert.equal(p.$('receiveBox').hidden,true);
+ await p.click(p.$('steps'),'Valider la réception et passer aux suites');assert.match(p.text(p.$('saved')),/Réception validée/);assert.equal(p.server.db.cases[0].document.status,'received');assert.equal(p.$('receiveBox').hidden,true);
  // Decisions: explicit choices, short forms, consequences said.
  assert.deepEqual(p.shown(line(p,'l1')).filter(n=>n.dataset.kind).map(n=>p.text(n)),['＋ Abîmée','＋ Retour fournisseur','＋ Avoir client','＋ Attente de décision']);assert.match(p.text(line(p,'l3')),/aucune suite à donner/);
  assert.equal(await decide(p,'l1','damaged'),'Décrivez le dommage constaté.');assert.match(p.text(line(p,'l1')),/rejoint « Pièces abîmées » du garage/);
@@ -108,6 +108,39 @@ test('the whole journey: exact scans, manual exception, decisions, carton, credi
  const journal=p.text(p.$('events'));for(const said of ['Collecté → Reçu et contrôlé','Abîmée · LX 1780 : Constatée · par Léa · Emballage ouvert','Retour fournisseur · LX 1780 : Dans le carton → Envoyée au fournisseur · par Léa','Avoir client · LX 1780 : Avoir édité → Remis en stock · par Léa · Destination : Allée A12C','Attente de décision · GDB1330 : En attente → Décision prise · par Léa'])assert.ok(journal.includes(said),said);
  await p.click(p.$('steps'),'Clôturer le dossier');assert.equal(p.server.db.cases[0].document.status,'closed');assert.match(p.text(p.$('summary')),/^Clôturé/);
  assert.deepEqual(p.server.db.cases[0].document.lines.map(l=>l.received_quantity),[2,1,0],'the reception was never rewritten by a decision');
+});
+/* The link between the two steps, as an agent reads it: what « Suites » says while a dossier is still at the
+   reception, and where the dossier goes at the very moment its reception is validated. */
+test('reception and follow-ups are visibly one path: guide, « Encore en réception », then the same dossier in « À traiter »',async()=>{const p=await page();
+ const pressed=()=>['viewCollect','viewReceive','viewSuites','viewCases'].filter(id=>p.$(id).ariaPressed==='true'),guide=()=>p.text(p.$('stageGuide'));
+ p.$('viewReceive').onclick({});await p.click(p.$('receiveList'),'Réceptionner');assert.match(p.text(p.$('title')),/^Réception · CN AUTO$/);
+ assert.equal(p.$('stageGuide').hidden,false);assert.match(guide(),/^Étape 1 sur 2 · Réception — reçu 0 \/ 4\. 3 lignes restent à contrôler\. Les suites par pièce .* s’ouvrent dès que la réception est validée\.$/);
+ await scan(p,'LX 1780');assert.match(guide(),/reçu 1 \/ 4\. 2 lignes restent à contrôler/);
+ // Partly received, the agent looks at « Suites »: the reception panel does not stay under it, and the dossier is named there.
+ p.$('viewSuites').onclick({});await p.tick();assert.deepEqual(pressed(),['viewSuites']);assert.equal(p.$('editor').hidden,true,'the reception panel is not left open under « Suites »');
+ let body=p.text(p.$('suiteBody'));assert.match(body,/Aucune pièce en attente de décision\./);assert.match(body,/Encore en réception · 1 Les suites de ces pièces s’ouvrent ici dès que la réception du dossier est validée\./);
+ assert.match(body,/CN AUTO En réception Reçu 1 \/ 4 · 2 lignes à contrôler Reprendre la réception/);assert.match(p.text(p.by(p.$('suiteTabs'),'tab','toDecide')[0]),/À traiter 0/,'a part still at the reception is not counted as to decide');
+ assert.equal(p.shown(p.$('suiteBody')).some(n=>n.dataset.kind||n.dataset.open),false,'no decision is offered from « Suites » before the reception is validated');
+ await p.click(p.$('suiteBody'),'Reprendre la réception');assert.equal(p.$('editor').hidden,false);assert.equal(p.$('receiveBox').hidden,false);assert.match(p.text(line(p,'l1')),/Attendu 2 Reçu 1/,'the reception resumes where it was');
+ await scan(p,'LX 1780');await scan(p,'GDB1330');p.by(line(p,'l3'),'manual','l3')[0].onclick({});await p.tick();const form=p.shown(line(p,'l3')).find(n=>n.className==='decision-form'),cause=p.shown(form).find(n=>n.tagName==='SELECT');cause.value='absent';cause.onchange({});await p.click(form,'Enregistrer la saisie manuelle');
+ assert.match(guide(),/reçu 3 \/ 4\. Toutes les lignes sont contrôlées : validez la réception ci-dessous pour ouvrir l’étape 2/);assert.match(p.$('stageGuide').className,/ready/);
+ assert.match(p.text(p.$('suiteBody')),/CN AUTO En réception Reçu 3 \/ 4 · toutes les lignes sont contrôlées, réception à valider Valider la réception/);
+ // Validation: the reception step closes, « Suites > À traiter » opens on the same dossier with the buttons of each part.
+ await p.click(p.$('steps'),'Valider la réception et passer aux suites');assert.equal(p.server.db.cases[0].document.status,'received');
+ assert.deepEqual(pressed(),['viewSuites']);assert.equal(p.$('suites').hidden,false);assert.equal(p.$('receive').hidden,true);assert.equal(p.text(p.by(p.$('suiteTabs'),'tab','toDecide')[0]),'À traiter 2');assert.equal(p.by(p.$('suiteTabs'),'tab','toDecide')[0].ariaPressed,'true');
+ assert.equal(p.$('editor').hidden,false,'the same dossier stays open');assert.match(p.text(p.$('title')),/^Suites · CN AUTO$/);assert.equal(p.$('receiveBox').hidden,true,'the reception step is closed');
+ assert.match(guide(),/^Étape 2 sur 2 · Suites — réception validée\. 2 pièces reçues attendent leur suite/);
+ body=p.text(p.$('suiteBody'));assert.doesNotMatch(body,/Encore en réception|Aucune pièce en attente/);assert.match(body,/Reçue × 2 Sans suite LX 1780 · Filtre à air CN AUTO/);assert.match(body,/Reçue × 1 Sans suite GDB1330/);assert.doesNotMatch(body,/W 712/,'a line received at zero has nothing to decide');
+ assert.equal(p.shown(p.$('suiteBody')).filter(n=>/undecided-row/.test(n.className)).every(n=>/ here/.test(n.className)),true,'the rows of the open dossier are marked');
+ for(const id of ['l1','l2'])assert.deepEqual(p.shown(line(p,id)).filter(n=>n.dataset.kind).map(n=>p.text(n)),['＋ Abîmée','＋ Retour fournisseur','＋ Avoir client','＋ Attente de décision'],id);
+ // Each decision empties « À traiter » and the guide follows.
+ assert.equal(await decide(p,'l1','customer_credit',i=>{i[1].value='BL 1';}),'ok');assert.equal(p.text(p.by(p.$('suiteTabs'),'tab','toDecide')[0]),'À traiter 1');assert.match(guide(),/1 pièce reçue attend sa suite/);
+ assert.equal(await decide(p,'l2','damaged',i=>{i[1].value='Carton écrasé';}),'ok');assert.equal(p.text(p.by(p.$('suiteTabs'),'tab','toDecide')[0]),'À traiter 0');assert.match(guide(),/Chaque pièce reçue a sa suite\./);assert.match(p.text(p.$('suiteBody')),/Aucune pièce en attente de décision\./);
+});
+test('a tab never leaves the panel of another step open, and unsaved edits are asked about first',async()=>{const p=await page();
+ p.$('viewReceive').onclick({});await p.click(p.$('receiveList'),'Réceptionner');p.$('viewCases').onclick({});await p.tick();assert.equal(p.$('editor').hidden,true);assert.equal(p.$('cases').hidden,false);
+ p.$('viewReceive').onclick({});await p.click(p.$('receiveList'),'Réceptionner');p.$('note').value='carton abîmé';p.$('note').oninput({});p.$('viewSuites').onclick({});await p.tick();
+ assert.match(p.asked.at(-1),/Fermer les modifications non enregistrées/);assert.equal(p.server.db.cases[0].version,2,'nothing was written by changing tab');
 });
 test('refusals are read as the shared access hands them over',()=>{const A=require('./returns-actions-core.js'),access=read('shared-access.js');
  assert.match(access,/Object\.assign\(Error\(message\(error\)\),\{code:error\.code,original:error\.message\}\)/,'the stand-in of this test copies this shape');

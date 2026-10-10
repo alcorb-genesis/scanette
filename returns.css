@@ -82,3 +82,10 @@ label{display:grid;gap:5px;font-weight:650;min-width:0;margin:0}
 .line .decision-form{grid-column:1/-1}.action .decision-form{grid-column:1/-1}
 .carton-count{font-size:1.25rem;font-weight:800;color:var(--ui-warning)}.carton-count.complete{color:var(--ui-accent)}
 .carton-line{padding:6px 0;border-top:1px dashed var(--ui-line);overflow-wrap:anywhere}
+
+/* Reception then follow-ups: the step of the open dossier, and what is still at the reception. */
+.stage-guide{margin:0 0 12px;padding:12px 14px;border-radius:var(--ui-radius);border:1px solid var(--ui-line);border-left:6px solid #e3a33a;background:var(--ui-surface-2);font-weight:650}
+.stage-guide.ready{border-left-color:var(--ui-success,#2e8b57)}
+.arriving-title{margin:18px 0 4px}
+.action.arriving{border-left-color:var(--ui-line)}
+.action.here{outline:2px solid var(--ui-accent,#2563eb);outline-offset:2px}
