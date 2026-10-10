@@ -216,9 +216,16 @@ const note=(text,error=false)=>{paintReceiving.note=text?{text,error}:null;};
 /* A scanned or typed code is checked by the server before anything is asked: unknown → refused, nothing created. */
 async function identify(dossier,raw){const code=String(raw||'').trim().slice(0,256);if(!code||busy||pending)return;busy=true;try{const line=first(await call('shared_return_identify',{case_id:dossier.id,code}));pending={code,...line};damagedFor='';note('');}
  catch(e){note(message(e),true);navigator.vibrate?.([80,60,80]);}finally{busy=false;}await stopCamera();paintReception();if(!pending)focusScan();}
-async function receivePart(dossier,state,reason){if(!pending)return;const part=pending;await act(async()=>{const row=first(await call('shared_return_receive_part',{case_id:dossier.id,code:part.code,part_state:state,reason,actor_label:agent()}));adopt({id:row.id,document:row.document,version:row.version,created_at:row.created_at,updated_at:row.updated_at});await loadActions();
-  const line=row.document.lines.find(l=>l.id===row.line_id);pending=null;damagedFor='';note('✓ '+line.reference+' '+(state==='damaged'?'abîmée':'conforme')+' → '+F.destination(row.document.type,state)+' · reçu '+line.received_quantity+' / '+line.quantity);navigator.vibrate?.(60);})||note($('status').textContent,true);paintReception();if(!pending)focusScan();}
-async function qualifyUnit(dossier,line,state,reason){await act(async()=>{keep(await call('shared_return_qualify',{case_id:dossier.id,line_id:line.id,part_state:state,reason,actor_label:agent()}));damagedFor='';await refreshCase(dossier.id);note('✓ '+line.reference+' '+(state==='damaged'?'abîmée':'conforme')+' → '+F.destination(dossier.document.type,state));})||note($('status').textContent,true);paintReception();}
+/* The decision is closed the moment the server confirmed it: the panel, its reason field and the pending
+   scan are dropped at once, before anything else is read again — a slow or failed refresh of the lists
+   can never leave « Conforme / Abîmée » open on a part that is already recorded. */
+function closeDecision(){pending=null;damagedFor='';}
+const said=state=>state==='damaged'?'abîmée':'conforme';
+async function receivePart(dossier,state,reason){if(!pending)return;const part=pending;await act(async()=>{const row=first(await call('shared_return_receive_part',{case_id:dossier.id,code:part.code,part_state:state,reason,actor_label:agent()}));
+  closeDecision();adopt({id:row.id,document:row.document,version:row.version,created_at:row.created_at,updated_at:row.updated_at});const line=row.document.lines.find(l=>l.id===row.line_id);
+  note('✓ '+line.reference+' '+said(state)+' → '+F.destination(row.document.type,state)+' · reçu '+line.received_quantity+' / '+line.quantity);navigator.vibrate?.(60);try{await loadActions();}catch{}})||note($('status').textContent,true);paintReception();if(!pending)focusScan();}
+async function qualifyUnit(dossier,line,state,reason){await act(async()=>{keep(await call('shared_return_qualify',{case_id:dossier.id,line_id:line.id,part_state:state,reason,actor_label:agent()}));
+  closeDecision();const left=F.unqualified(dossier,line,actions);note('✓ '+line.reference+' '+said(state)+' → '+F.destination(dossier.document.type,state)+(left?' · encore '+plural(left,'pièce','pièces')+' de cette ligne à qualifier':''));try{await refreshCase(dossier.id);}catch{}})||note($('status').textContent,true);paintReception();if(!pending)focusScan();}
 /* End of the reception. Each part not scanned is named and ticked by the agent: nothing is missing by default. */
 function startFinish(dossier){if(pending){note('Dites d’abord si la pièce scannée est conforme ou abîmée.',true);return paintReception();}
  if(dossier.document.lines.some(l=>F.unqualified(dossier,l,actions)>0)){note('Une pièce déjà reçue attend sa qualification : conforme ou abîmée.',true);return paintReception();}

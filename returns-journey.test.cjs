@@ -39,10 +39,10 @@ const requested=()=>[
  {id:R1,version:1,created_at:'2026-10-05T08:00:00Z',updated_at:'2026-10-05T08:00:00Z',document:{type:'return',status:'requested',client_id:'g1',client_name:'CN AUTO',supplier_id:null,supplier_name:'',pickup_location:'Carton accueil',portal:true,source:'public_portal',garage_verified:true,
    lines:[line('l1','LX 1780',2,{product_id:'p1',description:'Filtre à air'}),line('l2','A1276',1),line('l3','W 712',1,{description:'Filtre à huile'})]}},
  {id:R2,version:1,created_at:'2026-10-06T08:00:00Z',updated_at:'2026-10-06T08:00:00Z',document:{type:'warranty',status:'requested',client_id:'g2',client_name:'GARAGE DU LAC',supplier_id:null,supplier_name:'',pickup_location:'Étagère atelier',lines:[line('l1','GDB1330',1,{description:'Plaquettes'}),line('l2','A1276',1)]}}];
-async function page({cases=requested(),missing=[],stored={}}={}){const d=dom(),server=createReturnsFakeServer({cases,partners:[cnAuto,loin,apo,bosch],products}),exports=[],asked=[],memory={...stored};
+async function page({cases=requested(),missing=[],stored={}}={}){const control={fail:''},d=dom(),server=createReturnsFakeServer({cases,partners:[cnAuto,loin,apo,bosch],products}),exports=[],asked=[],memory={...stored};
  const SharedAccess={ACTOR:'shared',message:e=>'Accès fermé ('+e.code+')',
   // Refusals arrive as shared-access.js hands them over: an Error with a generic sentence, the code, and the server wording in « original ».
-  call:async(name,args)=>{try{if(missing.includes(name))throw {code:'PGRST202',message:'missing'};return server.call(name,args);}catch(e){if(e&&e.code&&!(e instanceof Error))throw Object.assign(Error('Opération refusée par le serveur.'),{code:e.code,original:e.message});throw e;}}};
+  call:async(name,args)=>{try{if(missing.includes(name))throw {code:'PGRST202',message:'missing'};if(control.fail===name){control.fail='';throw {code:'08006',message:'network'};}return server.call(name,args);}catch(e){if(e&&e.code&&!(e instanceof Error))throw Object.assign(Error('Opération refusée par le serveur.'),{code:e.code,original:e.message});throw e;}}};
  const win={addEventListener(){}};const context={document:d.document,window:win,parent:win,location:{origin:'https://test.local',search:''},navigator:{},localStorage:{getItem:k=>memory[k]||'',setItem(k,v){memory[k]=String(v);}},SharedAccess,ReturnsCore:require('./returns-core.js'),ReturnsActions:require('./returns-actions-core.js'),ReturnsFlow:require('./returns-flow-core.js'),PartnerPlanning:require('./partner-planning-core.js'),
   Option:d.Option,crypto:{randomUUID:()=>'99999999-0000-4000-8000-'+String(Math.random()).slice(2,14).padEnd(12,'0')},structuredClone,Date,Promise,Set,Map,JSON,Math,Number,String,Object,Array,Error,RegExp,isNaN,setTimeout,setInterval(){},
   confirm:q=>{asked.push(q);return true;},File:class{constructor(parts,name){this.name=name;this.text=parts.join('');exports.push(this);}},URL:{createObjectURL:()=>'blob:x',revokeObjectURL(){}},Html5Qrcode:class{}};
@@ -56,7 +56,7 @@ async function page({cases=requested(),missing=[],stored={}}={}){const d=dom(),s
  const role=async name=>{$({office:'roleOffice',driver:'roleDriver',reception:'roleReception'}[name]).onclick({});await tick();},queue=async id=>{by($('queues'),'queue',id)[0].onclick({});await tick();};
  const counts=()=>Object.fromEntries(shown($('queues')).filter(n=>n.dataset.queue).map(n=>[n.dataset.queue,text(n)]));
  const dossier=id=>server.db.cases.find(c=>c.id===id),acts=id=>server.db.actions.filter(a=>a.case_id===id).map(a=>a.line_id+':'+a.kind+':'+a.status+':'+a.quantity).sort().join(' ');
- return {d,server,$,shown,text,buttons,button,click,by,field,role,queue,counts,dossier,acts,tick,exports,asked,memory};}
+ return {d,server,$,shown,text,buttons,button,click,by,field,role,queue,counts,dossier,acts,tick,exports,asked,memory,control};}
 const scanInput=p=>p.shown(p.$('receptionBody')).find(n=>n.id==='receiveCode');
 async function scan(p,code){const input=scanInput(p);assert.ok(input,'the scan field is offered');input.value=code;await p.click(p.$('receptionBody'),'Valider');return p.text(p.shown(p.$('receptionBody')).find(n=>n.id==='receiveFeedback'));}
 const feedback=p=>p.text(p.shown(p.$('receptionBody')).find(n=>n.id==='receiveFeedback'));
@@ -162,6 +162,30 @@ test('the whole cycle: organise, « Pris », scan and qualify at once, missing d
  for(const said of ['Attribué à Charlie · par Nadia · Passage prévu','À enlever → Pris · par Charlie · Pris par le livreur','Réception · LX 1780 · par Léa · Scan : lx 1780 · Conforme','Réception · LX 1780 · par Léa · Scan : 4009026000014 · Abîmée : Carton écrasé','Pris → Reçu · par Léa · Réception terminée','Manquante · W 712 : déclarée · par Léa','Avoir client · LX 1780 : Avoir à faire → Avoir édité · par Nadia · Avoir : AV 2026-118','Remis en stock · par Nadia · Destination : Allée A12C','Manquante · W 712 : écart réglé · par Nadia','Reçu → Terminé · Clôture automatique'])assert.ok(seen.includes(said),said+' — in — '+seen.slice(seen.indexOf('Historique')));
 });
 
+/* Regression (production, 10 October): after « Abîmée » and its reason the part was recorded but the
+   Conforme / Abîmée step stayed on screen. The decision is closed as soon as the server confirms it. */
+test('« Abîmée » + reason closes the decision at once and the scan field is ready for the next part',async()=>{const p=await page();
+ p.server.call('shared_return_plan',{case_id:R1,collector:'charlie',pickup_at:'2026-10-13T14:30',case_type:'return',expected_version:1});p.server.call('shared_return_taken',{case_id:R1,expected_version:null});
+ const q=await page({cases:p.server.db.cases});await q.role('reception');const rb=q.$('receptionBody'),reasonField=()=>q.shown(rb).find(n=>n.dataset.reason);await q.click(rb,'Réceptionner');
+ await scan(q,'LX 1780');await q.click(pendingPart(q),'Abîmée');assert.ok(reasonField(),'the reason is asked');reasonField().value='Carton écrasé';
+ // Even when the lists cannot be read again just after the save, the recorded part does not keep its panel.
+ q.control.fail='shared_return_actions';await q.click(rb,'Enregistrer abîmée');
+ assert.deepEqual(received(q,R1),[1,null,null]);assert.equal(q.acts(R1),'l1:damaged:recorded:1','recorded once, in « Pièces abîmées »');
+ assert.equal(pendingPart(q),undefined,'the decision panel is closed');assert.equal(reasonField(),undefined,'the reason field is gone');assert.equal(q.buttons(rb).includes('Enregistrer abîmée'),false);assert.equal(q.buttons(rb).includes('Annuler ce scan'),false);
+ assert.ok(scanInput(q),'the scan field is back');assert.equal(scanInput(q).value,'','and empty');assert.equal(feedback(q),'✓ LX 1780 abîmée → Pièces abîmées · reçu 1 / 2');
+ // The next scan opens a fresh question: no reason field left open, nothing of the previous part.
+ await scan(q,'4009026000014');assert.match(q.text(pendingPart(q)),/^LX 1780 Filtre à air Pièce 2 sur 2 attendues\. Conforme ou abîmée \? Conforme Abîmée Annuler ce scan$/);assert.equal(reasonField(),undefined,'« Abîmée » is not preselected for the next part');
+ await q.click(pendingPart(q),'Abîmée');reasonField().value='Rayée';reasonField().onkeydown({key:'Enter',preventDefault(){}});await q.tick();assert.equal(pendingPart(q),undefined,'same with the Enter key');assert.ok(scanInput(q));assert.equal(q.acts(R1),'l1:damaged:recorded:1 l1:damaged:recorded:1');
+ // « Conforme » is unchanged.
+ await scan(q,'A1276');await q.click(pendingPart(q),'Conforme');assert.equal(pendingPart(q),undefined);assert.ok(scanInput(q));assert.equal(feedback(q),'✓ A1276 conforme → Avoirs clients · reçu 1 / 1');assert.deepEqual(received(q,R1),[2,1,null]);
+});
+test('a line received before with several units: each answer closes its reason and says what is left',async()=>{
+ const p=await page({cases:[{id:R1,version:9,created_at:'2026-10-08T08:00:00Z',updated_at:'2026-10-09T08:00:00Z',document:{type:'return',status:'received',client_name:'ANCIEN REÇU',supplier_name:'',collector:'serge',lines:[line('l1','C3001',2,{received_quantity:2})]}}]});
+ await p.role('reception');const rb=p.$('receptionBody'),l1=()=>p.by(rb,'line','l1')[0],reasonField=()=>p.shown(rb).find(n=>n.dataset.reason);await p.click(rb,'Qualifier');assert.match(p.text(l1()),/2 pièces déjà reçues à qualifier : Conforme Abîmée$/);
+ await damaged(p,l1(),'Choc');assert.equal(p.acts(R1),'l1:damaged:recorded:1');assert.equal(reasonField(),undefined,'the reason field is closed');assert.equal(p.buttons(rb).includes('Enregistrer abîmée'),false);
+ assert.equal(feedback(p),'✓ C3001 abîmée → Pièces abîmées · encore 1 pièce de cette ligne à qualifier','the question that remains is for the other unit, and it is said');assert.match(p.text(l1()),/Abîmée × 1 : Choc · À qualifier × 1 1 pièce déjà reçue à qualifier : Conforme Abîmée$/);
+ await p.click(l1(),'Conforme');assert.equal(p.acts(R1),'l1:customer_credit:to_do:1 l1:damaged:recorded:1');assert.match(p.text(rb),/Aucun dossier en attente de réception\./);assert.deepEqual(received(p,R1),[2],'the reception itself is untouched');
+});
 test('a request taken by phone: garage, place of the carton, parts and a mandatory type — then it waits to be organised',async()=>{const p=await page({cases:[]});await p.role('office');const body=p.$('queueBody');
  assert.match(p.text(body),/Aucune demande en attente d’affectation\./);await p.click(body,'＋ Nouvelle demande');const form=()=>p.shown(body).find(n=>/new-request/.test(n.className));
  p.field(form(),'Garage').value='g1';p.field(form(),'Garage').onchange({});p.field(form(),'Emplacement du carton').value='Sous le comptoir';p.field(form(),'Emplacement du carton').oninput({});
