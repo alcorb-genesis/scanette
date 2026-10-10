@@ -1,17 +1,19 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),G=require('./returns-portal-core.js');
 const plain=value=>JSON.parse(JSON.stringify(value));
 /* Public portal page with a recording fake of the Supabase client. */
-function setup({garages=[{id:'g-1',name:'Garage Dupont'},{id:'g-2',name:'Garage Martin'},{id:'g-3',name:'Garage Martin'}],failures=[]}={}){
+/* catalogue: what returns_public_designation answers per code — a text, null, or an Error to throw. */
+function setup({garages=[{id:'g-1',name:'Garage Dupont'},{id:'g-2',name:'Garage Martin'},{id:'g-3',name:'Garage Martin'}],failures=[],catalogue={}}={}){
  const nodes={},calls=[],created=[];let uuid=0;
  function node(){return {hidden:false,value:'',textContent:'',className:'',disabled:false,children:[],attributes:{},append(...kids){this.children.push(...kids);},replaceChildren(...kids){this.children=[...kids];},setAttribute(k,v){this.attributes[k]=v;}};}
  const html=fs.readFileSync('returns-portal.html','utf8');
  for(const [,id] of html.matchAll(/id="([^"]+)"/g))nodes[id]=node();nodes.done.hidden=true;nodes.scanner.hidden=true;
- const db={rpc:async(name,args)=>{calls.push({name,args:plain(args)});if(name==='returns_public_garages')return {data:garages,error:null};const failure=failures.shift();if(failure)return {data:null,error:failure};return {data:args.request_id,error:null};}};
+ const db={rpc:async(name,args)=>{calls.push({name,args:plain(args)});if(name==='returns_public_garages')return {data:garages,error:null};if(name==='returns_public_designation'){const answer=Object.hasOwn(catalogue,args.code)?catalogue[args.code]:null;return answer instanceof Error?{data:null,error:{code:answer.message}}:{data:answer,error:null};}const failure=failures.shift();if(failure)return {data:null,error:failure};return {data:args.request_id,error:null};}};
  const context={document:{getElementById:id=>nodes[id]??=node(),createElement:()=>node(),addEventListener(){},hidden:false},window:{addEventListener(){}},
   supabase:{createClient:(url,key,options)=>{created.push({url,key,options:plain(options)});return db;}},crypto:{randomUUID:()=>'req-'+(++uuid)},Html5Qrcode:class{},GaragePortal:G,console,Date};
  vm.createContext(context);vm.runInContext(fs.readFileSync('returns-portal.js','utf8'),context);
- const lineRefs=()=>nodes.lines.children.filter(c=>c.className==='line').map(c=>[c.children[0].textContent,Number(c.children[2].textContent)]);
- return {nodes,calls,created,html,lineRefs,tick:()=>new Promise(r=>setImmediate(r)),
+ const lineRefs=()=>nodes.lines.children.filter(c=>c.className==='line').map(c=>[c.children[0].children[0].textContent,Number(c.children[2].textContent)]);
+ const designations=()=>nodes.lines.children.filter(c=>c.className==='line').map(c=>{const label=c.children[0].children[1];return label.hidden?null:[label.textContent,label.className];});
+ return {nodes,calls,created,html,lineRefs,designations,tick:()=>new Promise(r=>setImmediate(r)),
   add(value){nodes.reference.value=value;nodes.add.onclick();},
   submit:()=>nodes.form.onsubmit({preventDefault(){}})};
 }
@@ -49,7 +51,7 @@ test('references: a repeated scan adds one piece, unknown references are kept, a
  a.nodes.lines.children[0].children[1].onclick();assert.deepEqual(a.lineRefs(),[['GDB 1330',1],['REF-HORS-CATALOGUE',1]]);
  a.nodes.lines.children[1].children[4].onclick();assert.deepEqual(a.lineRefs(),[['GDB 1330',1]]);
  a.add('R'.repeat(81));assert.equal(a.nodes.status.className,'error');assert.deepEqual(a.lineRefs(),[['GDB 1330',1]]);
- assert.equal(a.calls.filter(c=>c.name!=='returns_public_garages').length,0,'nothing is looked up while adding references');
+ assert.deepEqual(a.calls.filter(c=>c.name!=='returns_public_garages').map(c=>[c.name,c.args.code]),[['returns_public_designation','GDB 1330'],['returns_public_designation','REF-HORS-CATALOGUE']],'one designation question per new reference, none for a repeated scan or a refused entry');
 });
 test('submit sends exactly the public fields, then shows only a confirmation',async()=>{
  const a=setup();await a.tick();a.nodes.garage.value='Garage Dupont';a.add('GDB1330');a.add('GDB1330');a.add('X-1');a.nodes.location.value='  carton   accueil ';await a.submit();
@@ -83,4 +85,53 @@ test('client checks mirror the server limits',()=>{
  lines=[{reference:'A',quantity:999}];assert.match(G.addLine(lines,'a').error,/maximale/);
  assert.equal(G.reference('A\u0007').ok,false);assert.equal(G.validate({garageName:'G',lines:[{reference:'A',quantity:1}],location:'Accueil'}),'Indiquez le nom du garage.');
  const sql=fs.readFileSync('returns-public-portal.sql','utf8');for(const fragment of ['between 2 and 120','between 2 and 160','between 1 and 80','between 1 and 100','qty>999'])assert.ok(sql.includes(fragment),fragment);
+});
+/* Designation of a recognised reference: what the part is, straight from the shared catalogue. */
+test('a recognised reference shows its designation under the reference, which stays first',async()=>{
+ const a=setup({catalogue:{'LX 1780':'  Filtre   à air ','4047024000001':'Biellette de direction'}});await a.tick();
+ a.add('lx 1780');assert.deepEqual(a.lineRefs(),[['LX 1780',1]],'the line is on screen before any answer');assert.deepEqual(a.designations(),[null]);
+ await a.tick();assert.deepEqual(a.designations(),[['Filtre à air','designation']]);
+ a.add('4047024000001');await a.tick();assert.deepEqual(a.designations(),[['Filtre à air','designation'],['Biellette de direction','designation']]);
+ const card=a.nodes.lines.children[0];assert.equal(card.children[0].className,'what');assert.equal(card.children[0].children[0].textContent,'LX 1780');assert.equal(card.children.length,5,'same controls as before: − quantity + Retirer');
+ a.add('LX 1780');await a.tick();assert.deepEqual(a.lineRefs()[0],['LX 1780',2]);
+ assert.equal(a.calls.filter(c=>c.name==='returns_public_designation').length,2,'a repeated scan asks nothing again');
+ assert.deepEqual(a.calls.find(c=>c.name==='returns_public_designation').args,{shop_id:'8770297c-cadb-4cc6-8b93-55a0f9bd154e',code:'LX 1780'},'only the shop and the code are sent');
+});
+test('without a reliable designation the line says so discreetly and the request still goes through',async()=>{
+ const a=setup({catalogue:{'SANS-NOM':'','VIDE':'   ','OBJET':{description:'x',location:'A1'},'NOMBRE':42}});await a.tick();
+ for(const code of ['SANS-NOM','VIDE','OBJET','NOMBRE','HORS-CATALOGUE'])a.add(code);await a.tick();
+ assert.deepEqual(a.designations(),Array(5).fill(['Désignation non renseignée','designation none']));
+ a.nodes.garage.value='Garage Dupont';a.nodes.location.value='Accueil';await a.submit();
+ assert.equal(a.calls.at(-1).name,'returns_public_submit');assert.equal(a.calls.at(-1).args.case_lines.length,5);assert.equal(a.nodes.done.hidden,false);
+});
+test('a failed or missing lookup shows nothing false and never blocks adding or sending',async()=>{
+ const a=setup({catalogue:{'R1':Error('PGRST202'),'R2':Error('42501'),'R3':'Filtre à huile'}});await a.tick();
+ a.add('R1');a.add('R2');a.add('R3');await a.tick();
+ assert.deepEqual(a.designations(),[null,null,['Filtre à huile','designation']]);assert.notEqual(a.nodes.status.className,'error','no error is shown to the garage');
+ a.nodes.garage.value='Garage Dupont';a.nodes.location.value='Accueil';await a.submit();assert.equal(a.nodes.done.hidden,false);
+});
+test('a designation never changes what is sent: reference and quantity only',async()=>{
+ const a=setup({catalogue:{'LX 1780':'Filtre à air'}});await a.tick();a.nodes.garage.value='Garage Dupont';a.add('LX 1780');await a.tick();a.nodes.location.value='Accueil';await a.submit();
+ assert.deepEqual(a.calls.at(-1).args.case_lines,[{reference:'LX 1780',quantity:1}]);
+ assert.deepEqual(Object.keys(a.calls.at(-1).args).sort(),['case_lines','garage_id','garage_name','pickup_location','request_id','shop_id']);
+});
+test('internal data stays out of the garage access: the page asks one text and can show nothing else',()=>{
+ const page=fs.readFileSync('returns-portal.js','utf8'),core=fs.readFileSync('returns-portal-core.js','utf8'),html=fs.readFileSync('returns-portal.html','utf8');
+ assert.deepEqual([...page.matchAll(/rpc\('([a-z_]+)'/g)].map(m=>m[1]).sort(),['returns_public_designation','returns_public_garages','returns_public_submit']);
+ assert.doesNotMatch(page+core,/shared_|session_token|\.from\(|location\s*:\s*[a-z]+\.location|stock|prix|price|supplier|fournisseur|tracked_|updated_at|order_reference|barcode/i);
+ assert.doesNotMatch(html,/emplacement|stock|prix|fournisseur|historique/i);
+ // Whatever a wrong or hostile answer contains, only a plain bounded text can reach the screen.
+ for(const answer of [{description:'Filtre',location:'A19a',stock_quantity:7},['Filtre','A19a'],null,undefined,7,true])assert.equal(G.designation(answer),'');
+ assert.equal(G.designation('Filtre\u0000 à\n air'),'Filtre à air');assert.equal(G.designation('x'.repeat(500)).length,120);
+ assert.deepEqual(plain(G.describe(undefined)),{text:'',known:false});assert.deepEqual(plain(G.describe('')),{text:'Désignation non renseignée',known:false});assert.deepEqual(plain(G.describe('Filtre à air')),{text:'Filtre à air',known:true});
+});
+test('the server function answers one text, for an open portal, on an exact code only',()=>{
+ const sql=fs.readFileSync('returns-public-designation.sql','utf8'),body=sql.replace(/^--.*$/gm,'');
+ assert.match(body,/returns_public_designation\(shop_id uuid,code text\)\s+returns text /);assert.doesNotMatch(body,/returns table|returns setof|returns json/i);
+ assert.match(body,/returns_public_portals c where c\.workspace_id=shop_id and c\.enabled/);assert.match(body,/errcode='42501'/);assert.match(body,/between 1 and 80/);
+ assert.doesNotMatch(body,/\blike\b|ilike|~\*|p\.location|stock_|order_reference|catalogue_enrichment|insert |update |delete /i,'no pattern search, no internal column, no write');
+ assert.match(body,/if found_count=1 then/,'several different designations are never guessed');
+ assert.doesNotMatch(sql,/\$\$|^\s*(begin|commit)\s*;/mi,'pastes as is in the Supabase SQL Editor');
+ assert.match(body,/revoke all on function public\.returns_public_designation\(uuid,text\) from public;/);
+ assert.match(fs.readFileSync('returns-public-designation.rollback.sql','utf8'),/drop function if exists public\.returns_public_designation\(uuid,text\);/);
 });

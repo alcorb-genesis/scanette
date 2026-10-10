@@ -40,6 +40,12 @@ function errorMessage(error){
  if(error?.code==='22023')return 'La demande a été refusée : vérifiez le garage, les références et l’emplacement.';
  return 'La demande n’a pas été transmise. Vérifiez la connexion puis réessayez : elle ne sera pas enregistrée deux fois.';
 }
-const api={LIMITS,space,reference,addLine,garage,validate,payload,errorMessage};
+/* The designation shown under a reference is only ever the text the catalogue answered: cleaned, bounded,
+   and nothing when the answer is not a usable text. Nothing is deduced from the reference itself. */
+function designation(answer){const value=typeof answer==='string'?space(answer.replace(/[\u0000-\u001f\u007f]/g,' ')):'';return value.length>120?value.slice(0,120):value;}
+/* What a line says about the part. unknown = not asked yet or the lookup failed: say nothing rather than something false. */
+const NO_DESIGNATION='Désignation non renseignée';
+function describe(state){return state===undefined?{text:'',known:false}:state?{text:state,known:true}:{text:NO_DESIGNATION,known:false};}
+const api={LIMITS,space,reference,addLine,garage,validate,payload,errorMessage,designation,describe,NO_DESIGNATION};
 root.GaragePortal=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

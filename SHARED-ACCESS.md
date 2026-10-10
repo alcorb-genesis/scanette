@@ -56,7 +56,7 @@ Un mot de passe commun se transmet et ne se retire pas à une seule personne : a
 
 ## Séparation avec le portail garage
 
-Le portail garage et l’accès logistique utilisent la même clé publique (rôle anonyme). La séparation ne repose plus sur les écrans : elle est faite par le serveur. Le portail n’appelle que `returns_public_garages` et `returns_public_submit`, qui ne demandent pas de session ; toutes les fonctions `shared_*` de données en exigent une. Un garage qui choisit « Accès logistique » sur l’accueil s’arrête au formulaire de mot de passe.
+Le portail garage et l’accès logistique utilisent la même clé publique (rôle anonyme). La séparation ne repose plus sur les écrans : elle est faite par le serveur. Le portail n’appelle que `returns_public_garages`, `returns_public_submit` et `returns_public_designation` (un seul texte : la désignation d’une référence exacte, jamais d’emplacement, de stock, de prix ni de fournisseur ; voir `returns-public-designation.sql`), qui ne demandent pas de session ; toutes les fonctions `shared_*` de données en exigent une. Un garage qui choisit « Accès logistique » sur l’accueil s’arrête au formulaire de mot de passe.
 
 ## Ce qui est ouvert, avec une session
 
