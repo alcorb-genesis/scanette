@@ -34,6 +34,59 @@ declare a public.returns_line_actions;
 begin a:=public.shared_return_pack(carton::uuid,code,'Léa',current_setting('t.token')); return a.line_id||' '||a.packed_quantity||'/'||a.quantity||' '||a.status; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
 create function pg_temp.state(action text) returns text language sql as $t$ select a.status from public.shared_return_actions(current_setting('t.token')) a where a.id=action::uuid $t$;
 
+-- 0. Reception is owned by the server: exact scan or declared line, nothing else.
+reset role;
+insert into public.returns_cases(id,workspace_id,document,version) values
+ ('c0000000-0000-4000-8000-000000000003',current_setting('t.shop')::uuid,'{"type":"return","status":"collected","client_id":"a0000000-0000-4000-8000-000000000003","client_name":"ZZ GARAGE","supplier_name":"","collector":"serge","lines":[
+   {"id":"l1","product_id":"b0000000-0000-4000-8000-000000000001","reference":"ZZ-REF-1","description":"Filtre test","quantity":2,"received_quantity":null,"reason":""},
+   {"id":"l2","product_id":null,"reference":"ZZ-REF-2","description":"","quantity":1,"received_quantity":null,"reason":""},
+   {"id":"l3","product_id":null,"reference":"ZZ-REF-3","description":"","quantity":1,"received_quantity":null,"reason":""},
+   {"id":"l4","product_id":null,"reference":"ZZ-DOUBLE","description":"","quantity":1,"received_quantity":null,"reason":""},
+   {"id":"l5","product_id":null,"reference":"ZZ-DOUBLE","description":"","quantity":1,"received_quantity":null,"reason":""}]}',2);
+set local role anon;
+create function pg_temp.scan(code text,dossier uuid default 'c0000000-0000-4000-8000-000000000003') returns text language plpgsql as $t$
+declare r record;
+begin select * into r from public.shared_return_receive(dossier,code,'Léa',current_setting('t.token')); return r.line_id||' '||(select l.value->>'received_quantity' from jsonb_array_elements(r.document->'lines') l where l.value->>'id'=r.line_id); exception when others then return sqlstate||' '||sqlerrm; end;$t$;
+create function pg_temp.declare(line text,qty integer,why text,dossier uuid default 'c0000000-0000-4000-8000-000000000003') returns text language plpgsql as $t$
+begin perform public.shared_return_receive_line(dossier,line,qty,why,'Léa',current_setting('t.token')); return 'ok'; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
+create function pg_temp.doc(dossier uuid) returns jsonb language sql as $t$ select r.document from public.shared_returns(500,current_setting('t.token')) r where r.id=dossier $t$;
+create function pg_temp.version(dossier uuid) returns integer language sql as $t$ select r.version from public.shared_returns(500,current_setting('t.token')) r where r.id=dossier $t$;
+create function pg_temp.save(dossier uuid,d jsonb) returns text language plpgsql as $t$
+begin perform public.shared_save_return(dossier,pg_temp.version(dossier),d,'',current_setting('t.token')); return 'ok'; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
+select pg_temp.expect('no session, no reception',pg_temp.err($q$select * from public.shared_return_receive('c0000000-0000-4000-8000-000000000003','ZZ-REF-1','',null)$q$) like 'PT401%' and pg_temp.err($q$select * from public.shared_return_receive_line('c0000000-0000-4000-8000-000000000003','l3',0,'x','',null)$q$) like 'PT401%');
+select pg_temp.expect('a reference absent from the dossier is refused',pg_temp.scan('ZZ-AUTRE') like 'PT404%' and pg_temp.scan('ZZ-REF-9') like 'PT404%');
+select pg_temp.expect('a near scan is refused: prefix, extra character, missing separator, truncated barcode',pg_temp.scan('ZZ-REF') like 'PT404%' and pg_temp.scan('ZZ-REF-11') like 'PT404%' and pg_temp.scan('ZZREF1') like 'PT404%' and pg_temp.scan('ZZ REF 1') like 'PT404%' and pg_temp.scan('499000000001') like 'PT404%');
+select pg_temp.expect('a dossier that is not collected takes no reception',(select count(*) from public.shared_product_lookup('4990000000026',current_setting('t.token')))=1 and pg_temp.scan('4990000000026','c0000000-0000-4000-8000-000000000002') like '22023 Dossier not in reception%');
+select pg_temp.expect('nothing was received by these refusals',(select bool_and(l.value->>'received_quantity' is null) from jsonb_array_elements(pg_temp.doc('c0000000-0000-4000-8000-000000000003')->'lines') l) and pg_temp.version('c0000000-0000-4000-8000-000000000003')=2);
+select pg_temp.expect('exact reference: one unit',pg_temp.scan(' zz-ref-1 ')='l1 1');
+select pg_temp.expect('exact barcode of the linked record: second unit',pg_temp.scan('2990000000011')='l1 2');
+select pg_temp.expect('an excessive quantity is refused: nothing beyond what was announced',pg_temp.scan('ZZ-REF-1') like '22023 Line already complete%' and pg_temp.scan('4990000000019') like '22023 Line already complete%');
+select pg_temp.expect('a hand-typed line, by the barcode of the record that bears its reference',pg_temp.scan('4990000000026')='l2 1');
+select pg_temp.expect('two lines with the same reference are never chosen by chance',pg_temp.scan('ZZ-DOUBLE') like '22023 Several lines match%');
+select pg_temp.expect('a declared line needs its reason, an existing line, and never exceeds the announcement',pg_temp.declare('l3',0,'  ') like '22023 Reason required%' and pg_temp.declare('zz',0,'x') like '22023 Unknown line%' and pg_temp.declare('l3',2,'x') like '22023 Quantity exceeds what was announced%' and pg_temp.declare('l3',-1,'x') like '22023%');
+select pg_temp.expect('absent part declared at zero; ambiguous lines declared one by one',pg_temp.declare('l3',0,'Absente du carton')='ok' and pg_temp.declare('l4',1,'Étiquette en double')='ok');
+select pg_temp.expect('a saved document cannot set or change a received quantity',
+ pg_temp.save('c0000000-0000-4000-8000-000000000003',jsonb_set(pg_temp.doc('c0000000-0000-4000-8000-000000000003'),'{lines,4,received_quantity}','1')) like '22023 Received quantity is set by the reception%'
+ and pg_temp.save('c0000000-0000-4000-8000-000000000003',jsonb_set(pg_temp.doc('c0000000-0000-4000-8000-000000000003'),'{lines,0,received_quantity}','1')) like '22023 Received quantity is set by the reception%'
+ and pg_temp.save('c0000000-0000-4000-8000-000000000002',jsonb_set(pg_temp.doc('c0000000-0000-4000-8000-000000000002'),'{lines,0,received_quantity}','1')) like '22023 Received quantity is set by the reception%');
+select pg_temp.expect('a new dossier cannot arrive already received',pg_temp.err(format($q$select * from public.shared_save_return(gen_random_uuid(),0,%L::jsonb,'',current_setting('t.token'))$q$,'{"type":"return","status":"requested","client_name":"ZZ","supplier_name":"","lines":[{"id":"x","reference":"X","quantity":1,"received_quantity":1}]}')) like '22023 Received quantity is set by the reception%');
+select pg_temp.expect('once collected the lines are fixed: none added, removed, renamed or resized',
+ pg_temp.save('c0000000-0000-4000-8000-000000000003',jsonb_set(pg_temp.doc('c0000000-0000-4000-8000-000000000003'),'{lines,0,quantity}','5')) like '22023 Lines are fixed once collected%'
+ and pg_temp.save('c0000000-0000-4000-8000-000000000003',jsonb_set(pg_temp.doc('c0000000-0000-4000-8000-000000000003'),'{lines,1,reference}','"ZZ-REF-1"')) like '22023 Lines are fixed once collected%'
+ and pg_temp.save('c0000000-0000-4000-8000-000000000003',jsonb_set(pg_temp.doc('c0000000-0000-4000-8000-000000000003'),'{lines}',(pg_temp.doc('c0000000-0000-4000-8000-000000000003')->'lines')-4)) like '22023 Lines are fixed once collected%');
+select pg_temp.expect('the reception cannot be validated while a line is not controlled',pg_temp.save('c0000000-0000-4000-8000-000000000003',jsonb_set(pg_temp.doc('c0000000-0000-4000-8000-000000000003'),'{status}','"received"')) like '22023 Reception control required%');
+select pg_temp.expect('no decision before the reception is validated',pg_temp.err($q$select public.shared_return_action_add('c0000000-0000-4000-8000-000000000003','l1','damaged',1,null,'','Cassée','',current_setting('t.token'))$q$) like '22023 Dossier not received%');
+select pg_temp.expect('last line declared, reception validated',pg_temp.declare('l5',1,'Étiquette en double')='ok' and pg_temp.save('c0000000-0000-4000-8000-000000000003',jsonb_set(pg_temp.doc('c0000000-0000-4000-8000-000000000003'),'{status}','"received"'))='ok');
+select pg_temp.expect('a validated reception is frozen',pg_temp.scan('ZZ-REF-2') like '22023 Dossier not in reception%' and pg_temp.declare('l3',1,'retrouvée') like '22023 Dossier not in reception%');
+select pg_temp.expect('decisions are limited by what was really received and validated',
+ pg_temp.err($q$select public.shared_return_action_add('c0000000-0000-4000-8000-000000000003','l1','damaged',3,null,'','Cassées','',current_setting('t.token'))$q$) like '22023 Quantity exceeds what was received%'
+ and pg_temp.err($q$select public.shared_return_action_add('c0000000-0000-4000-8000-000000000003','l3','customer_credit',1,null,'BL 1','','',current_setting('t.token'))$q$) like '22023 Quantity exceeds what was received%'
+ and pg_temp.err($q$select public.shared_return_action_add('c0000000-0000-4000-8000-000000000003','l9','damaged',1,null,'','x','',current_setting('t.token'))$q$) like '22023 Unknown line%'
+ and pg_temp.err($q$select public.shared_return_action_add('c0000000-0000-4000-8000-000000000003','l1','damaged',2,null,'','Cassées','',current_setting('t.token'))$q$)='ok');
+select pg_temp.expect('the journal keeps every reception step with its author: scans and declared lines',
+ (select count(*) filter (where note like 'Scan : %')=3 and count(*) filter (where note like 'Saisie déclarée : %')=3 and bool_and(actor_label='Léa' and line_id is not null)
+  from public.shared_return_events('c0000000-0000-4000-8000-000000000003',current_setting('t.token')) where event_kind='reception'));
+
 -- 1. What a decision needs.
 select pg_temp.expect('no session, nothing',pg_temp.err($q$select * from public.shared_return_actions(null)$q$) like 'PT401%' and pg_temp.err($q$select public.shared_return_action_add('c0000000-0000-4000-8000-000000000001','l1','damaged',1,null,'','x','',null)$q$) like 'PT401%');
 select pg_temp.expect('a dossier not yet received takes no decision',pg_temp.add('l1','damaged',1,null,'','Carton écrasé','c0000000-0000-4000-8000-000000000002') like '22023 Dossier not received%');

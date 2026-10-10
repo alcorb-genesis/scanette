@@ -78,3 +78,17 @@ test('the server rules mirror the page, and the public portal knows none of it',
  assert.doesNotMatch(pub,/returns_line_actions|shared_return|ReturnsActions|returns-actions|abîm|fournisseur|supplier|avoir|credit|shipment|manifeste|stock/i);
  assert.deepEqual([...pub.matchAll(/rpc\('([a-z_]+)'/g)].map(m=>m[1]).sort(),['returns_public_designation','returns_public_garages','returns_public_submit']);
 });
+test('the reception is owned by the server: exact scan or declared line, never a saved document',()=>{const sql=read('returns-actions.sql'),body=sql.replace(/^--.*$/gm,''),before=read('returns-collectors.sql');
+ const fn=text=>{const a=text.indexOf('create or replace function public.returns_apply_case(');return text.slice(a,text.indexOf('end;$repclick_fn$;',a));};
+ const added=fn(sql).split('\n').filter(line=>!fn(before).split('\n').includes(line)).join('\n');
+ assert.match(added,/Received quantity is set by the reception/);assert.match(added,/Lines are fixed once collected/);
+ assert.deepEqual(fn(before).split('\n').filter(line=>!fn(sql).split('\n').includes(line)),[],'every rule of the former write path is kept');
+ assert.match(body,/function public\.shared_return_receive\(case_id uuid,code text,actor_label text default '',session_token text default null\)/);
+ assert.match(body,/if dossier\.document->>'status'<>'collected' then raise exception 'Dossier not in reception'/);
+ assert.match(body,/if cardinality\(found_lines\)=0 then raise exception 'Not a part of this dossier' using errcode='PT404'/);assert.match(body,/if cardinality\(found_lines\)>1 then raise exception 'Several lines match this code'/);
+ assert.match(body,/if got>=\(line->>'quantity'\)::integer then raise exception 'Line already complete'/);assert.match(body,/if quantity<0 or quantity>\(line->>'quantity'\)::integer then raise exception 'Quantity exceeds what was announced'/);
+ assert.match(body,/l\.value->>'reference'=scanned or l\.value->>'reference'=upper\(scanned\)/,'the same exact match as the page');
+ assert.match(body,/for update;[\s\S]*?returns_set_received/,'the dossier is locked while a unit is received');
+ const compat=read('returns-actions.compat.before.sql')+read('returns-actions.compat.after.sql');assert.match(compat,/^begin;/m);assert.match(compat,/^rollback;/m);assert.match(compat,/same lines, same order, same values in every column the current screen reads/);
+ const back=read('returns-actions.rollback.sql');assert.match(back,/drop function if exists public\.shared_return_receive\(uuid,text,text,text\);/);assert.doesNotMatch(fn(back),/Received quantity is set by the reception/,'the rollback puts the former write path back');
+});

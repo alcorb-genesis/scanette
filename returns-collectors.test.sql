@@ -42,7 +42,12 @@ create function pg_temp.doc(status text,collector text default null,extra jsonb 
   'lines',jsonb_build_array(jsonb_build_object('id','l1','product_id',null,'reference','REF-1','description','','quantity',2,'received_quantity',null,'condition','','reason',''))))
   ||jsonb_build_object('lines',jsonb_build_array(jsonb_build_object('id','l1','product_id',null,'reference','REF-1','description','','quantity',2,'received_quantity',null,'condition','','reason','')))||extra $t$;
 create function pg_temp.save(c uuid,v integer,d jsonb,note text default '') returns text language plpgsql as $t$
-begin perform public.returns_apply_case(current_setting('t.shop')::uuid,null,'shared_access',c,v,d,note); return 'ok'; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
+begin
+ -- After returns-actions.sql the received quantities are written by the reception functions only
+ -- (tested in returns-actions.test.sql). This test is about states and collectors: when that later
+ -- file is applied, the quantities of the document under test are placed as a fixture first.
+ if to_regproc('public.shared_return_receive_line') is not null then update public.returns_cases set document=jsonb_set(document,'{lines}',d->'lines') where id=c; end if;
+ perform public.returns_apply_case(current_setting('t.shop')::uuid,null,'shared_access',c,v,d,note); return 'ok'; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
 create function pg_temp.lines(got integer,refused integer,reason text) returns jsonb language sql as $t$
  select jsonb_build_object('lines',jsonb_build_array(jsonb_build_object('id','l1','product_id',null,'reference','REF-1','description','','quantity',2,'received_quantity',got,'refused_quantity',refused,'condition','','reason',reason))) $t$;
 

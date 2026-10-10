@@ -31,7 +31,7 @@ const SERVER=['shared_access_open','shared_access_close','shared_location_code',
 const MIGRATION='logistics-shared-access.sql',noMigration=!fs.existsSync(MIGRATION)&&'the migration file is not part of this repository yet';
 /* Functions created by a migration of this repository, not yet on the real base when it was read:
    the page that uses one must work without it (returns.js is read-only until it answers). */
-const PENDING={shared_returns_model:'returns-collectors.sql',shared_return_actions:'returns-actions.sql',shared_return_shipments:'returns-actions.sql',shared_return_action_add:'returns-actions.sql',shared_return_action_move:'returns-actions.sql',shared_return_shipment_open:'returns-actions.sql',shared_return_pack:'returns-actions.sql',shared_return_shipment_send:'returns-actions.sql'};
+const PENDING={shared_returns_model:'returns-collectors.sql',shared_return_actions:'returns-actions.sql',shared_return_shipments:'returns-actions.sql',shared_return_action_add:'returns-actions.sql',shared_return_action_move:'returns-actions.sql',shared_return_shipment_open:'returns-actions.sql',shared_return_pack:'returns-actions.sql',shared_return_shipment_send:'returns-actions.sql',shared_return_receive:'returns-actions.sql',shared_return_receive_line:'returns-actions.sql'};
 for(const [fn,file] of Object.entries(PENDING))if(read(file).includes('function public.'+fn+'('))SERVER.push(fn);
 test('every shared function used by the pages exists on the server',()=>{
  const used=new Set();
