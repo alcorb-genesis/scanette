@@ -1,4 +1,7 @@
 -- Run after returns-collectors.sql. Everything is rolled back.
+-- Note: once returns-roles.sql is applied, the collector is frozen as soon as the parts are taken; the check
+-- « the collector can still be corrected before reception » then fails. This file describes the base as
+-- returns-collectors.sql leaves it; returns-roles.test.sql describes the current rules.
 -- Uses the shop of the shared access for the session-based functions and its own shop for the rest.
 begin;
 create function pg_temp.sqlstate_of(statement text) returns text language plpgsql as $t$

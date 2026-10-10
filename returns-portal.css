@@ -21,3 +21,7 @@ button{cursor:pointer;background:#176bb3;color:#fff;border-color:#176bb3;font-we
 .error{color:#a01515;font-weight:650}
 /* Phone: what the part is on its own full line, the controls on one row under it. */
 @media(max-width:520px){main{padding:12px}.line{grid-template-columns:44px 38px 44px minmax(0,1fr)}.what{grid-column:1/-1}.row button{flex:1}}
+
+/* The type of the request: two large choices, none preselected. */
+.kind{border:0;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kind legend{font-weight:800;font-size:1.1rem;color:#102b46;padding:0;margin-bottom:8px}
+.kind label{display:flex;gap:10px;align-items:center;min-height:52px;padding:8px 12px;border:1px solid #9fb0bf;border-radius:10px;font-weight:650;color:#102b46}.kind input{width:22px;height:22px;flex:0 0 22px}

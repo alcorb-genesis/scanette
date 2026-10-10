@@ -28,18 +28,18 @@ async function stop(){const old=scanner;scanner=null;$('scanner').hidden=true;if
 async function start(){if(scanner)return;scanner=new Html5Qrcode('reader');$('scanner').hidden=false;try{await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:120}},code=>{const now=Date.now();if(code===last&&now-lastAt<1300)return;last=code;lastAt=now;add(code);},()=>{});}catch{await stop();say('Caméra indisponible. Saisissez la référence.',true);}}
 async function loadGarages(){try{const {data,error}=await db.rpc('returns_public_garages',{shop_id:shop});if(error)throw error;garages=Array.isArray(data)?data.filter(g=>g&&typeof g.id==='string'&&typeof g.name==='string'):[];const list=$('garageList');list.replaceChildren();for(const g of garages){const option=document.createElement('option');option.value=g.name;list.append(option);}paintGarageHint();}catch{garages=[];/* The name can always be typed. */}}
 async function submit(event){event.preventDefault();if(busy)return;
- const problem=G.validate({garageName:$('garage').value,lines,location:$('location').value});if(problem){say(problem,true);return;}
- const draft=G.payload({shopId:shop,requestId:'',garageName:$('garage').value,list:garages,lines,location:$('location').value}),fingerprint=JSON.stringify({...draft,request_id:''});
+ const type=$('kindWarranty').checked?'warranty':$('kindReturn').checked?'return':'',problem=G.validate({garageName:$('garage').value,lines,location:$('location').value,type});if(problem){say(problem,true);return;}
+ const draft=G.payload({shopId:shop,requestId:'',garageName:$('garage').value,list:garages,lines,location:$('location').value,type}),fingerprint=JSON.stringify({...draft,request_id:''});
  // The same request id is reused only for an identical retry, so a lost answer never creates a duplicate.
  if(!pending||pending.fingerprint!==fingerprint)pending={id:crypto.randomUUID(),fingerprint};
  busy=true;$('submit').disabled=true;say('Envoi…');
- try{const {error}=await db.rpc('returns_public_submit',{...draft,request_id:pending.id});if(error)throw error;
+ try{const {error}=await db.rpc('returns_public_submit_typed',{...draft,request_id:pending.id});if(error)throw error;
   pending=null;lines=[];paint();await stop();$('form').hidden=true;$('done').hidden=false;say('');}
  catch(error){say(G.errorMessage(error),true);}
  finally{busy=false;$('submit').disabled=false;}}
 $('garage').oninput=paintGarageHint;$('add').onclick=()=>add($('reference').value);$('reference').onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();add($('reference').value);}};
 $('camera').onclick=start;$('stop').onclick=stop;$('form').onsubmit=submit;
-$('again').onclick=()=>{$('done').hidden=true;$('form').hidden=false;$('reference').value='';$('location').value='';lines=[];paint();say('');};
+$('again').onclick=()=>{$('done').hidden=true;$('form').hidden=false;$('reference').value='';$('location').value='';$('kindReturn').checked=false;$('kindWarranty').checked=false;lines=[];paint();say('');};
 window.addEventListener('pagehide',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
 paint();loadGarages();
 })();

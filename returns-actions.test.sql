@@ -1,4 +1,7 @@
 -- Run after returns-actions.sql. Everything is rolled back. Uses the shop of the shared access.
+-- Note: once returns-roles.sql is applied, a received dossier closes by itself when nothing of it is still running;
+-- the check « cancelling needs a reason and frees the quantity » then stops on its last step (the dossier is closed).
+-- This file describes the base as returns-actions.sql leaves it; returns-roles.test.sql describes the current rules.
 begin;
 create function pg_temp.expect(label text,ok boolean) returns void language plpgsql as $t$
 begin if not coalesce(ok,false) then raise exception 'FAILED: %',label; end if; end;$t$;

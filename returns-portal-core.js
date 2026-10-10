@@ -20,9 +20,11 @@ function garage(raw,list){
  const name=space(raw),matches=list.filter(g=>key(g.name)===key(name));
  return matches.length===1?{garage_id:matches[0].id,garage_name:null,label:matches[0].name,listed:true}:{garage_id:null,garage_name:name,label:name,listed:false,ambiguous:matches.length>1};
 }
-function validate({garageName,lines,location}){
+const TYPES=Object.freeze(['return','warranty']);
+function validate({garageName,lines,location,type}){
  const name=space(garageName),place=space(location);
  if(name.length<LIMITS.garage[0]||name.length>LIMITS.garage[1]||hasControl(name))return 'Indiquez le nom du garage.';
+ if(!TYPES.includes(type))return 'Choisissez le type de la demande : retour client ou garantie.';
  if(!lines.length)return 'Ajoutez au moins une référence.';
  if(lines.length>LIMITS.lines)return '100 références au maximum par demande.';
  for(const line of lines)if(!reference(line.reference).ok||!Number.isSafeInteger(line.quantity)||line.quantity<1||line.quantity>LIMITS.quantity)return 'Vérifiez les références et les quantités.';
@@ -30,14 +32,14 @@ function validate({garageName,lines,location}){
  return '';
 }
 /* Exactly the fields the public RPC accepts: nothing else leaves the page. */
-function payload({shopId,requestId,garageName,list,lines,location}){
+function payload({shopId,requestId,garageName,list,lines,location,type}){
  const g=garage(garageName,list);
- return {shop_id:shopId,request_id:requestId,garage_id:g.garage_id,garage_name:g.garage_name,pickup_location:space(location),case_lines:lines.map(line=>({reference:line.reference,quantity:line.quantity}))};
+ return {shop_id:shopId,request_id:requestId,garage_id:g.garage_id,garage_name:g.garage_name,pickup_location:space(location),case_lines:lines.map(line=>({reference:line.reference,quantity:line.quantity})),case_type:TYPES.includes(type)?type:null};
 }
 function errorMessage(error){
  if(error?.code==='PT429')return 'Trop de demandes en peu de temps. Réessayez dans quelques minutes.';
  if(error?.code==='42501')return 'Le portail garage est fermé pour le moment. Contactez Bellecave par téléphone.';
- if(error?.code==='22023')return 'La demande a été refusée : vérifiez le garage, les références et l’emplacement.';
+ if(error?.code==='22023')return 'La demande a été refusée : vérifiez le garage, le type, les références et l’emplacement.';
  return 'La demande n’a pas été transmise. Vérifiez la connexion puis réessayez : elle ne sera pas enregistrée deux fois.';
 }
 /* The designation shown under a reference is only ever the text the catalogue answered: cleaned, bounded,
@@ -46,6 +48,6 @@ function designation(answer){const value=typeof answer==='string'?space(answer.r
 /* What a line says about the part. unknown = not asked yet or the lookup failed: say nothing rather than something false. */
 const NO_DESIGNATION='Désignation non renseignée';
 function describe(state){return state===undefined?{text:'',known:false}:state?{text:state,known:true}:{text:NO_DESIGNATION,known:false};}
-const api={LIMITS,space,reference,addLine,garage,validate,payload,errorMessage,designation,describe,NO_DESIGNATION};
+const api={TYPES,LIMITS,space,reference,addLine,garage,validate,payload,errorMessage,designation,describe,NO_DESIGNATION};
 root.GaragePortal=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

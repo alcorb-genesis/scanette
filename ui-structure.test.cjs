@@ -18,7 +18,8 @@ test('main actions are marked, so they stand out from secondary ones',()=>{
  const primary=(page,id)=>assert.match(read(page),new RegExp('id="'+id+'"[^>]*class="primary"'),page+' #'+id);
  primary('logistics-sessions.html','save');primary('store-partners.html','save');primary('team.html','save');primary('store-settings.html','save');
  for(const id of ['new','aim','begin','cameraButton','finish'])primary('preparation.html',id);
- for(const id of ['new','save'])primary('returns.html',id);
+ // Retours builds its screens by role: the one main action of each is marked there.
+ for(const label of ['Affecter','Pris','Conforme','Terminer la réception','Avoir édité','Rangé','Réglé'])assert.match(read('returns.js'),new RegExp("class:'primary[^']*',text:[^,}]*'"+label+"'"),'returns.js « '+label+' »');
 });
 test('new shared files are published and kept offline for the inventory',()=>{
  const build=read('build.cjs');for(const f of ['ui-base.css','nav-history.js','nav-layers.js'])assert.match(build,new RegExp("'"+f.replace('.','\\.')+"'"));

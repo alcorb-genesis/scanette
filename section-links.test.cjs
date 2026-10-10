@@ -36,7 +36,7 @@ test('each section offers its links, as buttons, towards existing sections only'
  const links={'preparation.js':['catalogue','departures'],'returns.js':['departures'],'store-partners.js':['returns'],'inventory/app.js':['catalogue'],'index.html':['catalogue']};
  const L=load().L;
  for(const [file,targets] of Object.entries(links)){const text=read(file);for(const target of targets){assert.ok(L.SECTIONS.includes(target));assert.match(text,new RegExp("(go|button)\\((document,[^)]*?)?'"+target+"'|leaveFor\\('"+target+"'|data-go=\""+target+"\"|dataset\\.go='"+target+"'"),file+' → '+target);}}
- assert.match(read('preparation.html'),/<button id="departureLink" type="button" class="section-link"/);assert.match(read('returns.html'),/<button[^>]*id="garageLink"/);
+ assert.match(read('preparation.html'),/<button id="departureLink" type="button" class="section-link"/);assert.match(read('returns.js'),/el\('button',\{type:'button',class:'section-link',text:'Passages de ce garage dans Départs'\}\)/);
  assert.doesNotMatch(read('preparation.html')+read('returns.html')+read('store-partners.html'),/<a [^>]*section-link/);
 });
 test('the shell forwards the search to the destination and keeps the place to reopen on the screen left',()=>{

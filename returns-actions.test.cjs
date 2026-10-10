@@ -76,7 +76,7 @@ test('the folders are filters on the same decisions: nothing is copied, nothing 
 });
 test('CSV for the offices: every column asked, the supplier when one exists, formulas neutralised',()=>{const {cases,actions}=world(),all=A.join(actions,cases).rows,credits=all.filter(r=>r.action.kind==='customer_credit');
  actions[1].status='restocked';actions[1].stock_destination='Allée A12C';cases[0].document.lines[0].reference='=LX 1780';const text=A.csv(credits,all),rows=text.replace('﻿','').split('\r\n').map(r=>r.split(';').map(c=>c.replace(/^"|"$/g,'')));
- assert.deepEqual(rows[0],['Date','Garage','Dossier','Référence','Désignation','Quantité','BL / facture / commande','Fournisseur','Motif / commentaire','Suite','Statut','Destination stock']);
+ assert.deepEqual(rows[0],['Date','Garage','Dossier','Référence','Désignation','Quantité','BL / facture / commande','Fournisseur','Motif / commentaire','Classement','Statut','Destination stock']);
  assert.deepEqual(rows[1],['06/10/2026','CN AUTO','R-11111111',"'=LX 1780",'Filtre à air','2','BL 123','APO','','Avoir client','Remis en stock','Remis en stock : Allée A12C']);
  assert.deepEqual(rows[2].slice(1),['Garage Dupont','R-22222222','LX 1780','Filtre à air','1','BL 123','Bosch','','Avoir client','Avoir édité','']);assert.ok(text.startsWith('﻿'));
  assert.match(A.csv(all.filter(r=>r.action.kind==='damaged'),all),/"Emballage ouvert";"Abîmée";"Constatée";""/);
@@ -85,7 +85,7 @@ test('journal and server answers are worded for the agent',()=>{
  assert.equal(A.eventMessage({action_kind:'supplier_return',action_from:'to_send',action_to:'packed',line_id:'l1'},lines()),'Retour fournisseur · LX 1780 : À envoyer → Dans le carton');assert.equal(A.eventMessage({action_kind:'damaged',action_from:null,action_to:'recorded',line_id:'zz'},lines()),'Abîmée : Constatée');
  assert.match(A.serverMessage({code:'PT404'}),/Rien n’a été ajouté au carton/);assert.match(A.serverMessage({code:'22023',message:'Open decisions remain'}),/encore en cours/);assert.equal(A.serverMessage({code:'XX000',message:'boom'}),'');
 });
-test('the server rules mirror the page, and the public portal knows none of it',()=>{const sql=read('returns-actions.sql'),body=sql.replace(/^--.*$/gm,'');
+test('the server rules mirror the page, and the public portal knows none of it',()=>{const sql=read('returns-actions.sql'),body=sql.replace(/^--.*$/gm,'')+read('returns-roles.sql').replace(/^--.*$/gm,'');
  for(const [kind,k] of Object.entries(A.KINDS))assert.ok(body.includes("'"+kind+"'")&&body.includes("'"+k.first+"'"),kind);for(const s of Object.keys(A.STATES))assert.ok(body.includes("'"+s+"'"),s);
  assert.match(body,/status in \('to_send','packed','to_do','issued','open'\)/);assert.deepEqual([...A.RUNNING].sort(),['issued','open','packed','to_do','to_send']);
  assert.match(body,/line\.value->>'reference'=scanned or line\.value->>'reference'=upper\(scanned\)/);assert.doesNotMatch(body,/\blike\b|ilike|similarity|position\(/i,'no approximate match in a scan');
@@ -93,8 +93,8 @@ test('the server rules mirror the page, and the public portal knows none of it',
  assert.match(body,/revoke all on public\.returns_shipments,public\.returns_line_actions from public,anon,authenticated;/);
  for(const fn of [...body.matchAll(/create (?:or replace )?function public\.(shared_[a-z_]+)\(/g)].map(m=>m[1]))assert.match(body,new RegExp('function public\\.'+fn+'\\([^)]*session_token text default null\\)'),fn+' requires the session');
  const pub=['returns-portal.html','returns-portal.js','returns-portal-core.js','returns-portal.css'].map(read).join('\n');
- assert.doesNotMatch(pub,/returns_line_actions|shared_return|ReturnsActions|returns-actions|abîm|fournisseur|supplier|avoir|credit|shipment|manifeste|stock/i);
- assert.deepEqual([...pub.matchAll(/rpc\('([a-z_]+)'/g)].map(m=>m[1]).sort(),['returns_public_designation','returns_public_garages','returns_public_submit']);
+ assert.doesNotMatch(pub,/returns_line_actions|shared_return|ReturnsActions|ReturnsFlow|returns-actions|returns-flow|abîm|fournisseur|supplier|avoir|credit|shipment|manifeste|stock|manquant|livreur/i);
+ assert.deepEqual([...pub.matchAll(/rpc\('([a-z_]+)'/g)].map(m=>m[1]).sort(),['returns_public_designation','returns_public_garages','returns_public_submit_typed']);
 });
 test('the reception is owned by the server: exact scan or declared line, never a saved document',()=>{const sql=read('returns-actions.sql'),body=sql.replace(/^--.*$/gm,''),before=read('returns-collectors.sql');
  const fn=text=>{const a=text.indexOf('create or replace function public.returns_apply_case(');return text.slice(a,text.indexOf('end;$repclick_fn$;',a));};
@@ -110,7 +110,7 @@ test('the reception is owned by the server: exact scan or declared line, never a
  const compat=read('returns-actions.compat.before.sql')+read('returns-actions.compat.after.sql');assert.match(compat,/^begin;/m);assert.match(compat,/^rollback;/m);assert.match(compat,/same lines, same order, same values in every column the current screen reads/);
  const back=read('returns-actions.rollback.sql');assert.match(back,/drop function if exists public\.shared_return_receive\(uuid,text,text,text\);/);assert.doesNotMatch(fn(back),/Received quantity is set by the reception/,'the rollback puts the former write path back');
 });
-test('the test double of the server refuses with the codes and messages of the SQL files, and offers the same functions',()=>{const src=read('returns-fake-server.js'),sql=read('returns-actions.sql')+read('returns-collectors.sql');
+test('the test double of the server refuses with the codes and messages of the SQL files, and offers the same functions',()=>{const src=read('returns-fake-server.js'),sql=read('returns-actions.sql')+read('returns-collectors.sql')+read('returns-roles.sql');
  const raised=[...src.matchAll(/fail\('([A-Z0-9]+)','([^']+)'\)/g)].map(m=>[m[1],m[2]]);assert.ok(raised.length>=45,String(raised.length));
  for(const [code,message] of raised)assert.ok(sql.includes("raise exception '"+message+"' using errcode='"+code+"'"),code+' '+message+' is a refusal of the SQL files');
  /* shared_returns itself comes from the shared-access migration, kept outside this repository. */

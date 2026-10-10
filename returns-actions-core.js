@@ -8,7 +8,9 @@ const KINDS=Object.freeze({
  damaged:Object.freeze({label:'Abîmée',action:'Abîmée',first:'recorded'}),
  supplier_return:Object.freeze({label:'Retour fournisseur',action:'Retour fournisseur',first:'to_send'}),
  customer_credit:Object.freeze({label:'Avoir client',action:'Avoir client',first:'to_do'}),
- pending:Object.freeze({label:'Attente de décision',action:'Attente de décision',first:'open'})});
+ pending:Object.freeze({label:'Attente de décision',action:'Attente de décision',first:'open'}),
+ /* returns-roles.sql: announced and not received, declared at the end of the reception. */
+ missing:Object.freeze({label:'Manquante',action:'Manquante',first:'open'})});
 const STATES=Object.freeze({recorded:'Constatée',to_send:'À envoyer',packed:'Dans le carton',sent:'Envoyée au fournisseur',to_do:'Avoir à faire',issued:'Avoir édité',restocked:'Remis en stock',closed_no_stock:'Clôturé sans stock',open:'En attente',resolved:'Décision prise',cancelled:'Annulée'});
 /* Steps an agent takes by hand. « packed » comes only from an exact rescan, « sent » only from the carton. */
 const NEXT=Object.freeze({customer_credit:Object.freeze({to_do:['issued'],issued:['restocked','closed_no_stock']}),pending:Object.freeze({open:['resolved']}),supplier_return:Object.freeze({packed:['to_send']}),damaged:Object.freeze({})});
@@ -81,12 +83,12 @@ const dossierRef=dossier=>'R-'+String(dossier.id).slice(0,8).toUpperCase();
 const day=value=>{const t=new Date(value);return isNaN(t)?'':String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear();};
 function csvCell(value){const text=String(value??'');return '"'+(/^[=+\-@]/.test(text)?"'":'')+text.replace(/"/g,'""')+'"';}
 /* For the offices. The supplier is given when a supplier return exists for the same line. */
-function csv(rows,allRows=rows){const headers=['Date','Garage','Dossier','Référence','Désignation','Quantité','BL / facture / commande','Fournisseur','Motif / commentaire','Suite','Statut','Destination stock'];
+function csv(rows,allRows=rows){const headers=['Date','Garage','Dossier','Référence','Désignation','Quantité','BL / facture / commande','Fournisseur','Motif / commentaire','Classement','Statut','Destination stock'];
  const supplierOf=row=>row.action.supplier_name||[...new Set(allRows.filter(r=>r.dossier.id===row.dossier.id&&r.line.id===row.line.id&&r.action.kind==='supplier_return'&&live(r.action)).map(r=>r.action.supplier_name))].join(' / ');
  const comment=row=>[row.action.comment,row.line.reason].map(space).filter(Boolean).join(' · ');
  return '﻿'+[headers,...rows.map(row=>[day(row.action.created_at),garage(row),dossierRef(row.dossier),row.line.reference,row.line.description||'',row.action.quantity,row.action.document_number,supplierOf(row),comment(row),KINDS[row.action.kind].label,STATES[row.action.status]||row.action.status,stockDestination(row.action)])].map(v=>v.map(csvCell).join(';')).join('\r\n');}
 /* Journal line of a decision. */
-function eventMessage(e,lines=[]){const line=lines.find(l=>l.id===e.line_id),what=(KINDS[e.action_kind]?.label||'Suite')+(line?' · '+line.reference:'');
+function eventMessage(e,lines=[]){const line=lines.find(l=>l.id===e.line_id),what=(KINDS[e.action_kind]?.label||'Pièce')+(line?' · '+line.reference:'');
  return what+' : '+(e.action_from?(STATES[e.action_from]||e.action_from)+' → ':'')+(STATES[e.action_to]||e.action_to||'enregistrée');}
 /* The page receives the refusal as the shared access hands it over: its code, and the wording of
    the server in « original » (the message itself is a generic sentence). */

@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const plain=value=>JSON.parse(JSON.stringify(value));
 /* Public portal page with a recording fake of the Supabase client. */
 /* catalogue: what returns_public_designation answers per code — a text, null, or an Error to throw. */
-function setup({garages=[{id:'g-1',name:'Garage Dupont'},{id:'g-2',name:'Garage Martin'},{id:'g-3',name:'Garage Martin'}],failures=[],catalogue={}}={}){
+function setup({garages=[{id:'g-1',name:'Garage Dupont'},{id:'g-2',name:'Garage Martin'},{id:'g-3',name:'Garage Martin'}],failures=[],catalogue={},kind='return'}={}){
  const nodes={},calls=[],created=[];let uuid=0;
  function node(){return {hidden:false,value:'',textContent:'',className:'',disabled:false,children:[],attributes:{},append(...kids){this.children.push(...kids);},replaceChildren(...kids){this.children=[...kids];},setAttribute(k,v){this.attributes[k]=v;}};}
  const html=fs.readFileSync('returns-portal.html','utf8');
@@ -11,6 +11,8 @@ function setup({garages=[{id:'g-1',name:'Garage Dupont'},{id:'g-2',name:'Garage 
  const context={document:{getElementById:id=>nodes[id]??=node(),createElement:()=>node(),addEventListener(){},hidden:false},window:{addEventListener(){}},
   supabase:{createClient:(url,key,options)=>{created.push({url,key,options:plain(options)});return db;}},crypto:{randomUUID:()=>'req-'+(++uuid)},Html5Qrcode:class{},GaragePortal:G,console,Date};
  vm.createContext(context);vm.runInContext(fs.readFileSync('returns-portal.js','utf8'),context);
+ /* The type of the request is chosen by the garage; tests that are not about it choose « Retour client ». */
+ if(kind==='return')nodes.kindReturn.checked=true;if(kind==='warranty')nodes.kindWarranty.checked=true;
  const lineRefs=()=>nodes.lines.children.filter(c=>c.className==='line').map(c=>[c.children[0].children[0].textContent,Number(c.children[2].textContent)]);
  const designations=()=>nodes.lines.children.filter(c=>c.className==='line').map(c=>{const label=c.children[0].children[1];return label.hidden?null:[label.textContent,label.className];});
  return {nodes,calls,created,html,lineRefs,designations,tick:()=>new Promise(r=>setImmediate(r)),
@@ -55,15 +57,15 @@ test('references: a repeated scan adds one piece, unknown references are kept, a
 });
 test('submit sends exactly the public fields, then shows only a confirmation',async()=>{
  const a=setup();await a.tick();a.nodes.garage.value='Garage Dupont';a.add('GDB1330');a.add('GDB1330');a.add('X-1');a.nodes.location.value='  carton   accueil ';await a.submit();
- const call=a.calls.at(-1);assert.equal(call.name,'returns_public_submit');
- assert.deepEqual(call.args,{shop_id:'8770297c-cadb-4cc6-8b93-55a0f9bd154e',request_id:'req-1',garage_id:'g-1',garage_name:null,pickup_location:'carton accueil',case_lines:[{reference:'GDB1330',quantity:2},{reference:'X-1',quantity:1}]});
+ const call=a.calls.at(-1);assert.equal(call.name,'returns_public_submit_typed');
+ assert.deepEqual(call.args,{shop_id:'8770297c-cadb-4cc6-8b93-55a0f9bd154e',request_id:'req-1',garage_id:'g-1',garage_name:null,pickup_location:'carton accueil',case_lines:[{reference:'GDB1330',quantity:2},{reference:'X-1',quantity:1}],case_type:'return'});
  assert.equal(a.nodes.form.hidden,true);assert.equal(a.nodes.done.hidden,false);assert.equal(a.lineRefs().length,0);
 });
 test('missing garage, references or location are refused before sending',async()=>{
  const a=setup();await a.tick();await a.submit();assert.match(a.nodes.status.textContent,/nom du garage/);
  a.nodes.garage.value='Garage Dupont';await a.submit();assert.match(a.nodes.status.textContent,/au moins une référence/);
  a.add('R1');await a.submit();assert.match(a.nodes.status.textContent,/Où se trouvent|où se trouvent/);
- assert.equal(a.calls.filter(c=>c.name==='returns_public_submit').length,0);
+ assert.equal(a.calls.filter(c=>c.name==='returns_public_submit_typed').length,0);
 });
 test('a failed send keeps the form; an identical retry reuses the request id, a changed request gets a new one',async()=>{
  const a=setup({failures:[{code:'08006',message:'network'},{code:'PT429'},{code:'08006'}]});await a.tick();
@@ -71,13 +73,23 @@ test('a failed send keeps the form; an identical retry reuses the request id, a 
  await a.submit();assert.match(a.nodes.status.textContent,/ne sera pas enregistrée deux fois/);assert.equal(a.nodes.form.hidden,false);assert.deepEqual(a.lineRefs(),[['R1',1]]);
  await a.submit();assert.match(a.nodes.status.textContent,/Trop de demandes/);
  a.add('R2');await a.submit();await a.submit();
- assert.deepEqual(a.calls.filter(c=>c.name==='returns_public_submit').map(c=>c.args.request_id),['req-1','req-1','req-2','req-2']);
+ assert.deepEqual(a.calls.filter(c=>c.name==='returns_public_submit_typed').map(c=>c.args.request_id),['req-1','req-1','req-2','req-2']);
  assert.equal(a.nodes.done.hidden,false);
 });
 test('« Nouvelle demande » starts empty; the garage name is kept for the next request',async()=>{
  const a=setup();await a.tick();a.nodes.garage.value='Garage Dupont';a.add('R1');a.nodes.location.value='Accueil';await a.submit();
  a.nodes.again.onclick();assert.equal(a.nodes.form.hidden,false);assert.equal(a.lineRefs().length,0);assert.equal(a.nodes.location.value,'');assert.equal(a.nodes.garage.value,'Garage Dupont');
- a.add('R2');a.nodes.location.value='Atelier';await a.submit();assert.equal(a.calls.at(-1).args.request_id,'req-2');
+ a.add('R2');a.nodes.location.value='Atelier';assert.equal(a.nodes.kindReturn.checked,false,'the type is asked again');a.nodes.kindReturn.checked=true;await a.submit();assert.equal(a.calls.at(-1).args.request_id,'req-2');
+});
+test('the type is chosen by the garage, never preselected, and sent with the request',async()=>{
+ const html=fs.readFileSync('returns-portal.html','utf8');assert.match(html,/<input id="kindReturn" type="radio" name="kind" value="return" required> Retour client<\/label>/);assert.match(html,/<input id="kindWarranty" type="radio" name="kind" value="warranty"> Garantie<\/label>/);assert.doesNotMatch(html,/name="kind"[^>]*checked/);
+ const a=setup({kind:''});await a.tick();a.nodes.garage.value='Garage Dupont';a.add('R1');a.nodes.location.value='Accueil';await a.submit();
+ assert.match(a.nodes.status.textContent,/type de la demande : retour client ou garantie/);assert.equal(a.calls.filter(c=>c.name==='returns_public_submit_typed').length,0,'nothing is sent without a type');
+ a.nodes.kindWarranty.checked=true;await a.submit();assert.equal(a.calls.at(-1).name,'returns_public_submit_typed');assert.equal(a.calls.at(-1).args.case_type,'warranty');assert.equal(a.nodes.done.hidden,false);
+ a.nodes.again.onclick();assert.equal(a.nodes.kindWarranty.checked,false,'the next request chooses again');
+ const b=setup();await b.tick();b.nodes.garage.value='Garage Dupont';b.add('R1');b.nodes.location.value='Accueil';await b.submit();assert.equal(b.calls.at(-1).args.case_type,'return');
+ assert.equal(G.payload({shopId:'s',requestId:'r',garageName:'G',list:[],lines:[],location:'x',type:'mixed'}).case_type,null,'no other type leaves the page');
+ const sql=fs.readFileSync('returns-roles.sql','utf8');assert.match(sql,/if coalesce\(case_type,''\) not in \('return','warranty'\) then raise exception 'Invalid type'/);assert.match(sql,/answer:=public\.returns_public_submit\(shop_id,request_id,garage_id,garage_name,pickup_location,case_lines\);/,'the checks and limits of the public request are the former ones');
 });
 test('client checks mirror the server limits',()=>{
  assert.deepEqual(plain(G.LIMITS),{garage:[2,120],location:[2,160],reference:[1,80],lines:100,quantity:999});
@@ -102,7 +114,7 @@ test('without a reliable designation the line says so discreetly and the request
  for(const code of ['SANS-NOM','VIDE','OBJET','NOMBRE','HORS-CATALOGUE'])a.add(code);await a.tick();
  assert.deepEqual(a.designations(),Array(5).fill(['Désignation non renseignée','designation none']));
  a.nodes.garage.value='Garage Dupont';a.nodes.location.value='Accueil';await a.submit();
- assert.equal(a.calls.at(-1).name,'returns_public_submit');assert.equal(a.calls.at(-1).args.case_lines.length,5);assert.equal(a.nodes.done.hidden,false);
+ assert.equal(a.calls.at(-1).name,'returns_public_submit_typed');assert.equal(a.calls.at(-1).args.case_lines.length,5);assert.equal(a.nodes.done.hidden,false);
 });
 test('a failed or missing lookup shows nothing false and never blocks adding or sending',async()=>{
  const a=setup({catalogue:{'R1':Error('PGRST202'),'R2':Error('42501'),'R3':'Filtre à huile'}});await a.tick();
@@ -113,11 +125,11 @@ test('a failed or missing lookup shows nothing false and never blocks adding or 
 test('a designation never changes what is sent: reference and quantity only',async()=>{
  const a=setup({catalogue:{'LX 1780':'Filtre à air'}});await a.tick();a.nodes.garage.value='Garage Dupont';a.add('LX 1780');await a.tick();a.nodes.location.value='Accueil';await a.submit();
  assert.deepEqual(a.calls.at(-1).args.case_lines,[{reference:'LX 1780',quantity:1}]);
- assert.deepEqual(Object.keys(a.calls.at(-1).args).sort(),['case_lines','garage_id','garage_name','pickup_location','request_id','shop_id']);
+ assert.deepEqual(Object.keys(a.calls.at(-1).args).sort(),['case_lines','case_type','garage_id','garage_name','pickup_location','request_id','shop_id']);
 });
 test('internal data stays out of the garage access: the page asks one text and can show nothing else',()=>{
  const page=fs.readFileSync('returns-portal.js','utf8'),core=fs.readFileSync('returns-portal-core.js','utf8'),html=fs.readFileSync('returns-portal.html','utf8');
- assert.deepEqual([...page.matchAll(/rpc\('([a-z_]+)'/g)].map(m=>m[1]).sort(),['returns_public_designation','returns_public_garages','returns_public_submit']);
+ assert.deepEqual([...page.matchAll(/rpc\('([a-z_]+)'/g)].map(m=>m[1]).sort(),['returns_public_designation','returns_public_garages','returns_public_submit_typed']);
  assert.doesNotMatch(page+core,/shared_|session_token|\.from\(|location\s*:\s*[a-z]+\.location|stock|prix|price|supplier|fournisseur|tracked_|updated_at|order_reference|barcode/i);
  assert.doesNotMatch(html,/emplacement|stock|prix|fournisseur|historique/i);
  // Whatever a wrong or hostile answer contains, only a plain bounded text can reach the screen.
