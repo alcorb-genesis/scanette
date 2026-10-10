@@ -29,6 +29,10 @@ test('published logistics modules never send a shop identifier nor read tables d
    9 October 2026 (the SQL files are kept outside this repository for now). */
 const SERVER=['shared_access_open','shared_access_close','shared_location_code','shared_products_search','shared_product_lookup','shared_products_by_references','shared_products_by_ids','shared_aisles','shared_set_location','shared_aliases_page','shared_aliases_save','shared_partners','shared_save_partner','shared_sessions','shared_session','shared_save_session','shared_returns','shared_return_events','shared_save_return','shared_inventory_current','shared_inventory_lists','shared_inventory_publish','shared_inventory_revoke'];
 const MIGRATION='logistics-shared-access.sql',noMigration=!fs.existsSync(MIGRATION)&&'the migration file is not part of this repository yet';
+/* Functions created by a migration of this repository, not yet on the real base when it was read:
+   the page that uses one must work without it (returns.js is read-only until it answers). */
+const PENDING={shared_returns_model:'returns-collectors.sql'};
+for(const [fn,file] of Object.entries(PENDING))if(read(file).includes('function public.'+fn+'('))SERVER.push(fn);
 test('every shared function used by the pages exists on the server',()=>{
  const used=new Set();
  for(const f of ['index.html','warehouse.js','receipt-link.js','scan-suppliers.js','bellecave.js','logistics-sessions.js','returns.js','preparation.js','store-partners.js','inventory/app.js','inventory/prepare.js'])for(const m of read(f).matchAll(/'(shared_[a-z_]+)'/g))if(m[1]!=='shared_access')used.add(m[1]);

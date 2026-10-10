@@ -1,29 +1,58 @@
 /* Retours et garanties: layout and case states only. Controls, colours and feedback come from ui-base.css. */
-aside{background:var(--ui-surface-2);border-left:4px solid var(--ui-accent);padding:14px;border-radius:var(--ui-radius-sm);margin:14px 0;color:var(--ui-muted)}
+.top{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:14px 0}
+.views{display:flex;gap:0;border:1px solid var(--ui-line-strong);border-radius:var(--ui-radius);overflow:hidden}
+.views button{border:0;border-radius:0;background:var(--ui-surface);display:inline-flex;gap:8px;align-items:center;justify-content:center;min-width:128px}
+.views button[aria-pressed=true]{background:var(--ui-surface-2);box-shadow:inset 0 -3px 0 var(--ui-accent);color:var(--ui-text)}
+.count{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 8px;border-radius:999px;background:var(--ui-warning-bg);border:1px solid #8a6a3f;color:var(--ui-warning);font-size:.85rem;font-weight:800;line-height:1}
+.count:empty{display:none}.count.zero{background:transparent;border-color:var(--ui-line);color:var(--ui-muted);font-weight:600}
 .toolbar,.row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.toolbar{justify-content:space-between;background:var(--ui-surface);border:1px solid var(--ui-line);padding:14px;border-radius:var(--ui-radius)}
+.toolbar{background:var(--ui-surface);border:1px solid var(--ui-line);padding:14px;border-radius:var(--ui-radius)}
+.toolbar label{flex:1 1 170px}.toolbar label:first-child{flex:2 1 240px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:start}
-label{display:grid;gap:5px;font-weight:650;flex:1;min-width:150px;margin:0}
+label{display:grid;gap:5px;font-weight:650;min-width:0;margin:0}
+.hint{margin:6px 0 0;color:var(--ui-muted);font-size:.9rem}
+/* « À attribuer »: never lost, always above the rounds. */
+.unassigned{border:2px solid #c98a2b;background:var(--ui-warning-bg);border-radius:var(--ui-radius-lg);padding:14px;margin:14px 0 22px}
+.unassigned h2{margin:0 0 4px;display:flex;gap:10px;align-items:center;color:var(--ui-warning)}.unassigned>p{margin:0 0 10px}
+/* One line per collector; its dossiers unfold under it. */
+.group{border:1px solid var(--ui-line);border-radius:var(--ui-radius);background:var(--ui-surface);margin:8px 0}
+.group.busy{border-color:var(--ui-line-strong)}
+.group summary{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 14px;cursor:pointer;list-style:none}
+.group summary::-webkit-details-marker{display:none}
+.group summary::before{content:"▸";color:var(--ui-muted);transition:transform .15s}.group[open] summary::before{transform:rotate(90deg)}
+.group-name{font-weight:750;font-size:1.05rem}.group-kind{color:var(--ui-muted);font-size:.85rem;flex:1;min-width:0}
+.group>.case-grid,.group>.empty-list{margin:0 12px 12px}
 /* Case states keep their own colour, always next to the written state. */
-.case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:16px 0}
-.case{display:flex;flex-direction:column;align-items:stretch;gap:10px;background:var(--ui-surface);border:1px solid var(--ui-line);border-left:6px solid #7c8b98;border-radius:var(--ui-radius);padding:16px;min-height:218px;box-shadow:var(--ui-shadow)}
-.case.requested{border-left-color:#e3a33a}.case.collected{border-left-color:#4ea3e8}.case.received,.case.supplier_ready{border-left-color:#9a85dd}.case.sent,.case.credit_pending{border-left-color:#cf7fa5}.case.credited{border-left-color:var(--ui-accent)}
-.case-head{display:flex;justify-content:space-between;gap:8px}.case-state{display:inline-flex;align-items:center;width:max-content;border:1px solid var(--ui-line-strong);border-radius:999px;padding:4px 8px;font-size:.78rem;font-weight:800}.case h2{margin:0;font-size:1.06rem}.case-info{margin:0;overflow-wrap:anywhere}.case .secondary{margin-top:auto;width:100%}
-.meta{color:var(--ui-muted)}
-.case .meta{margin:0;font-size:.88rem;line-height:1.45}
-.empty-list{padding:22px;background:var(--ui-surface);border:1px dashed var(--ui-line-strong);border-radius:var(--ui-radius);color:var(--ui-muted)}
-.badge{background:var(--ui-warning-bg);color:var(--ui-warning);border:1px solid #8a6a3f;padding:5px 9px;border-radius:99px;font-weight:800}
-.line{display:grid;grid-template-columns:1.2fr 2fr 110px 110px;gap:10px;background:var(--ui-surface-2);border-radius:var(--ui-radius-sm);margin:8px 0;padding:10px}
-.line label{min-width:0;font-size:.9rem}.line button{align-self:end}
-.add{margin:18px 0;padding:14px;background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-radius)}
-#history{margin-top:18px}
-#events p{border-left:3px solid var(--ui-line-strong);padding-left:10px}
-@media(max-width:620px){.line{grid-template-columns:1fr 1fr}.line strong,.line p{grid-column:span 2}.toolbar{align-items:stretch}.toolbar label{width:100%}}
-/* Requests from the public garage portal. */
-.case-place{margin:0;color:var(--ui-warning);font-weight:650;overflow-wrap:anywhere}
+.case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin:14px 0}
+.case{display:flex;flex-direction:column;gap:6px;background:var(--ui-surface);border:1px solid var(--ui-line);border-left:6px solid #7c8b98;border-radius:var(--ui-radius);padding:14px;box-shadow:var(--ui-shadow);min-width:0}
+.group .case,.unassigned .case{background:var(--ui-surface-2);box-shadow:none}
+.case.requested{border-left-color:#e3a33a}.case.collected{border-left-color:#4ea3e8}.case.received{border-left-color:#9a85dd}.case.supplier_pending{border-left-color:#cf7fa5}.case.credited,.case.closed{border-left-color:var(--ui-accent)}
+.case h3{margin:0;font-size:1.08rem;overflow-wrap:anywhere}.case p{margin:0;overflow-wrap:anywhere}
+.case-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.case-state,.case-who{display:inline-flex;align-items:center;border:1px solid var(--ui-line-strong);border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:800}
+.case-who{border-color:transparent;background:var(--ui-surface-2);font-weight:650}.case-who.none{background:var(--ui-warning-bg);color:var(--ui-warning)}
+.case-place{font-weight:650}.meta{color:var(--ui-muted)}.case .meta{font-size:.88rem;line-height:1.45}
+.card-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:8px}.card-actions>*{flex:1 1 130px}.card-actions select{flex:1 1 100%}
+.case>.secondary{margin-top:auto;width:100%}
+.empty-list{padding:16px;background:transparent;border:1px dashed var(--ui-line-strong);border-radius:var(--ui-radius);color:var(--ui-muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 12px;border-radius:999px;font-size:.9rem;background:var(--ui-surface)}
+.chip[aria-pressed=true]{background:var(--ui-surface-2);border-color:var(--ui-accent);box-shadow:inset 0 0 0 1px var(--ui-accent)}
+/* Dossier. */
+#editor{margin-top:18px;padding:14px;border:1px solid var(--ui-line-strong);border-radius:var(--ui-radius-lg);background:var(--ui-surface)}
+#editor .head{justify-content:space-between;align-items:center}#editor .head h2{margin:0;overflow-wrap:anywhere}
+.summary{margin:8px 0;color:var(--ui-muted)}
+.add{margin:16px 0;padding:14px;background:var(--ui-bg);border:1px solid var(--ui-line);border-radius:var(--ui-radius)}.add h3{margin-top:0}
+.line{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,2fr) 96px 96px 96px;gap:10px;align-items:end;background:var(--ui-surface-2);border-left:4px solid transparent;border-radius:var(--ui-radius-sm);margin:8px 0;padding:10px}
+.line.gap{border-left-color:#e3a33a}.line strong{overflow-wrap:anywhere;align-self:center}.line p{margin:0;align-self:center;overflow-wrap:anywhere}
+.line label{font-size:.85rem}.line .reason,.line .line-tools{grid-column:1/-1}
+.line-tools{display:flex;gap:8px;flex-wrap:wrap}
+#history{margin:16px 0;border:1px solid var(--ui-line);border-radius:var(--ui-radius);padding:10px 14px}#history summary{cursor:pointer;font-weight:700}
+#events p{border-left:3px solid var(--ui-line-strong);padding-left:10px;margin:10px 0;overflow-wrap:anywhere}#events p.assigned{border-left-color:#e3a33a}#events p.status_changed{border-left-color:var(--ui-accent)}
+#saved{min-height:1.5em;margin:12px 0 8px;font-weight:650}
+/* Actions come last, after reading. */
+.actions{display:flex;flex-wrap:wrap;gap:10px;padding-top:12px;border-top:1px solid var(--ui-line)}.steps{display:contents}
 .portal-info{padding:12px 14px;border-radius:var(--ui-radius);background:var(--ui-warning-bg);border:1px solid #8a6a3f;color:var(--ui-text);overflow-wrap:anywhere}
-/* Links to the other sections, and a search field that keeps its whole placeholder on a phone. */
 #garageLink{margin:8px 0 0}
-.line .section-link{align-self:end;min-height:var(--ui-control)}
-@media(max-width:620px){.toolbar label{flex:1 1 100%}}
-.line .section-link{justify-self:start}
+@media(max-width:620px){.top{align-items:stretch}.top>*{flex:1 1 100%}.views button{flex:1}.toolbar label,.toolbar label:first-child,.toolbar button{flex:1 1 100%}
+ .line{grid-template-columns:repeat(3,minmax(0,1fr))}.line strong,.line p{grid-column:1/-1}.actions>button,.steps>button{flex:1 1 100%}.case-grid{grid-template-columns:1fr}}

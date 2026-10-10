@@ -1,4 +1,4 @@
--- Run after returns-public-portal.sql. Everything is rolled back.
+-- Run after returns-public-portal.sql and returns-collectors.sql (a collection needs its collector). Everything is rolled back.
 -- The test creates its own shops and garages; it needs one existing auth.users row and the
 -- Bellecave workspace (both present in Supabase).
 begin;
@@ -104,7 +104,7 @@ do $$ declare saved public.returns_cases; doc jsonb; staff uuid:=current_setting
  perform set_config('request.jwt.claim.sub',staff::text,true);
  select document into doc from public.returns_cases where id='bb5e1e57-7e57-4000-8000-000000000002';
  set local role authenticated;
- saved:=public.returns_save_case('11111111-1111-4111-8111-111111111111','bb5e1e57-7e57-4000-8000-000000000002',1,jsonb_set(doc,'{status}','"collected"'),'enlevé');
+ saved:=public.returns_save_case('11111111-1111-4111-8111-111111111111','bb5e1e57-7e57-4000-8000-000000000002',1,jsonb_set(jsonb_set(doc,'{collector}','"serge"'),'{status}','"collected"'),'enlevé');
  reset role;
  perform pg_temp.expect('internal transition keeps the pickup place',saved.version=2 and saved.document->>'pickup_location'='Sous l’auvent' and saved.document->>'status'='collected');
 end $$;
