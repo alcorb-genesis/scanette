@@ -8,7 +8,7 @@
 drop function if exists public.shared_return_actions(text);
 drop function if exists public.shared_return_shipments(text);
 drop function if exists public.shared_return_action_add(uuid,text,text,integer,uuid,text,text,text,text);
-drop function if exists public.shared_return_action_move(uuid,text,text,integer,text,text);
+drop function if exists public.shared_return_action_move(uuid,text,text,integer,text,text,text);
 drop function if exists public.shared_return_shipment_open(uuid,text,text);
 drop function if exists public.shared_return_pack(uuid,text,text,text);
 drop function if exists public.shared_return_shipment_send(uuid,text,text,text);

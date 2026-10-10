@@ -27,8 +27,8 @@ set local role anon;
 create function pg_temp.add(line text,kind text,qty integer,supplier uuid default null,doc text default '',note text default '',dossier uuid default 'c0000000-0000-4000-8000-000000000001') returns text language plpgsql as $t$
 declare a public.returns_line_actions;
 begin a:=public.shared_return_action_add(dossier,line,kind,qty,supplier,doc,note,'  Léa  ',current_setting('t.token')); return a.id::text; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
-create function pg_temp.move(action text,target text,note text default '') returns text language plpgsql as $t$
-begin perform public.shared_return_action_move(action::uuid,target,note,null,'Léa',current_setting('t.token')); return 'ok'; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
+create function pg_temp.move(action text,target text,note text default '',place text default '') returns text language plpgsql as $t$
+begin perform public.shared_return_action_move(action::uuid,target,note,null,'Léa',place,current_setting('t.token')); return 'ok'; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
 create function pg_temp.pack(carton text,code text) returns text language plpgsql as $t$
 declare a public.returns_line_actions;
 begin a:=public.shared_return_pack(carton::uuid,code,'Léa',current_setting('t.token')); return a.line_id||' '||a.packed_quantity||'/'||a.quantity||' '||a.status; exception when others then return sqlstate||' '||sqlerrm; end;$t$;
@@ -131,10 +131,13 @@ select pg_temp.expect('its lines are sent, and a sent carton takes nothing more'
 select pg_temp.expect('the next carton of the supplier is a new one',(select id::text<>current_setting('t.carton') and status='open' from public.shared_return_shipment_open('a0000000-0000-4000-8000-000000000001','',current_setting('t.token'))));
 
 -- 4. Customer credit, stock destination, pending, cancellation.
-select pg_temp.expect('a credit is issued before its destination',pg_temp.move(current_setting('t.cre'),'restocked') like '22023 Invalid step%' and pg_temp.move(current_setting('t.cre'),'issued')='ok' and pg_temp.move(current_setting('t.cre'),'restocked')='ok' and pg_temp.move(current_setting('t.cre'),'closed_no_stock') like '22023 Invalid step%');
+select pg_temp.expect('a credit is issued before its destination',pg_temp.move(current_setting('t.cre'),'restocked','','A12C') like '22023 Invalid step%' and pg_temp.move(current_setting('t.cre'),'issued')='ok');
+select pg_temp.expect('put back in stock needs where; no other step takes a destination',pg_temp.move(current_setting('t.cre'),'restocked') like '22023 Stock destination required%' and pg_temp.move(current_setting('t.cre'),'restocked','','   ') like '22023 Stock destination required%' and pg_temp.move(current_setting('t.cre'),'closed_no_stock','','A12C') like '22023 Stock destination required%');
+select pg_temp.expect('restocked with its destination',pg_temp.move(current_setting('t.cre'),'restocked','','  Allée  A12C ')='ok');
+select pg_temp.expect('the destination is kept, cleaned, and the step is final',(select stock_destination='Allée A12C' from public.shared_return_actions(current_setting('t.token')) a where a.id=current_setting('t.cre')::uuid) and pg_temp.move(current_setting('t.cre'),'closed_no_stock') like '22023 Invalid step%');
 select pg_temp.expect('pending is resolved once',pg_temp.move(current_setting('t.pen'),'resolved','Repris par le comptoir')='ok' and pg_temp.move(current_setting('t.pen'),'open') like '22023 Invalid step%');
 select pg_temp.expect('cancelling needs a reason and frees the quantity',pg_temp.move(current_setting('t.dmg'),'cancelled') like '22023 Reason required%' and pg_temp.move(current_setting('t.dmg'),'cancelled','Erreur de ligne')='ok' and pg_temp.add('l1','damaged',1,null,'','Bonne ligne') not like '22023%');
-select pg_temp.expect('a stale version is refused',pg_temp.err(format($q$select public.shared_return_action_move(%L,'cancelled','x',1,'',current_setting('t.token'))$q$,current_setting('t.cre'))) like 'PT409%');
+select pg_temp.expect('a stale version is refused',pg_temp.err(format($q$select public.shared_return_action_move(%L,'cancelled','x',1,'','',current_setting('t.token'))$q$,current_setting('t.cre'))) like 'PT409%');
 select pg_temp.expect('nothing is deleted: the cancelled decision is still listed',pg_temp.state(current_setting('t.dmg'))='cancelled');
 select pg_temp.expect('the journal of the dossier tells every decision, with the declared author',
  (select count(*) filter (where event_kind='action')>=14 and bool_and(actor_label='Léa') filter (where event_kind='action')

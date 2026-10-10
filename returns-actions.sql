@@ -12,6 +12,7 @@
 --   damaged          recorded                                                    a comment
 --   supplier_return  to_send → packed (exact rescan only) → sent                 a supplier of the shop
 --   customer_credit  to_do → issued → restocked | closed_no_stock                a BL / invoice / order number
+--                    (restocked needs where the part was put back: stock_destination)
 --   pending          open → resolved                                             a comment
 --   any state that is not final → cancelled, with a reason. Nothing is deleted.
 --
@@ -56,6 +57,7 @@ create table if not exists public.returns_line_actions (
  document_number text not null default '' check(length(document_number)<=60),
  comment text not null default '' check(length(comment)<=500),
  shipment_id uuid references public.returns_shipments(id),
+ stock_destination text not null default '' check(length(stock_destination)<=80),
  version integer not null default 1 check(version>0),
  created_at timestamptz not null default clock_timestamp(),
  updated_at timestamptz not null default clock_timestamp(),
@@ -66,8 +68,11 @@ create table if not exists public.returns_line_actions (
   or (kind='pending' and status in ('open','resolved','cancelled'))),
  constraint returns_line_actions_packed check(packed_quantity between 0 and quantity and (kind='supplier_return' or packed_quantity=0)),
  constraint returns_line_actions_supplier check((kind='supplier_return')=(supplier_id is not null)),
- constraint returns_line_actions_carton check(shipment_id is null or kind='supplier_return')
+ constraint returns_line_actions_carton check(shipment_id is null or kind='supplier_return'),
+ constraint returns_line_actions_stock check((status='restocked')=(stock_destination<>''))
 );
+-- A base that received an earlier draft of this file gets the column too.
+alter table public.returns_line_actions add column if not exists stock_destination text not null default '';
 create index if not exists returns_line_actions_case on public.returns_line_actions(case_id);
 create index if not exists returns_line_actions_queue on public.returns_line_actions(workspace_id,kind,status);
 
@@ -304,11 +309,12 @@ end;$repclick_fn$;
 
 -- 7. A step of a decision. « packed » and « sent » are never set here: only the rescan and the
 --    sending of the carton do it.
-create or replace function public.shared_return_action_move(action_id uuid,to_status text,note text default '',expected_version integer default null,actor_label text default '',session_token text default null)
+drop function if exists public.shared_return_action_move(uuid,text,text,integer,text,text);
+create or replace function public.shared_return_action_move(action_id uuid,to_status text,note text default '',expected_version integer default null,actor_label text default '',stock_destination text default '',session_token text default null)
 returns public.returns_line_actions language plpgsql security definer set search_path='' as $repclick_fn$
-declare shop uuid:=public.shared_shop(session_token); previous public.returns_line_actions; saved public.returns_line_actions; words text:=regexp_replace(btrim(coalesce(note,'')),'\s+',' ','g');
+declare shop uuid:=public.shared_shop(session_token); previous public.returns_line_actions; saved public.returns_line_actions; words text:=regexp_replace(btrim(coalesce(note,'')),'\s+',' ','g'); place text:=regexp_replace(btrim(coalesce(stock_destination,'')),'\s+',' ','g');
 begin
- if length(words)>500 or words ~ '[[:cntrl:]]' then raise exception 'Invalid decision' using errcode='22023'; end if;
+ if length(words)>500 or words ~ '[[:cntrl:]]' or length(place)>80 or place ~ '[[:cntrl:]]' then raise exception 'Invalid decision' using errcode='22023'; end if;
  select * into previous from public.returns_line_actions a where a.id=action_id and a.workspace_id=shop for update;
  if not found then raise exception 'Unknown decision' using errcode='22023'; end if;
  if expected_version is not null and previous.version<>expected_version then raise exception 'Decision changed' using errcode='PT409'; end if;
@@ -318,14 +324,16 @@ begin
       or (previous.kind='supplier_return' and previous.status='packed' and to_status='to_send')
       or (to_status='cancelled' and previous.status in ('recorded','to_send','to_do','issued','open'))) then raise exception 'Invalid step' using errcode='22023'; end if;
  if to_status='cancelled' and words='' then raise exception 'Reason required' using errcode='22023'; end if;
+ -- Put back in stock: where. Any other step carries no destination.
+ if (to_status='restocked')<>(place<>'') then raise exception 'Stock destination required' using errcode='22023'; end if;
  if previous.kind='supplier_return' and previous.shipment_id is not null then
   -- Out of the carton (or cancelled while partly scanned): only while the carton is still open.
   if not exists(select 1 from public.returns_shipments s where s.id=previous.shipment_id and s.status='open') then raise exception 'Carton already sent' using errcode='22023'; end if;
  end if;
- update public.returns_line_actions a set status=to_status,version=a.version+1,updated_at=clock_timestamp(),
+ update public.returns_line_actions a set status=to_status,stock_destination=place,version=a.version+1,updated_at=clock_timestamp(),
   packed_quantity=case when a.kind='supplier_return' then 0 else a.packed_quantity end,shipment_id=case when a.kind='supplier_return' then null else a.shipment_id end
   where a.id=previous.id returning * into saved;
- perform public.returns_action_log(saved,previous.status,words,actor_label);
+ perform public.returns_action_log(saved,previous.status,case when place<>'' then btrim('Destination : '||place||' · '||words,' ·') else words end,actor_label);
  return saved;
 end;$repclick_fn$;
 
@@ -400,8 +408,8 @@ end;$repclick_fn$;
 -- 12. Rights: internal helpers closed; the session functions open as the other shared functions.
 revoke all on function public.returns_apply_case(uuid,uuid,text,uuid,integer,jsonb,text),public.returns_matching_lines(uuid,jsonb,text),public.returns_set_received(public.returns_cases,text,integer,text,text,text),public.returns_actor_label(text),public.returns_action_log(public.returns_line_actions,text,text,text),public.returns_cases_guard() from public,anon,authenticated;
 revoke all on function public.shared_return_actions(text),public.shared_return_shipments(text),public.shared_return_action_add(uuid,text,text,integer,uuid,text,text,text,text),
- public.shared_return_action_move(uuid,text,text,integer,text,text),public.shared_return_shipment_open(uuid,text,text),public.shared_return_pack(uuid,text,text,text),
+ public.shared_return_action_move(uuid,text,text,integer,text,text,text),public.shared_return_shipment_open(uuid,text,text),public.shared_return_pack(uuid,text,text,text),
  public.shared_return_shipment_send(uuid,text,text,text),public.shared_return_events(uuid,text),public.shared_return_receive(uuid,text,text,text),public.shared_return_receive_line(uuid,text,integer,text,text,text) from public;
 grant execute on function public.shared_return_actions(text),public.shared_return_shipments(text),public.shared_return_action_add(uuid,text,text,integer,uuid,text,text,text,text),
- public.shared_return_action_move(uuid,text,text,integer,text,text),public.shared_return_shipment_open(uuid,text,text),public.shared_return_pack(uuid,text,text,text),
+ public.shared_return_action_move(uuid,text,text,integer,text,text,text),public.shared_return_shipment_open(uuid,text,text),public.shared_return_pack(uuid,text,text,text),
  public.shared_return_shipment_send(uuid,text,text,text),public.shared_return_events(uuid,text),public.shared_return_receive(uuid,text,text,text),public.shared_return_receive_line(uuid,text,integer,text,text,text) to anon,authenticated;

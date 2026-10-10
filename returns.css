@@ -56,3 +56,29 @@ label{display:grid;gap:5px;font-weight:650;min-width:0;margin:0}
 #garageLink{margin:8px 0 0}
 @media(max-width:620px){.top{align-items:stretch}.top>*{flex:1 1 100%}.views button{flex:1}.toolbar label,.toolbar label:first-child,.toolbar button{flex:1 1 100%}
  .line{grid-template-columns:repeat(3,minmax(0,1fr))}.line strong,.line p{grid-column:1/-1}.actions>button,.steps>button{flex:1 1 100%}.case-grid{grid-template-columns:1fr}}
+/* Reception and follow-ups by part. */
+.views{flex-wrap:wrap}.views button{min-width:112px;flex:1 1 auto}
+.agent{flex:1 1 200px;max-width:280px;font-size:.85rem;font-weight:500;color:var(--ui-muted)}
+.narrow{max-width:340px;margin:10px 0}
+#receiveFeedback{min-height:1.5em;margin:10px 0 0;font-weight:700}
+.line{grid-template-columns:minmax(0,1.2fr) minmax(0,2fr) 96px 96px}
+.decisions{grid-column:1/-1;display:grid;gap:8px;padding-top:8px;border-top:1px dashed var(--ui-line)}
+.undecided{margin:0;color:var(--ui-warning);font-weight:650}
+.decision-bar{display:flex;flex-wrap:wrap;gap:8px}.decision-bar button{flex:1 1 150px;min-height:44px;padding:6px 10px;font-size:.92rem}
+.decision-form{display:grid;gap:10px;padding:12px;background:var(--ui-bg);border:1px solid var(--ui-accent);border-radius:var(--ui-radius)}.decision-form h4{margin:0}.decision-form .error{margin:0;min-height:1.2em}
+.action{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 12px;background:var(--ui-surface);border:1px solid var(--ui-line);border-left:5px solid #7c8b98;border-radius:var(--ui-radius-sm);margin:0}
+.suite-rows{display:grid;gap:8px;padding:0 12px 12px}#suiteBody>.action{margin:8px 0}
+.action.damaged{border-left-color:#e07a6a}.action.supplier_return{border-left-color:#4ea3e8}.action.customer_credit{border-left-color:#9a85dd}.action.pending,.action.undecided-row{border-left-color:#e3a33a}.action.cancelled{opacity:.6}
+.action-kind{font-weight:750}.action-state{justify-self:end;border:1px solid var(--ui-line-strong);border-radius:999px;padding:2px 9px;font-size:.78rem;font-weight:800;white-space:nowrap}
+.action p{grid-column:1/-1;margin:0;overflow-wrap:anywhere}.action-line{font-weight:650}.action-detail{color:var(--ui-text)}
+.action-tools{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;padding-top:4px}.action-tools button{flex:1 1 140px;min-height:44px;padding:6px 10px;font-size:.92rem}
+.carton{display:grid;gap:10px;padding:12px;border:2px solid var(--ui-accent);border-radius:var(--ui-radius);background:var(--ui-bg)}.carton h4,.carton p{margin:0}.carton .row input{flex:1 1 220px;min-width:0}
+#suiteBody>.row{margin:10px 0}
+@media(max-width:620px){.line{grid-template-columns:repeat(2,minmax(0,1fr))}.views button{min-width:0;flex:1 1 40%}.agent{max-width:none;flex:1 1 100%}}
+/* Reception: announced against received, and the manual exception. */
+.line .counts{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;margin:0}.counts span{padding:4px 10px;border-radius:999px;border:1px solid var(--ui-line-strong);font-weight:750}
+.counts .got{border-color:var(--ui-accent);color:var(--ui-accent)}.counts .got.none{border-color:#c98a2b;color:var(--ui-warning)}.counts .got:empty{display:none}
+.line.waiting{border-left-color:#e3a33a}.line .reason-text{grid-column:1/-1}.line .manual{min-height:44px;font-size:.9rem}
+.line .decision-form{grid-column:1/-1}.action .decision-form{grid-column:1/-1}
+.carton-count{font-size:1.25rem;font-weight:800;color:var(--ui-warning)}.carton-count.complete{color:var(--ui-accent)}
+.carton-line{padding:6px 0;border-top:1px dashed var(--ui-line);overflow-wrap:anywhere}

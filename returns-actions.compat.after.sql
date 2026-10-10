@@ -31,7 +31,7 @@ select pg_temp.expect('visitor without session: '||f,pg_temp.err(f) like 'PT401%
  $q$select * from public.shared_returns(10,null)$q$,$q$select * from public.shared_return_events('f0000000-0000-4000-8000-000000000001',null)$q$,$q$select public.shared_returns_model(null)$q$,
  $q$select * from public.shared_return_actions(null)$q$,$q$select * from public.shared_return_shipments(null)$q$,$q$select * from public.shared_return_receive('f0000000-0000-4000-8000-000000000003','ZZ-C-3','',null)$q$,
  $q$select * from public.shared_return_receive_line('f0000000-0000-4000-8000-000000000003','a',0,'x','',null)$q$,$q$select public.shared_return_action_add('f0000000-0000-4000-8000-000000000004','a','damaged',1,null,'','x','',null)$q$,
- $q$select public.shared_return_action_move(gen_random_uuid(),'cancelled','x',null,'',null)$q$,$q$select public.shared_return_shipment_open('e0000000-0000-4000-8000-000000000002','',null)$q$,
+ $q$select public.shared_return_action_move(gen_random_uuid(),'cancelled','x',null,'','',null)$q$,$q$select public.shared_return_shipment_open('e0000000-0000-4000-8000-000000000002','',null)$q$,
  $q$select public.shared_return_pack(gen_random_uuid(),'X','',null)$q$,$q$select public.shared_return_shipment_send(gen_random_uuid(),'','',null)$q$,
  $q$select * from public.shared_save_return(gen_random_uuid(),0,'{}'::jsonb,'',null)$q$,$q$select * from public.shared_returns(10,'0000000000000000000000000000000000000000000000000000000000000000')$q$]) f;
 select pg_temp.expect('visitor: no table of the returns can be read or written — '||t,pg_temp.err('select 1 from public.'||t||' limit 1') like '42501%' and pg_temp.err('delete from public.'||t) like '42501%')

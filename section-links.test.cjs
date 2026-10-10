@@ -33,7 +33,7 @@ test('the link helper and the linked modules open no window and no tab',()=>{
  assert.match(read('build.cjs'),/'section-links\.js'/);assert.ok(read('inventory/sw.js').includes("'../section-links.js'"));
 });
 test('each section offers its links, as buttons, towards existing sections only',()=>{
- const links={'preparation.js':['catalogue','departures'],'returns.js':['catalogue','departures'],'store-partners.js':['returns'],'inventory/app.js':['catalogue'],'index.html':['catalogue']};
+ const links={'preparation.js':['catalogue','departures'],'returns.js':['departures'],'store-partners.js':['returns'],'inventory/app.js':['catalogue'],'index.html':['catalogue']};
  const L=load().L;
  for(const [file,targets] of Object.entries(links)){const text=read(file);for(const target of targets){assert.ok(L.SECTIONS.includes(target));assert.match(text,new RegExp("(go|button)\\((document,[^)]*?)?'"+target+"'|leaveFor\\('"+target+"'|data-go=\""+target+"\"|dataset\\.go='"+target+"'"),file+' → '+target);}}
  assert.match(read('preparation.html'),/<button id="departureLink" type="button" class="section-link"/);assert.match(read('returns.html'),/<button[^>]*id="garageLink"/);

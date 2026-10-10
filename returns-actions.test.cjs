@@ -6,15 +6,30 @@ const lookup=code=>catalogue.filter(p=>p.reference===code||p.reference===code.to
 const dossier=(id,status,ls,name='CN AUTO')=>({id,version:1,created_at:'2026-10-05T08:00:00Z',updated_at:'2026-10-05T08:00:00Z',document:{type:'return',status,client_name:name,supplier_name:'',lines:ls}});
 let seq=0;const action=(caseId,lineId,kind,quantity,extra={})=>({id:'a'+(++seq),case_id:caseId,line_id:lineId,kind,status:A.KINDS[kind].first,quantity,packed_quantity:0,supplier_id:null,supplier_name:'',document_number:'',comment:'',shipment_id:null,version:1,created_at:'2026-10-06T09:00:00Z',...extra});
 
-test('reception: an exact reference or an exact barcode validates one unit of the right line',()=>{const l=lines();
- for(const code of ['LX 1780','lx 1780','2000000000017','4009026000014']){const found=A.matchLine(l,code,lookup(code));assert.equal(found.line?.id,'l1',code);A.receiveUnit(found.line);}
- assert.equal(l[0].received_quantity,4);assert.equal(A.matchLine(l,'3322937000000',lookup('3322937000000')).line.id,'l2','a hand-typed line is found by the barcode of the record that bears its reference');
- assert.equal(A.matchLine(l,'W 712',[]).line.id,'l3','a line outside the catalogue is validated by its exact reference');
+const {createReturnsFakeServer}=require('./returns-fake-server.js');
+const server=()=>createReturnsFakeServer({cases:[dossier('c1','collected',lines())],partners:[{id:'s1',kind:'supplier',name:'APO'},{id:'g1',kind:'client',name:'CN AUTO'}],products:catalogue});
+const refused=(fn,code,message)=>assert.throws(fn,e=>e.code===code&&e.message===message,code+' '+message);
+test('reception (server contract): an exact reference or an exact barcode validates one unit of the right line',()=>{const s=server();
+ for(const [code,total] of [['LX 1780',1],['4009026000014',2]]){const [row]=s.call('shared_return_receive',{case_id:'c1',code});assert.equal(row.line_id,'l1',code);assert.equal(row.document.lines[0].received_quantity,total);}
+ assert.equal(s.call('shared_return_receive',{case_id:'c1',code:'3322937000000'})[0].line_id,'l2','a hand-typed line is found by the barcode of the record that bears its reference');
+ assert.equal(s.call('shared_return_receive',{case_id:'c1',code:'w 712'})[0].line_id,'l3','a line outside the catalogue is validated by its exact reference');
+ assert.equal(s.db.events.filter(e=>e.event_kind==='reception').length,4,'each unit is in the journal');
 });
-test('reception: a part that is not in the dossier is rejected, never matched to a near line',()=>{const l=lines();
- for(const code of ['LX 1781','4009026000021','LX1780','LX 178','LX 1780 ','GDB 1330','W712','400902600001','0'].filter(c=>c.trim()!=='LX 1780')){const found=A.matchLine(l,code,lookup(code));assert.equal(found.line,null,code);assert.match(found.error,/ne fait pas partie de ce dossier/,code);}
- assert.deepEqual(l.map(x=>x.received_quantity),[null,null,null],'nothing was validated');assert.deepEqual(plain(A.matchLine(l,'   ',[])),{line:null,error:''});
- const twice=[...l,{id:'l4',product_id:null,reference:'W 712',quantity:1}];assert.match(A.matchLine(twice,'W 712',[]).error,/plusieurs lignes/,'two lines with the same reference are never chosen by chance');
+test('reception (server contract): absent reference, near scan and excess are refused; nothing is received',()=>{const s=server();
+ for(const code of ['LX 1781','4009026000021','LX1780','LX 178','GDB 1330','W712','400902600001','0'])refused(()=>s.call('shared_return_receive',{case_id:'c1',code}),'PT404','Not a part of this dossier');
+ assert.deepEqual(s.db.cases[0].document.lines.map(x=>x.received_quantity),[null,null,null]);assert.equal(s.db.cases[0].version,1);
+ s.call('shared_return_receive',{case_id:'c1',code:'W 712'});refused(()=>s.call('shared_return_receive',{case_id:'c1',code:'W 712'}),'22023','Line already complete');
+ const twice=createReturnsFakeServer({cases:[dossier('c2','collected',[...lines(),{id:'l4',product_id:null,reference:'W 712',quantity:1,received_quantity:null}])]});refused(()=>twice.call('shared_return_receive',{case_id:'c2',code:'W 712'}),'22023','Several lines match this code');
+ refused(()=>createReturnsFakeServer({cases:[dossier('c3','requested',lines())]}).call('shared_return_receive',{case_id:'c3',code:'LX 1780'}),'22023','Dossier not in reception');
+});
+test('manual exception: a line already in the dossier, one of two causes, never above the announcement, never a free reference',()=>{const l=lines()[0],s=server();
+ assert.deepEqual(A.CAUSES.map(c=>c.label),['Pièce absente','Étiquette illisible']);assert.deepEqual(A.declared(l,'absent',5,' vu  avec le livreur '),{quantity:0,reason:'Pièce absente : vu avec le livreur'});assert.deepEqual(A.declared(l,'unreadable','2',''),{quantity:2,reason:'Étiquette illisible'});
+ assert.match(A.declared(l,'unreadable',3,'').error,/entre 1 et 2/);assert.match(A.declared(l,'unreadable',0,'').error,/entre 1 et 2/);assert.match(A.declared(l,'','1','x').error,/raison/);assert.match(A.declared(l,'autre','1','x').error,/raison/);
+ refused(()=>s.call('shared_return_receive_line',{case_id:'c1',line_id:'LX 1780',quantity:1,reason:'x'}),'22023','Unknown line');refused(()=>s.call('shared_return_receive_line',{case_id:'c1',line_id:'l1',quantity:3,reason:'x'}),'22023','Quantity exceeds what was announced');
+ refused(()=>s.call('shared_return_receive_line',{case_id:'c1',line_id:'l1',quantity:1,reason:'  '}),'22023','Reason required');
+ assert.equal(s.call('shared_return_receive_line',{case_id:'c1',line_id:'l3',quantity:0,reason:'Pièce absente'})[0].document.lines[2].reason,'Pièce absente');
+ assert.deepEqual(A.progress(s.db.cases[0].document.lines),{announced:4,received:0,waiting:2,complete:false});
+ const doc=structuredClone(s.db.cases[0].document);doc.lines[0].received_quantity=2;refused(()=>s.call('shared_save_return',{case_id:'c1',expected_version:s.db.cases[0].version,case_document:doc}),'22023','Received quantity is set by the reception');
 });
 test('an absent part stays at zero and takes no decision',()=>{const l=lines();l[0].received_quantity=0;assert.equal(A.received(l[0]),0);assert.equal(A.received(l[1]),0);
  assert.match(A.problem({kind:'damaged',quantity:1,comment:'x'},l[0],[],'received'),/Aucune pièce reçue/);});
@@ -39,7 +54,8 @@ test('steps by hand: credit issued then stock or not; packed and sent are never 
  assert.deepEqual(A.next({kind:'customer_credit',status:'to_do'}),['issued']);assert.deepEqual(A.next({kind:'customer_credit',status:'issued'}),['restocked','closed_no_stock']);assert.deepEqual(A.next({kind:'customer_credit',status:'restocked'}),[]);
  assert.deepEqual(A.next({kind:'pending',status:'open'}),['resolved']);assert.deepEqual(A.next({kind:'supplier_return',status:'to_send'}),[]);assert.deepEqual(A.next({kind:'supplier_return',status:'packed'}),['to_send']);assert.deepEqual(A.next({kind:'supplier_return',status:'sent'}),[]);
  assert.equal(A.canCancel({kind:'supplier_return',status:'packed'}),false);assert.equal(A.canCancel({kind:'supplier_return',status:'sent'}),false);assert.equal(A.canCancel({kind:'damaged',status:'recorded'}),true);assert.equal(A.canCancel({kind:'customer_credit',status:'restocked'}),false);
- assert.equal(A.stockDestination({status:'restocked'}),'Remis en stock');assert.equal(A.stockDestination({status:'closed_no_stock'}),'Non remis en stock');assert.equal(A.stockDestination({status:'issued'}),'','never assumed');
+ assert.equal(A.stockDestination({status:'restocked',stock_destination:' Allée  A12C '}),'Remis en stock : Allée A12C');assert.match(A.moveProblem('restocked',{destination:'  '}),/où la pièce est remise en stock/);assert.equal(A.moveProblem('restocked',{destination:'A1'}),'');assert.match(A.moveProblem('cancelled',{}),/motif/);
+ assert.deepEqual(A.movePayload({id:'a1',version:3},'restocked',{destination:' Allée  A12C '},' Léa '),{action_id:'a1',to_status:'restocked',note:'',expected_version:3,actor_label:'Léa',stock_destination:'Allée A12C'});assert.equal(A.movePayload({id:'a1',version:3},'issued',{destination:'A1'},'').stock_destination,'','no other step carries a destination');assert.equal(A.stockDestination({status:'closed_no_stock'}),'Non remis en stock');assert.equal(A.stockDestination({status:'issued'}),'','never assumed');
 });
 function world(){const l1=lines(),l2=lines();l1[0].received_quantity=2;l1[1].received_quantity=1;l1[2].received_quantity=0;l2[0].received_quantity=1;l2[1].received_quantity=1;
  const cases=[dossier('11111111-aaaa','received',l1,'CN AUTO'),dossier('22222222-bbbb','received',l2,'Garage Dupont'),dossier('33333333-cccc','collected',lines(),'Garage Dupont')];
@@ -52,14 +68,16 @@ test('the folders are filters on the same decisions: nothing is copied, nothing 
  assert.deepEqual(v.damaged.map(g=>[g.label,g.rows.length]),[['CN AUTO',1]]);
  assert.deepEqual(v.suppliers.map(g=>[g.label,g.toSend.length,g.packed.length,g.sent.length]),[['APO',1,0,0],['Bosch',0,0,1]]);
  assert.deepEqual(v.credits.map(g=>[g.garage,g.documentNumber,g.toDo,g.issued]),[['CN AUTO','BL 123',1,0],['Garage Dupont','BL 123',0,1]],'grouped by garage and document number');
- assert.deepEqual(plain(v.counts),{toDecide:2,damaged:1,supplier:1,credit:2});assert.equal(v.orphans.length,1,'a decision whose dossier is not loaded is reported, not dropped');
+ assert.deepEqual(plain(v.counts),{toDecide:2,damaged:1,supplier:1,credit:2,stock:0});
+ actions[4].status='restocked';actions[4].stock_destination='Allée A12C';actions[1].status='closed_no_stock';const w=A.views(cases,actions);assert.deepEqual([w.stock.restocked.length,w.stock.closed.length,w.credits.length,w.counts.credit,w.counts.stock],[1,1,0,0,2],'a settled credit leaves « Avoirs clients » for « Stock / clôturés »');actions[4].status='issued';actions[4].stock_destination='';actions[1].status='to_do';assert.equal(v.orphans.length,1,'a decision whose dossier is not loaded is reported, not dropped');
  const all=A.join(actions,cases).rows;assert.ok(all.every(r=>r.line===cases.find(c=>c.id===r.action.case_id).document.lines.find(l=>l.id===r.action.line_id)),'rows point to the line of the dossier itself');
  assert.deepEqual(A.carton(all,'sh0').map(r=>r.action.supplier_name),['Bosch']);
+ actions[0].shipment_id='sh1';actions[0].packed_quantity=1;const part=A.join(actions,cases).rows;assert.deepEqual(A.cartonCount(part,'sh1'),{lines:1,expected:2,scanned:1,complete:false});actions[0].packed_quantity=2;actions[0].status='packed';assert.deepEqual(A.cartonCount(A.join(actions,cases).rows,'sh1'),{lines:1,expected:2,scanned:2,complete:true});assert.equal(A.cartonCount(part,'none').complete,false,'an empty carton is not complete');
 });
 test('CSV for the offices: every column asked, the supplier when one exists, formulas neutralised',()=>{const {cases,actions}=world(),all=A.join(actions,cases).rows,credits=all.filter(r=>r.action.kind==='customer_credit');
- actions[1].status='restocked';cases[0].document.lines[0].reference='=LX 1780';const text=A.csv(credits,all),rows=text.replace('﻿','').split('\r\n').map(r=>r.split(';').map(c=>c.replace(/^"|"$/g,'')));
+ actions[1].status='restocked';actions[1].stock_destination='Allée A12C';cases[0].document.lines[0].reference='=LX 1780';const text=A.csv(credits,all),rows=text.replace('﻿','').split('\r\n').map(r=>r.split(';').map(c=>c.replace(/^"|"$/g,'')));
  assert.deepEqual(rows[0],['Date','Garage','Dossier','Référence','Désignation','Quantité','BL / facture / commande','Fournisseur','Motif / commentaire','Suite','Statut','Destination stock']);
- assert.deepEqual(rows[1],['06/10/2026','CN AUTO','R-11111111',"'=LX 1780",'Filtre à air','2','BL 123','APO','','Avoir client','Remis en stock','Remis en stock']);
+ assert.deepEqual(rows[1],['06/10/2026','CN AUTO','R-11111111',"'=LX 1780",'Filtre à air','2','BL 123','APO','','Avoir client','Remis en stock','Remis en stock : Allée A12C']);
  assert.deepEqual(rows[2].slice(1),['Garage Dupont','R-22222222','LX 1780','Filtre à air','1','BL 123','Bosch','','Avoir client','Avoir édité','']);assert.ok(text.startsWith('﻿'));
  assert.match(A.csv(all.filter(r=>r.action.kind==='damaged'),all),/"Emballage ouvert";"Abîmée";"Constatée";""/);
 });
@@ -91,4 +109,12 @@ test('the reception is owned by the server: exact scan or declared line, never a
  assert.match(body,/for update;[\s\S]*?returns_set_received/,'the dossier is locked while a unit is received');
  const compat=read('returns-actions.compat.before.sql')+read('returns-actions.compat.after.sql');assert.match(compat,/^begin;/m);assert.match(compat,/^rollback;/m);assert.match(compat,/same lines, same order, same values in every column the current screen reads/);
  const back=read('returns-actions.rollback.sql');assert.match(back,/drop function if exists public\.shared_return_receive\(uuid,text,text,text\);/);assert.doesNotMatch(fn(back),/Received quantity is set by the reception/,'the rollback puts the former write path back');
+});
+test('the test double of the server refuses with the codes and messages of the SQL files, and offers the same functions',()=>{const src=read('returns-fake-server.js'),sql=read('returns-actions.sql')+read('returns-collectors.sql');
+ const raised=[...src.matchAll(/fail\('([A-Z0-9]+)','([^']+)'\)/g)].map(m=>[m[1],m[2]]);assert.ok(raised.length>=45,String(raised.length));
+ for(const [code,message] of raised)assert.ok(sql.includes("raise exception '"+message+"' using errcode='"+code+"'"),code+' '+message+' is a refusal of the SQL files');
+ /* shared_returns itself comes from the shared-access migration, kept outside this repository. */
+ const offered=createReturnsFakeServer().functions.filter(f=>f.startsWith('shared_return')&&f!=='shared_returns').sort(),real=[...new Set([...sql.matchAll(/create (?:or replace )?function public\.(shared_return[a-z_]*)\(/g)].map(m=>m[1]))].sort();assert.deepEqual(offered,real);
+ for(const fn of real){const args=[...(sql.split('function public.'+fn+'(').at(-1).split(')')[0]).matchAll(/(?:^|,)\s*([a-z_]+) /g)].map(m=>m[1]).filter(a=>a!=='session_token'),body=src.slice(src.indexOf(fn));for(const arg of args)assert.ok(new RegExp('a\\.'+arg+'\\b').test(body)||['max_rows'].includes(arg),fn+' reads '+arg);}
+ assert.throws(()=>createReturnsFakeServer().call('shared_unknown'),e=>e.code==='PGRST202');
 });
